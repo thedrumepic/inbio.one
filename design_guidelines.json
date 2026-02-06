@@ -1,0 +1,168 @@
+{
+  "identity": {
+    "name": "E1",
+    "role": "Anti-AI Designer",
+    "mission": "Create a mobile-first, minimalist bio-link platform that feels premium and utilitarian."
+  },
+  "theme_strategy": {
+    "mode": "dark",
+    "style": "minimalist_luxury",
+    "primary_color": "#ffffff",
+    "background_color": "#0a0a0a",
+    "accent_color": "#3b82f6"
+  },
+  "typography": {
+    "headings": {
+      "font_family": "Manrope, sans-serif",
+      "weights": ["600", "700", "800"],
+      "usage": "Page titles, section headers, user names"
+    },
+    "body": {
+      "font_family": "Inter, sans-serif",
+      "weights": ["400", "500"],
+      "usage": "Bio text, link descriptions, settings labels"
+    },
+    "mono": {
+      "font_family": "JetBrains Mono, monospace",
+      "usage": "Analytics data, code snippets, technical details"
+    }
+  },
+  "colors": {
+    "palette": {
+      "background": "#0a0a0a",
+      "surface": "#171717",
+      "surface_hover": "#262626",
+      "border": "rgba(255, 255, 255, 0.1)",
+      "text_primary": "#ededed",
+      "text_secondary": "#a1a1aa",
+      "accent": "#ffffff",
+      "accent_foreground": "#000000",
+      "success": "#22c55e",
+      "error": "#ef4444"
+    },
+    "gradients": {
+      "subtle_glow": "radial-gradient(circle at center, rgba(59, 130, 246, 0.15) 0%, rgba(0, 0, 0, 0) 70%)",
+      "glass": "linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%)"
+    }
+  },
+  "layout": {
+    "grid_system": {
+      "mobile": "grid-cols-1 gap-4",
+      "desktop": "grid-cols-12 gap-6",
+      "bento_mode": "Use grid-cols-2 or grid-cols-4 for bento-style link blocks on mobile"
+    },
+    "spacing": {
+      "container_padding": "p-6 md:p-12",
+      "section_gap": "gap-8",
+      "element_gap": "gap-4"
+    },
+    "border_radius": {
+      "card": "rounded-3xl",
+      "button": "rounded-full",
+      "input": "rounded-xl"
+    }
+  },
+  "components": {
+    "buttons": {
+      "primary": "bg-white text-black hover:bg-gray-200 rounded-full font-semibold px-8 py-3 transition-transform active:scale-95",
+      "secondary": "bg-white/10 text-white hover:bg-white/20 rounded-full font-medium px-6 py-2 backdrop-blur-md border border-white/5",
+      "ghost": "text-gray-400 hover:text-white hover:bg-white/5 rounded-lg px-4 py-2"
+    },
+    "cards": {
+      "base": "bg-[#171717] border border-white/10 rounded-3xl p-6 hover:border-white/20 transition-colors",
+      "glass": "bg-black/40 backdrop-blur-xl border border-white/10 rounded-3xl p-6",
+      "bento_item": "relative overflow-hidden rounded-3xl bg-[#171717] border border-white/5 hover:border-white/20 transition-all duration-300 group"
+    },
+    "inputs": {
+      "style": "bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-gray-600 focus:border-white/30 focus:ring-1 focus:ring-white/30 transition-all outline-none"
+    }
+  },
+  "visual_enhancers": {
+    "shadows": {
+      "glow": "0 0 40px -10px rgba(59, 130, 246, 0.3)",
+      "card": "0 4px 24px -4px rgba(0, 0, 0, 0.5)"
+    },
+    "textures": {
+      "noise": "url('/noise.png') opacity-5 mix-blend-overlay"
+    },
+    "animations": {
+      "hover_lift": "hover:-translate-y-1 transition-transform duration-300 ease-out",
+      "fade_in": "animate-in fade-in duration-500 slide-in-from-bottom-4"
+    }
+  },
+  "media": {
+    "image_urls": {
+      "backgrounds": [
+        {
+          "url": "https://images.unsplash.com/photo-1759842952767-456f1b6dded8?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAxODF8MHwxfHNlYXJjaHwxfHxhYnN0cmFjdCUyMGRhcmslMjB0ZXh0dXJlJTIwYmFja2dyb3VuZHxlbnwwfHx8fDE3NzA0MDgxMDN8MA&ixlib=rb-4.1.0&q=85",
+          "category": "cover_art",
+          "description": "Dark textured surface with pink glow"
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1762258344624-52d8c3b74c66?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAxODF8MHwxfHNlYXJjaHwyfHxhYnN0cmFjdCUyMGRhcmslMjB0ZXh0dXJlJTIwYmFja2dyb3VuZHxlbnwwfHx8fDE3NzA0MDgxMDN8MA&ixlib=rb-4.1.0&q=85",
+          "category": "cover_art",
+          "description": "3D dark cylindrical shapes"
+        }
+      ],
+      "avatars": [
+        {
+          "url": "https://images.unsplash.com/photo-1762160772630-305050bd77fb?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2NDN8MHwxfHNlYXJjaHwyfHxtdXNpY2lhbiUyMHBvcnRyYWl0JTIwc3R1ZGlvJTIwbGlnaHRpbmd8ZW58MHx8fHwxNzcwNDA4MTA0fDA&ixlib=rb-4.1.0&q=85",
+          "category": "user_avatar",
+          "description": "Musician with bass guitar"
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1620653616528-7da9a2005478?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2NDN8MHwxfHNlYXJjaHw0fHxtdXNpY2lhbiUyMHBvcnRyYWl0JTIwc3R1ZGlvJTIwbGlnaHRpbmd8ZW58MHx8fHwxNzcwNDA4MTA0fDA&ixlib=rb-4.1.0&q=85",
+          "category": "user_avatar",
+          "description": "Woman in red hoodie"
+        }
+      ],
+      "music_covers": [
+        {
+          "url": "https://images.unsplash.com/photo-1642444525640-d3eb287ed389?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1MDV8MHwxfHNlYXJjaHwzfHxhbGJ1bSUyMGNvdmVyJTIwYXJ0JTIwYWJzdHJhY3R8ZW58MHx8fHwxNzcwNDA4MTA4fDA&ixlib=rb-4.1.0&q=85",
+          "category": "album_art",
+          "description": "Abstract blue/purple flower"
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1587659927818-f89edd4db555?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1MDV8MHwxfHNlYXJjaHw0fHxhbGJ1bSUyMGNvdmVyJTIwYXJ0JTIwYWJzdHJhY3R8ZW58MHx8fHwxNzcwNDA4MTA4fDA&ixlib=rb-4.1.0&q=85",
+          "category": "album_art",
+          "description": "Light swooshes"
+        }
+      ]
+    }
+  },
+  "instructions_to_main_agent": {
+    "general": "Build a mobile-first, dark-mode bio-link platform. Focus on the 'Bento Grid' layout for the public profile page. The dashboard should be clean and utilitarian.",
+    "public_profile": {
+      "layout": "Single column on mobile, max-width-md centered on desktop. Header with Avatar + Name + Bio. Below that, a grid of blocks.",
+      "blocks": {
+        "link": "Simple rectangular card with icon on left, text center/left, arrow on right.",
+        "music": "Card with album art (square) on left, title/artist in middle, play/link buttons on right.",
+        "text": "Simple text block for headers or quotes."
+      }
+    },
+    "dashboard": {
+      "layout": "Sidebar navigation (desktop) or Bottom navigation (mobile). Main content area for managing pages and blocks.",
+      "editor": "Drag-and-drop feel (even if just list for MVP). Live preview on the right (desktop) or toggle (mobile)."
+    }
+  },
+  "universal_guidelines": [
+    "Dark colors look good when used independently without gradients. DO NOT use dark colors as gradients",
+    "Don't make generic centered layouts, simplistic gradients, and uniform styling.",
+    "Create depth through layered design elements with z-index hierarchy",
+    "Use glass-morphism effects with backdrop filters (12-24px blur)",
+    "You MUST NOT apply universal transition. Eg: `transition: all`. This results in breaking transforms. Always add transitions for specific interactive elements like button, input excluding transforms",
+    "You MUST NOT center align the app container, ie do not add `.App { text-align: center; }` in the css file. This disrupts the human natural reading flow of text",
+    "Always use modern button styles like pill-shaped, or sharp button with interaction animations & color relevant to the app style",
+    "NEVER: use AI assistant Emoji characters like 🤖🧠💭💡🔮🎯📚🎭🎬🎪🎉🎊🎁🎀🎂🍰🎈🎨🎰💰💵💳🏦💎🪙💸🤑📊📈📉💹🔢🏆🥇 etc for icons.",
+    "Every interaction needs micro-animations - hover states, transitions, parallax effects, and entrance animations. Static = dead.",
+    "Use 2-3x more spacing than feels comfortable. Cramped designs look cheap.",
+    "Subtle grain textures, noise overlays, custom cursors, selection states, and loading animations: separates good from extraordinary.",
+    "Main agent relies on these image URLs. Missing categories (especially sponsor logos) = main agent will use placeholder text which is FORBIDDEN",
+    "Prioritize using pre-existing components from src/components/ui when applicable",
+    "Create new components that match the style and conventions of existing components when needed",
+    "Examine existing components to understand the project's component patterns before creating new ones",
+    "Components MUST use named exports (export const ComponentName = ...)",
+    "Pages MUST use default exports (export default function PageName() {...})",
+    "Use `sonner` for toasts. Sonner component are located in `/app/src/components/ui/sonner.tsx`"
+  ]
+}
