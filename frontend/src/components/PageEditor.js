@@ -476,12 +476,18 @@ const LinkBlockForm = ({ pageId, onClose, onSuccess }) => {
       return;
     }
 
+    // Auto-add https:// if not present
+    let finalUrl = url.trim();
+    if (!/^https?:\/\//i.test(finalUrl)) {
+      finalUrl = 'https://' + finalUrl;
+    }
+
     setLoading(true);
     try {
       const response = await api.createBlock({
         page_id: pageId,
         block_type: 'link',
-        content: { title, url },
+        content: { title, url: finalUrl },
         order: 0,
       });
       if (response.ok) {
