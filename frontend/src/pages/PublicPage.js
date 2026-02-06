@@ -81,18 +81,18 @@ const PublicPage = () => {
         </div>
 
         {/* Name & Bio */}
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold mb-2" data-testid="page-name">{page.name}</h1>
+        <div className="text-center mb-6 sm:mb-8">
+          <h1 className="text-xl sm:text-2xl font-bold mb-2" data-testid="page-name">{page.name}</h1>
           {page.bio && (
             <p className="text-gray-400 text-sm" data-testid="page-bio">{page.bio}</p>
           )}
         </div>
 
         {/* Tabs */}
-        <div className="flex justify-center gap-2 mb-8" data-testid="tabs-container">
+        <div className="flex justify-center gap-2 mb-6 sm:mb-8 overflow-x-auto pb-2" data-testid="tabs-container">
           <button
             onClick={() => setActiveTab('profile')}
-            className={`px-6 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === 'profile' ? 'bg-white text-black' : 'bg-white/10 text-white hover:bg-white/20'}`}
+            className={`px-4 sm:px-6 py-2 rounded-full text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${activeTab === 'profile' ? 'bg-white text-black' : 'bg-white/10 text-white hover:bg-white/20'}`}
             data-testid="profile-tab"
           >
             Профиль
@@ -100,7 +100,7 @@ const PublicPage = () => {
           {events.length > 0 && (
             <button
               onClick={() => setActiveTab('events')}
-              className={`px-6 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === 'events' ? 'bg-white text-black' : 'bg-white/10 text-white hover:bg-white/20'}`}
+              className={`px-4 sm:px-6 py-2 rounded-full text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${activeTab === 'events' ? 'bg-white text-black' : 'bg-white/10 text-white hover:bg-white/20'}`}
               data-testid="events-tab"
             >
               События
@@ -109,7 +109,7 @@ const PublicPage = () => {
           {showcases.length > 0 && (
             <button
               onClick={() => setActiveTab('showcases')}
-              className={`px-6 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === 'showcases' ? 'bg-white text-black' : 'bg-white/10 text-white hover:bg-white/20'}`}
+              className={`px-4 sm:px-6 py-2 rounded-full text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${activeTab === 'showcases' ? 'bg-white text-black' : 'bg-white/10 text-white hover:bg-white/20'}`}
               data-testid="showcases-tab"
             >
               Витрины
