@@ -20,19 +20,25 @@ const Login = () => {
 
     setLoading(true);
     try {
+      console.log('Attempting login to:', process.env.REACT_APP_BACKEND_URL);
       const response = await api.login({ email, password });
+      
+      console.log('Login response status:', response.status);
       
       if (response.ok) {
         const data = await response.json();
+        console.log('Login successful, setting token');
         setAuthToken(data.access_token);
         toast.success('Вход выполнен');
         navigate('/dashboard');
       } else {
         const error = await response.json();
+        console.error('Login failed:', error);
         toast.error(error.detail || 'Ошибка входа');
       }
     } catch (error) {
-      toast.error('Ошибка соединения');
+      console.error('Login error:', error);
+      toast.error('Ошибка соединения. Проверьте интернет и попробуйте снова.');
     } finally {
       setLoading(false);
     }
