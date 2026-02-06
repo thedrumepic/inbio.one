@@ -494,7 +494,8 @@ async def delete_showcase(showcase_id: str, current_user = Depends(get_current_u
 async def resolve_music_link(data: MusicResolveRequest):
     try:
         if data.mode == "auto" and data.url:
-            async with aiohttp.ClientSession() as session:
+            timeout = aiohttp.ClientTimeout(total=15)
+            async with aiohttp.ClientSession(timeout=timeout) as session:
                 params = {"url": data.url}
                 async with session.get("https://api.song.link/v1-alpha.1/links", params=params) as resp:
                     if resp.status == 200:
