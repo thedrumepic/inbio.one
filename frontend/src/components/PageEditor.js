@@ -731,7 +731,24 @@ const EventModal = ({ pageId, onClose, onSuccess }) => {
   const [description, setDescription] = useState('');
   const [buttonText, setButtonText] = useState('Подробнее');
   const [buttonUrl, setButtonUrl] = useState('');
+  const [cover, setCover] = useState(null);
   const [loading, setLoading] = useState(false);
+  const coverInputRef = useRef(null);
+
+  const handleImageUpload = async (file) => {
+    if (!file) return;
+
+    try {
+      const response = await api.uploadImage(file);
+      if (response.ok) {
+        const data = await response.json();
+        setCover(data.url);
+        toast.success('Обложка загружена');
+      }
+    } catch (error) {
+      toast.error('Ошибка загрузки обложки');
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
