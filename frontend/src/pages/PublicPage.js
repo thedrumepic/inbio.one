@@ -52,30 +52,30 @@ const PublicPage = () => {
   const { page, blocks, events, showcases } = data;
 
   return (
-    <div className="min-h-screen pb-24" data-testid="public-page">
+    <div className="min-h-screen pb-20" data-testid="public-page">
       {/* Cover */}
       {page.cover && (
         <div 
-          className="w-full h-48 bg-cover bg-center"
+          className="w-full h-32 sm:h-48 bg-cover bg-center"
           style={{ backgroundImage: `url(${page.cover})` }}
           data-testid="page-cover"
         />
       )}
 
       {/* Content */}
-      <div className="max-w-2xl mx-auto px-6 -mt-16 relative">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 -mt-12 sm:-mt-16 relative">
         {/* Avatar */}
-        <div className="flex justify-center mb-6">
+        <div className="flex justify-center mb-4 sm:mb-6">
           {page.avatar ? (
             <img
               src={page.avatar}
               alt={page.name}
-              className="w-28 h-28 rounded-full border-4 border-[#0a0a0a] object-cover"
+              className="w-20 h-20 sm:w-28 sm:h-28 rounded-full border-4 border-[#0a0a0a] object-cover"
               data-testid="page-avatar"
             />
           ) : (
-            <div className="w-28 h-28 rounded-full border-4 border-[#0a0a0a] bg-white/10 backdrop-blur-xl flex items-center justify-center">
-              <User className="w-12 h-12 text-white" />
+            <div className="w-20 h-20 sm:w-28 sm:h-28 rounded-full border-4 border-[#0a0a0a] bg-white/10 backdrop-blur-xl flex items-center justify-center">
+              <User className="w-8 h-8 sm:w-12 sm:h-12 text-white" />
             </div>
           )}
         </div>
