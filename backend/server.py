@@ -554,8 +554,6 @@ async def upload_image(file: UploadFile = File(...), current_user = Depends(get_
         logger.error(f"Image processing error: {e}")
         raise HTTPException(status_code=400, detail="Не удалось обработать изображение")
 
-app.include_router(api_router)
-
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
@@ -563,6 +561,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(api_router)
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
