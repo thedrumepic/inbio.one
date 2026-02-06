@@ -116,33 +116,59 @@ const Dashboard = () => {
         <div className="space-y-4">
           {pages.map((page) => (
             <div key={page.id} className="card" data-testid="page-card">
-              <div className="flex items-center gap-4">
+              <div className="flex items-start gap-4">
                 {page.avatar ? (
                   <img
                     src={page.avatar}
                     alt={page.name}
-                    className="w-16 h-16 rounded-full object-cover"
+                    className="w-16 h-16 rounded-full object-cover flex-shrink-0"
                   />
                 ) : (
-                  <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center">
+                  <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0">
                     <span className="text-2xl">👤</span>
                   </div>
                 )}
 
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-lg mb-1">{page.name}</h3>
+                  <h3 className="font-semibold text-lg mb-1 truncate">{page.name}</h3>
                   <a
                     href={`/${page.username}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-gray-400 hover:text-white flex items-center gap-1"
+                    className="text-sm text-gray-400 hover:text-white flex items-center gap-1 truncate"
                   >
                     biolink.app/{page.username}
-                    <ExternalLink className="w-3 h-3" />
+                    <ExternalLink className="w-3 h-3 flex-shrink-0" />
                   </a>
+                  
+                  {/* Action buttons below on mobile, inline on desktop */}
+                  <div className="flex gap-2 mt-3 sm:hidden">
+                    <button
+                      onClick={() => toast.info('Аналитика скоро')}
+                      className="btn-secondary flex-1 text-xs"
+                      data-testid="analytics-button"
+                    >
+                      <BarChart className="w-4 h-4 mx-auto" />
+                    </button>
+                    <button
+                      onClick={() => setEditingPage(page)}
+                      className="btn-secondary flex-1 text-xs"
+                      data-testid="edit-button"
+                    >
+                      <Edit2 className="w-4 h-4 mx-auto" />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(page.id)}
+                      className="btn-ghost text-red-400 hover:text-red-300 flex-1 text-xs"
+                      data-testid="delete-button"
+                    >
+                      <Trash2 className="w-4 h-4 mx-auto" />
+                    </button>
+                  </div>
                 </div>
 
-                <div className="flex gap-2">
+                {/* Desktop buttons */}
+                <div className="hidden sm:flex gap-2 flex-shrink-0">
                   <button
                     onClick={() => toast.info('Аналитика скоро')}
                     className="btn-secondary"
