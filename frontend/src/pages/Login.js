@@ -87,6 +87,7 @@ const Login = () => {
 
           <button
             type="button"
+            onClick={() => navigate('/forgot-password')}
             className="text-sm text-gray-400 hover:text-white"
             data-testid="forgot-password"
           >
