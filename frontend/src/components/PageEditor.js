@@ -930,4 +930,74 @@ const ShowcaseModal = ({ pageId, onClose, onSuccess }) => {
   );
 };
 
+const BlockPreview = ({ block, onDelete }) => {
+  const { block_type, content } = block;
+
+  if (block_type === 'link') {
+    return (
+      <div className="card flex items-center justify-between group" data-testid="block-preview">
+        <div className="flex items-center gap-3 flex-1">
+          <Link2 className="w-5 h-5 text-gray-400" />
+          <div className="flex-1 min-w-0">
+            <div className="font-medium truncate">{content.title}</div>
+            <div className="text-sm text-gray-400 truncate">{content.url}</div>
+          </div>
+        </div>
+        <button
+          onClick={onDelete}
+          className="opacity-0 group-hover:opacity-100 transition-opacity btn-ghost text-red-400 p-2"
+        >
+          <X className="w-4 h-4" />
+        </button>
+      </div>
+    );
+  }
+
+  if (block_type === 'text') {
+    return (
+      <div className="card group" data-testid="block-preview">
+        <div className="flex items-start justify-between">
+          <div className="flex items-start gap-3 flex-1">
+            <Type className="w-5 h-5 text-gray-400 mt-1" />
+            <p className="text-gray-300 flex-1">{content.text}</p>
+          </div>
+          <button
+            onClick={onDelete}
+            className="opacity-0 group-hover:opacity-100 transition-opacity btn-ghost text-red-400 p-2"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (block_type === 'music') {
+    return (
+      <div className="card group" data-testid="block-preview">
+        <div className="flex gap-3">
+          {content.cover && (
+            <img src={content.cover} alt={content.title} className="w-16 h-16 rounded-lg object-cover flex-shrink-0" />
+          )}
+          <div className="flex-1 min-w-0">
+            <h3 className="font-semibold truncate">{content.title}</h3>
+            <p className="text-sm text-gray-400 truncate">{content.artist}</p>
+            <p className="text-xs text-gray-500 mt-1">
+              {content.platforms?.length || 0} платформ
+            </p>
+          </div>
+          <button
+            onClick={onDelete}
+            className="opacity-0 group-hover:opacity-100 transition-opacity btn-ghost text-red-400 p-2"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return null;
+};
+
 export default PageEditor;
