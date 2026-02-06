@@ -949,6 +949,28 @@ const ShowcaseModal = ({ pageId, onClose, onSuccess }) => {
       <div className="card max-w-md w-full" onClick={(e) => e.stopPropagation()}>
         <h2 className="text-2xl font-bold mb-6">Добавить витрину</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Cover upload */}
+          <div
+            className="relative aspect-square rounded-xl bg-white/5 border-2 border-dashed border-white/10 flex items-center justify-center cursor-pointer hover:border-white/30 transition-colors overflow-hidden"
+            onClick={() => coverInputRef.current?.click()}
+          >
+            {cover ? (
+              <img src={cover} alt="Cover" className="w-full h-full object-cover" />
+            ) : (
+              <div className="text-center">
+                <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                <p className="text-sm text-gray-400">Загрузить обложку</p>
+              </div>
+            )}
+          </div>
+          <input
+            ref={coverInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => handleImageUpload(e.target.files[0])}
+          />
+          
           <div className="space-y-2">
             <label className="text-sm text-gray-400">Название *</label>
             <input
