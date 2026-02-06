@@ -379,6 +379,7 @@ const PageEditor = ({ page, onClose }) => {
           onSuccess={() => {
             setShowBlockModal(false);
             toast.success('Блок добавлен');
+            loadPageContent();
           }}
         />
       )}
@@ -390,6 +391,7 @@ const PageEditor = ({ page, onClose }) => {
           onSuccess={() => {
             setShowEventModal(false);
             toast.success('Событие добавлено');
+            loadPageContent();
           }}
         />
       )}
@@ -401,6 +403,7 @@ const PageEditor = ({ page, onClose }) => {
           onSuccess={() => {
             setShowShowcaseModal(false);
             toast.success('Витрина добавлена');
+            loadPageContent();
           }}
         />
       )}
