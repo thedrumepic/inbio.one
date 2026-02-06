@@ -64,19 +64,19 @@ const fetchWithAuth = async (url, options = {}) => {
 
 export const api = {
   // Auth
-  register: (data) => fetch(`${API_URL}/auth/register`, {
+  register: (data) => fetchWithRetry(`${API_URL}/auth/register`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   }),
   
-  login: (data) => fetch(`${API_URL}/auth/login`, {
+  login: (data) => fetchWithRetry(`${API_URL}/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   }),
   
-  checkUsername: (username) => fetch(`${API_URL}/auth/check-username`, {
+  checkUsername: (username) => fetchWithRetry(`${API_URL}/auth/check-username`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username }),
