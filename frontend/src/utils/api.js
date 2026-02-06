@@ -152,7 +152,7 @@ export const api = {
   }),
   
   // Music
-  resolveMusic: (data) => fetch(`${API_URL}/music/resolve`, {
+  resolveMusic: (data) => fetchWithRetry(`${API_URL}/music/resolve`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
