@@ -135,6 +135,13 @@ const PublicPage = () => {
           <div className="space-y-4" data-testid="events-container">
             {events.map((event) => (
               <div key={event.id} className="card group" data-testid="event-card">
+                {event.cover && (
+                  <img
+                    src={event.cover}
+                    alt={event.title}
+                    className="w-full h-40 object-cover rounded-xl mb-4"
+                  />
+                )}
                 <div className="flex gap-4">
                   <div className="flex-shrink-0 w-16 h-16 rounded-xl bg-white/10 flex flex-col items-center justify-center">
                     <Calendar className="w-6 h-6 text-white mb-1" />
