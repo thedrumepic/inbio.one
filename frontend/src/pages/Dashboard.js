@@ -18,7 +18,27 @@ const Dashboard = () => {
       return;
     }
     loadPages();
+    
+    // Check if we need to edit a newly created page
+    const params = new URLSearchParams(window.location.search);
+    const editId = params.get('edit');
+    if (editId) {
+      // Clear the query param
+      window.history.replaceState({}, '', '/dashboard');
+    }
   }, []);
+
+  useEffect(() => {
+    // Auto-open editor for newly created page
+    const params = new URLSearchParams(window.location.search);
+    const editId = params.get('edit');
+    if (editId && pages.length > 0) {
+      const pageToEdit = pages.find(p => p.id === editId);
+      if (pageToEdit) {
+        setEditingPage(pageToEdit);
+      }
+    }
+  }, [pages]);
 
   const loadPages = async () => {
     try {
