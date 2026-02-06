@@ -401,6 +401,7 @@ async def create_event(event_data: EventCreate, current_user = Depends(get_curre
         "title": event_data.title,
         "date": event_data.date,
         "description": event_data.description or "",
+        "cover": event_data.cover,
         "button_text": event_data.button_text or "Подробнее",
         "button_url": event_data.button_url or "",
         "created_at": datetime.now(timezone.utc).isoformat()
