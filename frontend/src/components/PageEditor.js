@@ -770,6 +770,7 @@ const EventModal = ({ pageId, onClose, onSuccess }) => {
         title,
         date,
         description,
+        cover,
         button_text: buttonText,
         button_url: finalButtonUrl,
       });
