@@ -84,8 +84,8 @@ const PageEditor = ({ page, onClose }) => {
   };
 
   return (
-    <div className="min-h-screen p-6" data-testid="page-editor">
-      <div className="max-w-4xl mx-auto space-y-6">
+    <div className="min-h-screen p-4 sm:p-6 pb-20" data-testid="page-editor">
+      <div className="max-w-2xl mx-auto space-y-4">
         {/* Header */}
         <div className="flex items-center justify-between">
           <button
@@ -94,12 +94,12 @@ const PageEditor = ({ page, onClose }) => {
             data-testid="close-button"
           >
             <ArrowLeft className="w-4 h-4" />
-            Назад
+            <span className="hidden sm:inline">Назад</span>
           </button>
           <button
             onClick={handleSave}
             disabled={saving}
-            className="btn-primary flex items-center gap-2"
+            className="btn-primary flex items-center gap-2 text-sm sm:text-base px-4 sm:px-8"
             data-testid="save-button"
           >
             <Save className="w-4 h-4" />
@@ -109,9 +109,9 @@ const PageEditor = ({ page, onClose }) => {
 
         {/* Cover */}
         <div className="card">
-          <h3 className="font-semibold mb-3">Обложка</h3>
+          <h3 className="font-semibold mb-3 text-sm sm:text-base">Обложка</h3>
           <div
-            className="relative h-48 rounded-xl bg-white/5 border-2 border-dashed border-white/10 flex items-center justify-center cursor-pointer hover:border-white/30 transition-colors overflow-hidden"
+            className="relative h-32 sm:h-48 rounded-xl bg-white/5 border-2 border-dashed border-white/10 flex items-center justify-center cursor-pointer hover:border-white/30 transition-colors overflow-hidden"
             onClick={() => coverInputRef.current?.click()}
             data-testid="cover-upload"
           >
@@ -123,8 +123,8 @@ const PageEditor = ({ page, onClose }) => {
               />
             ) : (
               <div className="text-center">
-                <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                <p className="text-sm text-gray-400">Загрузить обложку</p>
+                <Upload className="w-6 sm:w-8 h-6 sm:h-8 text-gray-400 mx-auto mb-2" />
+                <p className="text-xs sm:text-sm text-gray-400">Загрузить обложку</p>
               </div>
             )}
           </div>
@@ -139,11 +139,11 @@ const PageEditor = ({ page, onClose }) => {
 
         {/* Profile */}
         <div className="card">
-          <h3 className="font-semibold mb-4">Профиль</h3>
+          <h3 className="font-semibold mb-4 text-sm sm:text-base">Профиль</h3>
 
-          <div className="flex gap-4 mb-4">
+          <div className="flex flex-col sm:flex-row gap-4 mb-4">
             <div
-              className="w-20 h-20 rounded-full bg-white/5 border-2 border-dashed border-white/10 flex items-center justify-center cursor-pointer hover:border-white/30 transition-colors overflow-hidden flex-shrink-0"
+              className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white/5 border-2 border-dashed border-white/10 flex items-center justify-center cursor-pointer hover:border-white/30 transition-colors overflow-hidden flex-shrink-0"
               onClick={() => avatarInputRef.current?.click()}
               data-testid="avatar-upload"
             >
@@ -154,7 +154,7 @@ const PageEditor = ({ page, onClose }) => {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <Upload className="w-6 h-6 text-gray-400" />
+                <Upload className="w-5 h-5 sm:w-6 sm:h-6 text-gray-400" />
               )}
             </div>
             <input
@@ -167,14 +167,14 @@ const PageEditor = ({ page, onClose }) => {
 
             <div className="flex-1 space-y-3">
               <div>
-                <label className="text-sm text-gray-400 mb-1 block">Имя</label>
+                <label className="text-xs sm:text-sm text-gray-400 mb-1 block">Имя</label>
                 <input
                   type="text"
                   value={pageData.name}
                   onChange={(e) =>
                     setPageData((prev) => ({ ...prev, name: e.target.value }))
                   }
-                  className="input"
+                  className="input text-sm sm:text-base"
                   placeholder="Ваше имя"
                   data-testid="name-input"
                 />
@@ -183,13 +183,13 @@ const PageEditor = ({ page, onClose }) => {
           </div>
 
           <div>
-            <label className="text-sm text-gray-400 mb-1 block">Описание</label>
+            <label className="text-xs sm:text-sm text-gray-400 mb-1 block">Описание</label>
             <textarea
               value={pageData.bio}
               onChange={(e) =>
                 setPageData((prev) => ({ ...prev, bio: e.target.value }))
               }
-              className="input min-h-[80px] resize-none"
+              className="input min-h-[60px] sm:min-h-[80px] resize-none text-sm sm:text-base"
               placeholder="Расскажите о себе..."
               data-testid="bio-input"
             />
@@ -197,10 +197,10 @@ const PageEditor = ({ page, onClose }) => {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2">
+        <div className="flex gap-2 overflow-x-auto pb-2">
           <button
             onClick={() => setActiveTab('profile')}
-            className={`px-6 py-2 rounded-full text-sm font-medium transition-colors ${
+            className={`px-4 sm:px-6 py-2 rounded-full text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
               activeTab === 'profile'
                 ? 'bg-white text-black'
                 : 'bg-white/10 text-white hover:bg-white/20'
@@ -211,7 +211,7 @@ const PageEditor = ({ page, onClose }) => {
           </button>
           <button
             onClick={() => setActiveTab('events')}
-            className={`px-6 py-2 rounded-full text-sm font-medium transition-colors ${
+            className={`px-4 sm:px-6 py-2 rounded-full text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
               activeTab === 'events'
                 ? 'bg-white text-black'
                 : 'bg-white/10 text-white hover:bg-white/20'
@@ -222,7 +222,7 @@ const PageEditor = ({ page, onClose }) => {
           </button>
           <button
             onClick={() => setActiveTab('showcases')}
-            className={`px-6 py-2 rounded-full text-sm font-medium transition-colors ${
+            className={`px-4 sm:px-6 py-2 rounded-full text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
               activeTab === 'showcases'
                 ? 'bg-white text-black'
                 : 'bg-white/10 text-white hover:bg-white/20'
