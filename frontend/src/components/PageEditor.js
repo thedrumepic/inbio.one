@@ -29,9 +29,30 @@ const PageEditor = ({ page, onClose }) => {
   const [showBlockModal, setShowBlockModal] = useState(false);
   const [showEventModal, setShowEventModal] = useState(false);
   const [showShowcaseModal, setShowShowcaseModal] = useState(false);
+  const [loadingBlocks, setLoadingBlocks] = useState(true);
 
   const avatarInputRef = useRef(null);
   const coverInputRef = useRef(null);
+
+  useEffect(() => {
+    loadPageContent();
+  }, [page.id]);
+
+  const loadPageContent = async () => {
+    try {
+      const response = await api.getPageByUsername(page.username);
+      if (response.ok) {
+        const data = await response.json();
+        setBlocks(data.blocks || []);
+        setEvents(data.events || []);
+        setShowcases(data.showcases || []);
+      }
+    } catch (error) {
+      console.error('Error loading page content:', error);
+    } finally {
+      setLoadingBlocks(false);
+    }
+  };
 
   const handleImageUpload = async (file, type) => {
     if (!file) return;
