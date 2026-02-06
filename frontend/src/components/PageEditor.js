@@ -887,9 +887,26 @@ const EventModal = ({ pageId, onClose, onSuccess }) => {
 const ShowcaseModal = ({ pageId, onClose, onSuccess }) => {
   const [title, setTitle] = useState('');
   const [price, setPrice] = useState('');
+  const [cover, setCover] = useState(null);
   const [buttonText, setButtonText] = useState('Купить');
   const [buttonUrl, setButtonUrl] = useState('');
   const [loading, setLoading] = useState(false);
+  const coverInputRef = useRef(null);
+
+  const handleImageUpload = async (file) => {
+    if (!file) return;
+
+    try {
+      const response = await api.uploadImage(file);
+      if (response.ok) {
+        const data = await response.json();
+        setCover(data.url);
+        toast.success('Обложка загружена');
+      }
+    } catch (error) {
+      toast.error('Ошибка загрузки обложки');
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
