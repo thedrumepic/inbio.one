@@ -33,3 +33,13 @@
   --ring: 255 255 255 / 0.3;
   --radius: 0.75rem;
 }
+
+/* Hide Emergent badge */
+a[href*="emergentagent.com"],
+a[href*="emergent"],
+div:has(> a[href*="emergent"]) {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
