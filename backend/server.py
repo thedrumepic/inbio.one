@@ -535,15 +535,20 @@ async def resolve_music_link(data: MusicResolveRequest):
 
 @api_router.post("/upload")
 async def upload_image(file: UploadFile = File(...), current_user = Depends(get_current_user)):
-    if not file.content_type or not file.content_type.startswith("image/"):
-        raise HTTPException(status_code=400, detail="Файл должен быть изображением")
+    allowed_types = ["image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp"]
+    if not file.content_type or file.content_type not in allowed_types:
+        raise HTTPException(status_code=400, detail="Файл должен быть изображением (JPEG, PNG, GIF, WEBP)")
     
     contents = await file.read()
     if len(contents) > 10 * 1024 * 1024:  # 10MB limit
         raise HTTPException(status_code=400, detail="Файл слишком большой (макс. 10MB)")
     
-    base64_image = await optimize_image(contents)
-    return {"url": base64_image}
+    try:
+        base64_image = await optimize_image(contents)
+        return {"url": base64_image}
+    except Exception as e:
+        logger.error(f"Image processing error: {e}")
+        raise HTTPException(status_code=400, detail="Не удалось обработать изображение")
 
 app.include_router(api_router)
 
