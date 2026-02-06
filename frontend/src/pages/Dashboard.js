@@ -203,7 +203,6 @@ const Dashboard = () => {
 };
 
 const CreatePageModal = ({ onClose, onSuccess }) => {
-  const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
