@@ -211,8 +211,9 @@ const CreatePageModal = ({ onClose, onSuccess }) => {
 
       const response = await api.createPage({ username, name });
       if (response.ok) {
+        const pageData = await response.json();
         toast.success('Страница создана');
-        onSuccess();
+        window.location.href = `/dashboard?edit=${pageData.id}`;
       }
     } catch (error) {
       toast.error('Ошибка создания');
