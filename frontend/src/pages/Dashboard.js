@@ -236,8 +236,7 @@ const CreatePageModal = ({ onClose, onSuccess }) => {
       if (response.ok) {
         const pageData = await response.json();
         toast.success('Страница создана');
-        navigate(`/dashboard?edit=${pageData.id}`);
-        onSuccess();
+        onSuccess(pageData);
       }
     } catch (error) {
       toast.error('Ошибка создания');
