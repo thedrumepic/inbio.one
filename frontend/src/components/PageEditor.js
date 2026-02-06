@@ -926,6 +926,7 @@ const ShowcaseModal = ({ pageId, onClose, onSuccess }) => {
       const response = await api.createShowcase({
         page_id: pageId,
         title,
+        cover,
         price,
         button_text: buttonText,
         button_url: finalButtonUrl,
