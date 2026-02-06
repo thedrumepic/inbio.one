@@ -190,9 +190,11 @@ const Dashboard = () => {
       {showCreateModal && (
         <CreatePageModal
           onClose={() => setShowCreateModal(false)}
-          onSuccess={() => {
+          onSuccess={(createdPage) => {
             setShowCreateModal(false);
             loadPages();
+            // Immediately open editor for the newly created page
+            setEditingPage(createdPage);
           }}
         />
       )}
