@@ -236,6 +236,27 @@ const PageEditor = ({ page, onClose }) => {
         {/* Content */}
         {activeTab === 'profile' && (
           <div className="space-y-4">
+            {blocks.length > 0 && (
+              <div className="space-y-3 mb-4" data-testid="blocks-list">
+                {blocks.map((block) => (
+                  <BlockPreview
+                    key={block.id}
+                    block={block}
+                    onDelete={async () => {
+                      if (confirm('Удалить блок?')) {
+                        try {
+                          await api.deleteBlock(block.id);
+                          toast.success('Блок удалён');
+                          loadPageContent();
+                        } catch (error) {
+                          toast.error('Ошибка удаления');
+                        }
+                      }
+                    }}
+                  />
+                ))}
+              </div>
+            )}
             <button
               onClick={() => setShowBlockModal(true)}
               className="btn-secondary w-full flex items-center justify-center gap-2"
@@ -244,14 +265,49 @@ const PageEditor = ({ page, onClose }) => {
               <Plus className="w-4 h-4" />
               Добавить блок
             </button>
-            <div className="text-center py-8 text-gray-400 text-sm">
-              Блоки будут отображаться здесь
-            </div>
+            {loadingBlocks && (
+              <div className="text-center py-8">
+                <div className="spinner mx-auto"></div>
+              </div>
+            )}
+            {!loadingBlocks && blocks.length === 0 && (
+              <div className="text-center py-8 text-gray-400 text-sm">
+                Блоки будут отображаться здесь
+              </div>
+            )}
           </div>
         )}
 
         {activeTab === 'events' && (
           <div className="space-y-4">
+            {events.length > 0 && (
+              <div className="space-y-3 mb-4">
+                {events.map((event) => (
+                  <div key={event.id} className="card flex justify-between items-start">
+                    <div className="flex-1">
+                      <h3 className="font-semibold">{event.title}</h3>
+                      <p className="text-sm text-gray-400">{event.date}</p>
+                    </div>
+                    <button
+                      onClick={async () => {
+                        if (confirm('Удалить событие?')) {
+                          try {
+                            await api.deleteEvent(event.id);
+                            toast.success('Событие удалено');
+                            loadPageContent();
+                          } catch (error) {
+                            toast.error('Ошибка удаления');
+                          }
+                        }
+                      }}
+                      className="btn-ghost text-red-400"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
             <button
               onClick={() => setShowEventModal(true)}
               className="btn-secondary w-full flex items-center justify-center gap-2"
@@ -260,14 +316,45 @@ const PageEditor = ({ page, onClose }) => {
               <Plus className="w-4 h-4" />
               Добавить событие
             </button>
-            <div className="text-center py-8 text-gray-400 text-sm">
-              События будут отображаться здесь
-            </div>
+            {events.length === 0 && (
+              <div className="text-center py-8 text-gray-400 text-sm">
+                События будут отображаться здесь
+              </div>
+            )}
           </div>
         )}
 
         {activeTab === 'showcases' && (
           <div className="space-y-4">
+            {showcases.length > 0 && (
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                {showcases.map((showcase) => (
+                  <div key={showcase.id} className="card relative">
+                    <button
+                      onClick={async () => {
+                        if (confirm('Удалить витрину?')) {
+                          try {
+                            await api.deleteShowcase(showcase.id);
+                            toast.success('Витрина удалена');
+                            loadPageContent();
+                          } catch (error) {
+                            toast.error('Ошибка удаления');
+                          }
+                        }
+                      }}
+                      className="absolute top-2 right-2 w-6 h-6 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center"
+                    >
+                      <X className="w-3 h-3 text-white" />
+                    </button>
+                    {showcase.cover && (
+                      <img src={showcase.cover} alt={showcase.title} className="w-full aspect-square object-cover rounded-lg mb-2" />
+                    )}
+                    <h3 className="font-semibold text-sm">{showcase.title}</h3>
+                    {showcase.price && <p className="text-xs text-gray-400">{showcase.price}</p>}
+                  </div>
+                ))}
+              </div>
+            )}
             <button
               onClick={() => setShowShowcaseModal(true)}
               className="btn-secondary w-full flex items-center justify-center gap-2"
@@ -276,9 +363,11 @@ const PageEditor = ({ page, onClose }) => {
               <Plus className="w-4 h-4" />
               Добавить витрину
             </button>
-            <div className="text-center py-8 text-gray-400 text-sm">
-              Витрины будут отображаться здесь
-            </div>
+            {showcases.length === 0 && (
+              <div className="text-center py-8 text-gray-400 text-sm">
+                Витрины будут отображаться здесь
+              </div>
+            )}
           </div>
         )}
       </div>
