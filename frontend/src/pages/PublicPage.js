@@ -193,6 +193,11 @@ const PublicPage = () => {
           </div>
         )}
       </div>
+
+      {/* Powered by 1link.pw */}
+      <div className="fixed bottom-0 left-0 right-0 py-4 flex justify-center bg-gradient-to-t from-black via-black/80 to-transparent pointer-events-none">
+        <span className="text-xs text-gray-500">Powered by 1link.pw</span>
+      </div>
     </div>
   );
 };
