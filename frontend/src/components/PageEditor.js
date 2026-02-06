@@ -858,6 +858,12 @@ const ShowcaseModal = ({ pageId, onClose, onSuccess }) => {
       return;
     }
 
+    // Auto-add https:// to button URL if not present
+    let finalButtonUrl = buttonUrl.trim();
+    if (finalButtonUrl && !/^https?:\/\//i.test(finalButtonUrl)) {
+      finalButtonUrl = 'https://' + finalButtonUrl;
+    }
+
     setLoading(true);
     try {
       const response = await api.createShowcase({
@@ -865,7 +871,7 @@ const ShowcaseModal = ({ pageId, onClose, onSuccess }) => {
         title,
         price,
         button_text: buttonText,
-        button_url: buttonUrl,
+        button_url: finalButtonUrl,
       });
       if (response.ok) {
         onSuccess();
