@@ -522,11 +522,11 @@ const LinkBlockForm = ({ pageId, onClose, onSuccess }) => {
           <div className="space-y-2">
             <label className="text-sm text-gray-400">URL</label>
             <input
-              type="url"
+              type="text"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               className="input"
-              placeholder="https://example.com"
+              placeholder="example.com или https://example.com"
               disabled={loading}
             />
           </div>
