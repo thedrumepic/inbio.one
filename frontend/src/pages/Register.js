@@ -27,19 +27,25 @@ const Register = () => {
 
     setLoading(true);
     try {
+      console.log('Attempting registration to:', process.env.REACT_APP_BACKEND_URL);
       const response = await api.register({ email, password, username: username || null });
+      
+      console.log('Registration response status:', response.status);
       
       if (response.ok) {
         const data = await response.json();
+        console.log('Registration successful, setting token');
         setAuthToken(data.access_token);
         toast.success('Регистрация успешна');
         navigate('/dashboard');
       } else {
         const error = await response.json();
+        console.error('Registration failed:', error);
         toast.error(error.detail || 'Ошибка регистрации');
       }
     } catch (error) {
-      toast.error('Ошибка соединения');
+      console.error('Registration error:', error);
+      toast.error('Ошибка соединения. Проверьте интернет и попробуйте снова.');
     } finally {
       setLoading(false);
     }
