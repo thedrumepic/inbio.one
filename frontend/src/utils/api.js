@@ -95,7 +95,7 @@ export const api = {
     body: JSON.stringify(data),
   }),
   
-  getPageByUsername: (username) => fetch(`${API_URL}/pages/${username}`),
+  getPageByUsername: (username) => fetchWithRetry(`${API_URL}/pages/${username}`),
   
   updatePage: (pageId, data) => fetchWithAuth(`${API_URL}/pages/${pageId}`, {
     method: 'PATCH',
