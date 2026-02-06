@@ -99,6 +99,7 @@ class EventCreate(BaseModel):
     title: str
     date: str
     description: Optional[str] = ""
+    cover: Optional[str] = None
     button_text: Optional[str] = "Подробнее"
     button_url: Optional[str] = ""
 
@@ -106,6 +107,7 @@ class EventUpdate(BaseModel):
     title: Optional[str] = None
     date: Optional[str] = None
     description: Optional[str] = None
+    cover: Optional[str] = None
     button_text: Optional[str] = None
     button_url: Optional[str] = None
 
@@ -115,6 +117,7 @@ class EventResponse(BaseModel):
     title: str
     date: str
     description: str
+    cover: Optional[str]
     button_text: str
     button_url: str
     created_at: str
