@@ -821,11 +821,11 @@ const EventModal = ({ pageId, onClose, onSuccess }) => {
             <div className="space-y-2">
               <label className="text-sm text-gray-400">URL кнопки</label>
               <input
-                type="url"
+                type="text"
                 value={buttonUrl}
                 onChange={(e) => setButtonUrl(e.target.value)}
                 className="input"
-                placeholder="https://..."
+                placeholder="example.com"
                 disabled={loading}
               />
             </div>
@@ -922,11 +922,11 @@ const ShowcaseModal = ({ pageId, onClose, onSuccess }) => {
             <div className="space-y-2">
               <label className="text-sm text-gray-400">URL кнопки</label>
               <input
-                type="url"
+                type="text"
                 value={buttonUrl}
                 onChange={(e) => setButtonUrl(e.target.value)}
                 className="input"
-                placeholder="https://..."
+                placeholder="example.com"
                 disabled={loading}
               />
             </div>
