@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../utils/api';
 import { toast } from 'sonner';
-import { ArrowRight, Link as LinkIcon } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
+import { Logo } from '../components/Logo';
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -43,8 +44,8 @@ const Landing = () => {
     <div className="min-h-screen flex items-center justify-center p-6" data-testid="landing-page">
       <div className="w-full max-w-md space-y-8 fade-in">
         <div className="text-center space-y-4">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white/10 backdrop-blur-xl mb-4">
-            <LinkIcon className="w-8 h-8 text-white" />
+          <div className="flex justify-center mb-6">
+            <Logo size="xl" />
           </div>
           <h1 className="text-4xl sm:text-5xl font-bold leading-tight">
             Ссылка в био для<br />любых целей
