@@ -54,8 +54,8 @@ const PublicPage = () => {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] pb-20" data-testid="public-page">
-      {/* Cover */}
       <div className="max-w-[480px] mx-auto">
+        {/* Cover */}
         {page.cover ? (
           <div 
             className="w-full h-48 bg-cover bg-center"
@@ -66,158 +66,163 @@ const PublicPage = () => {
           <div className="w-full h-32 bg-white/5" />
         )}
 
-        {/* Avatar - Overlapping cover */}
-        <div className="relative px-4">
-          <div className="relative -mt-14 flex justify-center">
-            {page.avatar ? (
-              <img
-                src={page.avatar}
-                alt={page.name}
-                className="w-28 h-28 rounded-full border-4 border-[#0a0a0a] object-cover"
-                data-testid="page-avatar"
-              />
-            ) : (
-              <div className="w-28 h-28 rounded-full border-4 border-[#0a0a0a] bg-white/10 flex items-center justify-center">
-                <User className="w-12 h-12 text-gray-500" />
+        {/* Content Card - wrapping avatar, name, bio, links */}
+        <div className="relative -mt-8">
+          <div className="bg-[#171717] rounded-t-[32px] min-h-[400px] px-4 pb-8">
+            {/* Avatar - Overlapping into card */}
+            <div className="relative flex justify-center">
+              <div className="-mt-14">
+                {page.avatar ? (
+                  <img
+                    src={page.avatar}
+                    alt={page.name}
+                    className="w-28 h-28 rounded-full border-4 border-[#171717] object-cover"
+                    data-testid="page-avatar"
+                  />
+                ) : (
+                  <div className="w-28 h-28 rounded-full border-4 border-[#171717] bg-white/10 flex items-center justify-center">
+                    <User className="w-12 h-12 text-gray-500" />
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-        </div>
+            </div>
 
-        {/* Name & Bio */}
-        <div className="text-center px-4 mt-4 mb-6">
-          <h1 className="text-xl font-bold text-white mb-2" data-testid="page-name">{page.name}</h1>
-          {page.bio && (
-            <p className="text-gray-400 text-sm" data-testid="page-bio">{page.bio}</p>
-          )}
-        </div>
-
-        {/* Tabs */}
-        {(events.length > 0 || showcases.length > 0) && (
-          <div className="flex justify-center gap-2 px-4 mb-6 overflow-x-auto" data-testid="tabs-container">
-            <button
-              onClick={() => setActiveTab('profile')}
-              className={`px-6 py-2 rounded-full text-sm font-medium transition-colors ${
-                activeTab === 'profile' 
-                  ? 'bg-white text-black' 
-                  : 'bg-white/10 text-white hover:bg-white/20'
-              }`}
-              data-testid="profile-tab"
-            >
-              Профиль
-            </button>
-            {events.length > 0 && (
-              <button
-                onClick={() => setActiveTab('events')}
-                className={`px-6 py-2 rounded-full text-sm font-medium transition-colors ${
-                  activeTab === 'events' 
-                    ? 'bg-white text-black' 
-                    : 'bg-white/10 text-white hover:bg-white/20'
-                }`}
-                data-testid="events-tab"
-              >
-                События
-              </button>
-            )}
-            {showcases.length > 0 && (
-              <button
-                onClick={() => setActiveTab('showcases')}
-                className={`px-6 py-2 rounded-full text-sm font-medium transition-colors ${
-                  activeTab === 'showcases' 
-                    ? 'bg-white text-black' 
-                    : 'bg-white/10 text-white hover:bg-white/20'
-                }`}
-                data-testid="showcases-tab"
-              >
-                Витрины
-              </button>
-            )}
-          </div>
-        )}
-
-        {/* Content */}
-        <div className="px-4">
-          {activeTab === 'profile' && (
-            <div className="space-y-3" data-testid="blocks-container">
-              {blocks.map((block) => (
-                <BlockRenderer key={block.id} block={block} />
-              ))}
-              {blocks.length === 0 && (
-                <div className="text-center py-12 text-gray-500">
-                  Пока нет контента
-                </div>
+            {/* Name & Bio */}
+            <div className="text-center mt-4 mb-6">
+              <h1 className="text-xl font-bold text-white mb-2" data-testid="page-name">{page.name}</h1>
+              {page.bio && (
+                <p className="text-gray-400 text-sm" data-testid="page-bio">{page.bio}</p>
               )}
             </div>
-          )}
 
-          {activeTab === 'events' && (
-            <div className="space-y-3" data-testid="events-container">
-              {events.map((event) => (
-                <div key={event.id} className="bg-white/5 border border-white/10 rounded-xl p-4" data-testid="event-card">
-                  {event.cover && (
-                    <img
-                      src={event.cover}
-                      alt={event.title}
-                      className="w-full h-40 object-cover rounded-lg mb-4"
-                    />
-                  )}
-                  <div className="flex gap-4">
-                    <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-white/10 flex flex-col items-center justify-center">
-                      <Calendar className="w-5 h-5 text-white" />
+            {/* Tabs */}
+            {(events.length > 0 || showcases.length > 0) && (
+              <div className="flex justify-center gap-2 mb-6 overflow-x-auto" data-testid="tabs-container">
+                <button
+                  onClick={() => setActiveTab('profile')}
+                  className={`px-6 py-2 rounded-full text-sm font-medium transition-colors ${
+                    activeTab === 'profile' 
+                      ? 'bg-white text-black' 
+                      : 'bg-white/10 text-white hover:bg-white/20'
+                  }`}
+                  data-testid="profile-tab"
+                >
+                  Профиль
+                </button>
+                {events.length > 0 && (
+                  <button
+                    onClick={() => setActiveTab('events')}
+                    className={`px-6 py-2 rounded-full text-sm font-medium transition-colors ${
+                      activeTab === 'events' 
+                        ? 'bg-white text-black' 
+                        : 'bg-white/10 text-white hover:bg-white/20'
+                    }`}
+                    data-testid="events-tab"
+                  >
+                    События
+                  </button>
+                )}
+                {showcases.length > 0 && (
+                  <button
+                    onClick={() => setActiveTab('showcases')}
+                    className={`px-6 py-2 rounded-full text-sm font-medium transition-colors ${
+                      activeTab === 'showcases' 
+                        ? 'bg-white text-black' 
+                        : 'bg-white/10 text-white hover:bg-white/20'
+                    }`}
+                    data-testid="showcases-tab"
+                  >
+                    Витрины
+                  </button>
+                )}
+              </div>
+            )}
+
+            {/* Content */}
+            <div>
+              {activeTab === 'profile' && (
+                <div className="space-y-3" data-testid="blocks-container">
+                  {blocks.map((block) => (
+                    <BlockRenderer key={block.id} block={block} />
+                  ))}
+                  {blocks.length === 0 && (
+                    <div className="text-center py-12 text-gray-500">
+                      Пока нет контента
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-white mb-1">{event.title}</h3>
-                      <p className="text-sm text-gray-400 mb-1">{event.date}</p>
-                      {event.description && (
-                        <p className="text-sm text-gray-500 mb-2">{event.description}</p>
+                  )}
+                </div>
+              )}
+
+              {activeTab === 'events' && (
+                <div className="space-y-3" data-testid="events-container">
+                  {events.map((event) => (
+                    <div key={event.id} className="bg-white/5 border border-white/10 rounded-xl p-4" data-testid="event-card">
+                      {event.cover && (
+                        <img
+                          src={event.cover}
+                          alt={event.title}
+                          className="w-full h-40 object-cover rounded-lg mb-4"
+                        />
                       )}
-                      {event.button_url && (
+                      <div className="flex gap-4">
+                        <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-white/10 flex flex-col items-center justify-center">
+                          <Calendar className="w-5 h-5 text-white" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold text-white mb-1">{event.title}</h3>
+                          <p className="text-sm text-gray-400 mb-1">{event.date}</p>
+                          {event.description && (
+                            <p className="text-sm text-gray-500 mb-2">{event.description}</p>
+                          )}
+                          {event.button_url && (
+                            <a
+                              href={event.button_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 text-sm text-white hover:text-gray-300 transition-colors"
+                            >
+                              {event.button_text}
+                              <ExternalLink className="w-3 h-3" />
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {activeTab === 'showcases' && (
+                <div className="grid grid-cols-2 gap-3" data-testid="showcases-container">
+                  {showcases.map((showcase) => (
+                    <div key={showcase.id} className="bg-white/5 border border-white/10 rounded-xl p-3" data-testid="showcase-card">
+                      {showcase.cover && (
+                        <img
+                          src={showcase.cover}
+                          alt={showcase.title}
+                          className="w-full aspect-square object-cover rounded-lg mb-3"
+                        />
+                      )}
+                      <h3 className="font-semibold text-white text-sm mb-1">{showcase.title}</h3>
+                      {showcase.price && (
+                        <p className="text-sm text-gray-400 mb-2">{showcase.price}</p>
+                      )}
+                      {showcase.button_url && (
                         <a
-                          href={event.button_url}
+                          href={showcase.button_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 text-sm text-white hover:text-gray-300 transition-colors"
+                          className="block w-full py-2 text-center text-xs font-medium bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors"
                         >
-                          {event.button_text}
-                          <ExternalLink className="w-3 h-3" />
+                          {showcase.button_text}
                         </a>
                       )}
                     </div>
-                  </div>
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
-          )}
-
-          {activeTab === 'showcases' && (
-            <div className="grid grid-cols-2 gap-3" data-testid="showcases-container">
-              {showcases.map((showcase) => (
-                <div key={showcase.id} className="bg-white/5 border border-white/10 rounded-xl p-3" data-testid="showcase-card">
-                  {showcase.cover && (
-                    <img
-                      src={showcase.cover}
-                      alt={showcase.title}
-                      className="w-full aspect-square object-cover rounded-lg mb-3"
-                    />
-                  )}
-                  <h3 className="font-semibold text-white text-sm mb-1">{showcase.title}</h3>
-                  {showcase.price && (
-                    <p className="text-sm text-gray-400 mb-2">{showcase.price}</p>
-                  )}
-                  {showcase.button_url && (
-                    <a
-                      href={showcase.button_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block w-full py-2 text-center text-xs font-medium bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors"
-                    >
-                      {showcase.button_text}
-                    </a>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
+          </div>
         </div>
       </div>
 
