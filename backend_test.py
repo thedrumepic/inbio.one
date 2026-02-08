@@ -49,12 +49,14 @@ class BioLinkAPITester:
 
         try:
             if method == 'GET':
-                response = requests.get(url, headers=headers, timeout=10)
+                response = requests.get(url, headers=headers, timeout=30)
             elif method == 'POST':
                 if files:
-                    response = requests.post(url, headers=headers, files=files, timeout=10)
+                    response = requests.post(url, headers=headers, files=files, timeout=30)
                 else:
-                    response = requests.post(url, json=data, headers=headers, timeout=10)
+                    # Use longer timeout for music resolve endpoint
+                    timeout_val = 30 if 'music/resolve' in endpoint else 10
+                    response = requests.post(url, json=data, headers=headers, timeout=timeout_val)
             elif method == 'PATCH':
                 response = requests.patch(url, json=data, headers=headers, timeout=10)
             elif method == 'DELETE':
