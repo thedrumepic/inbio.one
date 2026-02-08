@@ -58,8 +58,8 @@ const Login = () => {
         </button>
 
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-white/10 backdrop-blur-xl mb-2">
-            <LogIn className="w-7 h-7 text-white" />
+          <div className="flex justify-center mb-4">
+            <Logo size="lg" />
           </div>
           <h1 className="text-3xl font-bold">Вход в аккаунт</h1>
           <p className="text-gray-400 text-sm">Войдите, чтобы управлять страницами</p>
