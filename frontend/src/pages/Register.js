@@ -65,8 +65,8 @@ const Register = () => {
         </button>
 
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-white/10 backdrop-blur-xl mb-2">
-            <UserPlus className="w-7 h-7 text-white" />
+          <div className="flex justify-center mb-4">
+            <Logo size="lg" />
           </div>
           <h1 className="text-3xl font-bold">Создать аккаунт</h1>
           <p className="text-gray-400 text-sm">Начните создавать свои страницы</p>
@@ -77,7 +77,7 @@ const Register = () => {
             <div className="card-glass">
               <div className="text-sm text-gray-400 mb-1">Ваше имя пользователя</div>
               <div className="flex items-center gap-2">
-                <span className="text-gray-400">biolink.app/</span>
+                <span className="text-gray-400">1bio.cc/</span>
                 <span className="text-white font-medium">{username}</span>
               </div>
             </div>
