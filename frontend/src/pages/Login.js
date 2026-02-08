@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api, setAuthToken } from '../utils/api';
 import { toast } from 'sonner';
-import { LogIn, ArrowLeft } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
+import { Logo } from '../components/Logo';
 
 const Login = () => {
   const navigate = useNavigate();
