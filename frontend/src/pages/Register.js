@@ -113,7 +113,7 @@ const Register = () => {
             <div className="space-y-2">
               <label className="text-sm text-gray-400">Имя пользователя (опционально)</label>
               <div className="flex items-center gap-2 input">
-                <span className="text-gray-400 text-sm">biolink.app/</span>
+                <span className="text-gray-400 text-sm">1bio.cc/</span>
                 <input
                   type="text"
                   value={username}
