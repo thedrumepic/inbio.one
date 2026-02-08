@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { api } from '../utils/api';
 import { Logo } from '../components/Logo';
-import { Link2, Calendar, ShoppingBag, User, ExternalLink } from 'lucide-react';
+import { Link2, Calendar, User, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 
 const PublicPage = () => {
@@ -56,7 +56,7 @@ const PublicPage = () => {
     <div className="min-h-screen bg-[#0a0a0a] pb-20" data-testid="public-page">
       <div className="max-w-[480px] mx-auto px-4 py-6 space-y-4">
         
-        {/* ===== LEVEL 1: BANNER BLOCK (Обложка) ===== */}
+        {/* ===== LEVEL 1: BANNER BLOCK ===== */}
         {page.cover ? (
           <div 
             className="h-40 rounded-2xl bg-cover bg-center overflow-hidden"
@@ -69,7 +69,7 @@ const PublicPage = () => {
 
         {/* ===== LEVEL 2: PROFILE & LINKS CARD ===== */}
         <div className="relative">
-          {/* Avatar - overlapping banner */}
+          {/* Avatar */}
           <div className="absolute left-1/2 -translate-x-1/2 -top-12 z-10">
             {page.avatar ? (
               <img
@@ -95,7 +95,7 @@ const PublicPage = () => {
               )}
             </div>
 
-            {/* Tabs (if events or showcases exist) */}
+            {/* Tabs */}
             {(events.length > 0 || showcases.length > 0) && (
               <div className="flex justify-center gap-2 mb-6 overflow-x-auto" data-testid="tabs-container">
                 <button
@@ -117,7 +117,6 @@ const PublicPage = () => {
                         ? 'bg-white text-black' 
                         : 'bg-white/10 text-white hover:bg-white/20'
                     }`}
-                    data-testid="events-tab"
                   >
                     События
                   </button>
@@ -130,7 +129,6 @@ const PublicPage = () => {
                         ? 'bg-white text-black' 
                         : 'bg-white/10 text-white hover:bg-white/20'
                     }`}
-                    data-testid="showcases-tab"
                   >
                     Витрины
                   </button>
@@ -138,7 +136,7 @@ const PublicPage = () => {
               </div>
             )}
 
-            {/* Links/Content inside card */}
+            {/* Content */}
             <div data-testid="blocks-container">
               {activeTab === 'profile' && (
                 <div className="space-y-3">
@@ -154,7 +152,7 @@ const PublicPage = () => {
               )}
 
               {activeTab === 'events' && (
-                <div className="space-y-3" data-testid="events-container">
+                <div className="space-y-3">
                   {events.map((event) => (
                     <EventCard key={event.id} event={event} />
                   ))}
@@ -162,7 +160,7 @@ const PublicPage = () => {
               )}
 
               {activeTab === 'showcases' && (
-                <div className="grid grid-cols-2 gap-3" data-testid="showcases-container">
+                <div className="grid grid-cols-2 gap-3">
                   {showcases.map((showcase) => (
                     <ShowcaseCard key={showcase.id} showcase={showcase} />
                   ))}
@@ -189,9 +187,11 @@ const PublicPage = () => {
   );
 };
 
+// ===== BLOCK RENDERER =====
 const BlockRenderer = ({ block }) => {
   const { block_type, content } = block;
 
+  // Link Block
   if (block_type === 'link') {
     return (
       <a
@@ -217,44 +217,144 @@ const BlockRenderer = ({ block }) => {
     );
   }
 
+  // Text Block - with style support
   if (block_type === 'text') {
+    const style = content.style || 'plain';
+    const isHighlighted = style === 'highlighted';
+    
+    // Clickable if has URL
+    const Wrapper = content.url ? 'a' : 'div';
+    const wrapperProps = content.url ? {
+      href: content.url,
+      target: '_blank',
+      rel: 'noopener noreferrer',
+      className: 'block cursor-pointer'
+    } : {};
+
     return (
-      <div className="text-center py-4 px-4" data-testid="text-block">
-        <p className="text-gray-400">{content.text}</p>
-      </div>
+      <Wrapper {...wrapperProps} data-testid="text-block">
+        <div className={`rounded-xl p-4 transition-all ${
+          isHighlighted 
+            ? 'bg-[#f5f0e6] border border-[#e5dcc8]' 
+            : 'bg-transparent'
+        } ${content.url ? 'hover:opacity-90' : ''}`}>
+          {content.title && (
+            <h3 className={`text-lg font-semibold mb-2 ${
+              isHighlighted ? 'text-[#2a2a2a]' : 'text-white'
+            }`}>
+              {content.title}
+            </h3>
+          )}
+          <p className={`text-sm leading-relaxed whitespace-pre-wrap ${
+            isHighlighted ? 'text-[#4a4a4a] italic' : 'text-gray-400'
+          }`}>
+            {content.text}
+          </p>
+        </div>
+      </Wrapper>
     );
   }
 
+  // Music Block - with theme and platform support
   if (block_type === 'music') {
+    const theme = content.theme || 'dark';
+    const showCover = content.showCover !== false;
+    const platforms = content.platforms || [];
+    const isLight = theme === 'light';
+
+    // Streaming service icons and colors
+    const serviceConfig = {
+      spotify: { name: 'Spotify', icon: '🎵', color: '#1DB954' },
+      apple: { name: 'Apple Music', icon: '🍎', color: '#FA243C' },
+      youtube: { name: 'YouTube Music', icon: '▶️', color: '#FF0000' },
+      yandex: { name: 'Яндекс Музыка', icon: '🎧', color: '#FFCC00' },
+      vk: { name: 'VK Музыка', icon: '💿', color: '#0077FF' },
+      deezer: { name: 'Deezer', icon: '🎶', color: '#00C7F2' },
+      tidal: { name: 'Tidal', icon: '🌊', color: '#000000' },
+      soundcloud: { name: 'SoundCloud', icon: '☁️', color: '#FF5500' },
+    };
+
+    const visiblePlatforms = platforms.filter(p => p.visible !== false && p.url);
+
     return (
-      <div className="bg-white/5 border border-white/10 rounded-xl p-4" data-testid="music-block">
-        <div className="flex gap-4">
-          {content.cover && (
-            <img
-              src={content.cover}
+      <div 
+        className={`rounded-xl overflow-hidden border ${
+          isLight 
+            ? 'bg-white border-gray-200' 
+            : 'bg-[#1a1a1a] border-white/10'
+        }`}
+        data-testid="music-block"
+      >
+        {/* Cover Image */}
+        {showCover && content.cover && (
+          <div className="relative">
+            <img 
+              src={content.cover} 
               alt={content.title}
-              className="w-16 h-16 rounded-lg object-cover flex-shrink-0"
+              className="w-full aspect-square object-cover"
             />
+            {/* Gradient overlay for better text readability */}
+            <div className={`absolute inset-0 bg-gradient-to-t ${
+              isLight ? 'from-white/80' : 'from-black/60'
+            } to-transparent`} />
+          </div>
+        )}
+
+        {/* Content */}
+        <div className="p-4">
+          {/* Title & Artist */}
+          {content.title && (
+            <div className="mb-4">
+              <h3 className={`text-lg font-bold mb-1 ${isLight ? 'text-black' : 'text-white'}`}>
+                {content.title}
+              </h3>
+              {content.artist && (
+                <p className={`text-sm ${isLight ? 'text-gray-600' : 'text-gray-400'}`}>
+                  {content.artist}
+                </p>
+              )}
+            </div>
           )}
-          <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-white mb-1">{content.title}</h3>
-            <p className="text-sm text-gray-400 mb-3">{content.artist}</p>
-            {content.platforms && content.platforms.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {content.platforms.slice(0, 4).map((platform, idx) => (
+
+          {/* Platform Links */}
+          {visiblePlatforms.length > 0 && (
+            <div className="space-y-2">
+              {visiblePlatforms.map((platform, idx) => {
+                const config = serviceConfig[platform.platform] || { 
+                  name: platform.platform, 
+                  icon: '🎵',
+                  color: '#888888'
+                };
+                
+                return (
                   <a
                     key={idx}
                     href={platform.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs bg-white/10 hover:bg-white/20 px-3 py-1 rounded-full text-white transition-colors capitalize"
+                    className={`flex items-center justify-between px-4 py-3 rounded-xl transition-all ${
+                      isLight 
+                        ? 'bg-gray-100 hover:bg-gray-200 text-black' 
+                        : 'bg-white/5 hover:bg-white/10 text-white'
+                    }`}
                   >
-                    {platform.platform}
+                    <span className="flex items-center gap-3">
+                      <span 
+                        className="w-8 h-8 rounded-lg flex items-center justify-center text-lg"
+                        style={{ backgroundColor: `${config.color}20` }}
+                      >
+                        {config.icon}
+                      </span>
+                      <span className="font-medium">{config.name}</span>
+                    </span>
+                    <span className={`text-sm ${isLight ? 'text-gray-500' : 'text-gray-400'}`}>
+                      Слушать →
+                    </span>
                   </a>
-                ))}
-              </div>
-            )}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
     );
@@ -263,8 +363,9 @@ const BlockRenderer = ({ block }) => {
   return null;
 };
 
+// ===== EVENT CARD =====
 const EventCard = ({ event }) => (
-  <div className="bg-white/5 border border-white/10 rounded-xl p-4" data-testid="event-card">
+  <div className="bg-white/5 border border-white/10 rounded-xl p-4">
     {event.cover && (
       <img
         src={event.cover}
@@ -298,8 +399,9 @@ const EventCard = ({ event }) => (
   </div>
 );
 
+// ===== SHOWCASE CARD =====
 const ShowcaseCard = ({ showcase }) => (
-  <div className="bg-white/5 border border-white/10 rounded-xl p-3" data-testid="showcase-card">
+  <div className="bg-white/5 border border-white/10 rounded-xl p-3">
     {showcase.cover && (
       <img
         src={showcase.cover}
