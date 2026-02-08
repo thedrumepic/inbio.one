@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { api } from '../utils/api';
 import { toast } from 'sonner';
+import { Logo } from './Logo';
 import {
   Trash2,
   Camera,
@@ -97,21 +98,23 @@ const PageEditor = ({ page, onClose }) => {
   const otherBlocks = blocks.filter(b => b.block_type !== 'link');
 
   return (
-    <div className="min-h-screen bg-neutral-100" data-testid="page-editor">
+    <div className="min-h-screen bg-[#0a0a0a]" data-testid="page-editor">
       {/* Fixed Header */}
-      <header className="sticky top-0 z-50 bg-white border-b border-neutral-200">
+      <header className="sticky top-0 z-50 bg-[#0a0a0a] border-b border-white/10">
         <div className="max-w-[480px] mx-auto px-4 h-14 flex items-center justify-between">
           <button
             onClick={onClose}
-            className="text-neutral-900 font-semibold text-base hover:text-neutral-600 transition-colors"
+            className="text-white font-semibold text-base hover:text-gray-300 transition-colors flex items-center gap-2"
             data-testid="page-username"
           >
-            /{page.username}
+            <Logo size="sm" />
+            <span className="text-gray-400">/</span>
+            <span>{page.username}</span>
           </button>
           <button
             onClick={handleSave}
             disabled={saving}
-            className="bg-neutral-900 text-white px-6 py-2 rounded-full text-sm font-semibold hover:bg-neutral-800 transition-colors disabled:opacity-50"
+            className="bg-white text-black px-6 py-2 rounded-full text-sm font-semibold hover:bg-gray-200 transition-colors disabled:opacity-50"
             data-testid="save-button"
           >
             {saving ? 'Сохранение...' : 'Сохранить'}
@@ -124,7 +127,7 @@ const PageEditor = ({ page, onClose }) => {
         {/* Cover Image Section */}
         <div className="relative">
           <div
-            className="relative h-48 bg-neutral-200 cursor-pointer overflow-hidden"
+            className="relative h-48 bg-white/5 cursor-pointer overflow-hidden"
             onClick={() => coverInputRef.current?.click()}
             data-testid="cover-upload"
           >
@@ -137,8 +140,8 @@ const PageEditor = ({ page, onClose }) => {
             ) : (
               <div className="w-full h-full flex items-center justify-center">
                 <div className="text-center">
-                  <Camera className="w-8 h-8 text-neutral-400 mx-auto mb-2" />
-                  <span className="text-sm text-neutral-500">Добавить обложку</span>
+                  <Camera className="w-8 h-8 text-gray-500 mx-auto mb-2" />
+                  <span className="text-sm text-gray-500">Добавить обложку</span>
                 </div>
               </div>
             )}
@@ -151,10 +154,10 @@ const PageEditor = ({ page, onClose }) => {
                 e.stopPropagation();
                 handleRemoveImage('cover');
               }}
-              className="absolute top-3 right-3 w-9 h-9 bg-white rounded-full shadow-md flex items-center justify-center hover:bg-neutral-50 transition-colors"
+              className="absolute top-3 right-3 w-9 h-9 bg-black/60 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-black/80 transition-colors"
               data-testid="delete-cover"
             >
-              <Trash2 className="w-4 h-4 text-neutral-600" />
+              <Trash2 className="w-4 h-4 text-white" />
             </button>
           )}
           
@@ -172,7 +175,7 @@ const PageEditor = ({ page, onClose }) => {
           <div className="relative -mt-14 flex justify-center">
             <div className="relative">
               <div
-                className="w-28 h-28 rounded-full bg-white border-4 border-white shadow-lg cursor-pointer overflow-hidden"
+                className="w-28 h-28 rounded-full bg-[#0a0a0a] border-4 border-[#0a0a0a] cursor-pointer overflow-hidden"
                 onClick={() => avatarInputRef.current?.click()}
                 data-testid="avatar-upload"
               >
@@ -183,8 +186,8 @@ const PageEditor = ({ page, onClose }) => {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full bg-neutral-200 flex items-center justify-center">
-                    <Camera className="w-6 h-6 text-neutral-400" />
+                  <div className="w-full h-full bg-white/10 flex items-center justify-center">
+                    <Camera className="w-6 h-6 text-gray-500" />
                   </div>
                 )}
               </div>
@@ -192,10 +195,10 @@ const PageEditor = ({ page, onClose }) => {
               {/* Edit avatar button */}
               <button
                 onClick={() => avatarInputRef.current?.click()}
-                className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center border border-neutral-200 hover:bg-neutral-50 transition-colors"
+                className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-8 h-8 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/20 hover:bg-white/20 transition-colors"
                 data-testid="edit-avatar"
               >
-                <Camera className="w-4 h-4 text-neutral-600" />
+                <Camera className="w-4 h-4 text-white" />
               </button>
             </div>
             
@@ -217,7 +220,7 @@ const PageEditor = ({ page, onClose }) => {
               type="text"
               value={pageData.name}
               onChange={(e) => setPageData((prev) => ({ ...prev, name: e.target.value }))}
-              className="w-full px-4 py-3 bg-white border border-neutral-200 rounded-xl text-neutral-900 text-base placeholder:text-neutral-400 focus:outline-none focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400 transition-colors"
+              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-base placeholder:text-gray-500 focus:outline-none focus:border-white/30 focus:ring-1 focus:ring-white/30 transition-colors"
               placeholder="Имя"
               data-testid="name-input"
             />
@@ -228,7 +231,7 @@ const PageEditor = ({ page, onClose }) => {
             <textarea
               value={pageData.bio}
               onChange={(e) => setPageData((prev) => ({ ...prev, bio: e.target.value }))}
-              className="w-full px-4 py-3 bg-white border border-neutral-200 rounded-xl text-neutral-900 text-base placeholder:text-neutral-400 focus:outline-none focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400 transition-colors resize-none min-h-[100px]"
+              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-base placeholder:text-gray-500 focus:outline-none focus:border-white/30 focus:ring-1 focus:ring-white/30 transition-colors resize-none min-h-[100px]"
               placeholder="Описание"
               data-testid="bio-input"
             />
@@ -253,7 +256,7 @@ const PageEditor = ({ page, onClose }) => {
           {/* Add Links Button */}
           <button
             onClick={() => setShowLinkModal(true)}
-            className="w-full py-4 bg-white border-2 border-dashed border-neutral-300 rounded-xl text-neutral-600 font-medium hover:border-neutral-400 hover:bg-neutral-50 transition-colors flex items-center justify-center gap-2"
+            className="w-full py-4 bg-white/5 border border-dashed border-white/20 rounded-xl text-gray-400 font-medium hover:border-white/40 hover:bg-white/10 transition-colors flex items-center justify-center gap-2"
             data-testid="add-link-button"
           >
             <Plus className="w-5 h-5" />
@@ -263,7 +266,7 @@ const PageEditor = ({ page, onClose }) => {
 
         {/* Other Blocks Section */}
         <div className="px-4 mt-4">
-          <div className="bg-white rounded-xl border border-neutral-200 p-4">
+          <div className="bg-white/5 rounded-xl border border-white/10 p-4">
             {/* Existing Other Blocks */}
             {otherBlocks.length > 0 && (
               <div className="space-y-3 mb-4">
@@ -280,7 +283,7 @@ const PageEditor = ({ page, onClose }) => {
             {/* Add New Block Button */}
             <button
               onClick={() => setShowBlockModal(true)}
-              className="w-full py-4 bg-neutral-100 border-2 border-dashed border-neutral-300 rounded-xl text-neutral-600 font-medium hover:border-neutral-400 hover:bg-neutral-50 transition-colors flex items-center justify-center gap-2"
+              className="w-full py-4 bg-white/5 border border-dashed border-white/20 rounded-xl text-gray-400 font-medium hover:border-white/40 hover:bg-white/10 transition-colors flex items-center justify-center gap-2"
               data-testid="add-block-button"
             >
               <Plus className="w-5 h-5" />
@@ -290,7 +293,7 @@ const PageEditor = ({ page, onClose }) => {
             {/* Loading State */}
             {loadingBlocks && (
               <div className="py-4 text-center">
-                <div className="w-6 h-6 border-2 border-neutral-300 border-t-neutral-600 rounded-full animate-spin mx-auto"></div>
+                <div className="w-6 h-6 border-2 border-white/20 border-t-white rounded-full animate-spin mx-auto"></div>
               </div>
             )}
           </div>
@@ -298,11 +301,24 @@ const PageEditor = ({ page, onClose }) => {
 
         {/* Footer Hint */}
         <div className="px-4 mt-6">
-          <p className="text-center text-sm text-neutral-400 leading-relaxed">
+          <p className="text-center text-sm text-gray-500 leading-relaxed">
             Добавь блоки с текстом, картинками, кнопками или видео на YouTube.
             <br />
             Разделяй всё по смыслу разделителями.
           </p>
+        </div>
+
+        {/* Powered by */}
+        <div className="px-4 mt-8 flex justify-center">
+          <a 
+            href="https://1bio.cc" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 text-gray-600 hover:text-gray-400 transition-colors"
+          >
+            <span className="text-xs">Powered by</span>
+            <Logo size="xs" className="opacity-60" />
+          </a>
         </div>
       </main>
 
@@ -340,32 +356,32 @@ const LinkBlockItem = ({ block, onDelete }) => {
   const { content } = block;
   
   return (
-    <div className="group flex items-center gap-3 p-3 bg-white border border-neutral-200 rounded-xl hover:border-neutral-300 transition-colors">
-      <div className="w-8 h-8 bg-neutral-100 rounded-lg flex items-center justify-center flex-shrink-0">
-        <Link2 className="w-4 h-4 text-neutral-500" />
+    <div className="group flex items-center gap-3 p-3 bg-white/5 border border-white/10 rounded-xl hover:border-white/20 transition-colors">
+      <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center flex-shrink-0">
+        <Link2 className="w-4 h-4 text-gray-400" />
       </div>
       <div className="flex-1 min-w-0">
-        <div className="text-sm font-medium text-neutral-900 truncate">{content.title}</div>
-        <div className="text-xs text-neutral-400 truncate">{content.url}</div>
+        <div className="text-sm font-medium text-white truncate">{content.title}</div>
+        <div className="text-xs text-gray-500 truncate">{content.url}</div>
       </div>
       <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
         <a
           href={content.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="w-8 h-8 flex items-center justify-center hover:bg-neutral-100 rounded-lg transition-colors"
+          className="w-8 h-8 flex items-center justify-center hover:bg-white/10 rounded-lg transition-colors"
           onClick={(e) => e.stopPropagation()}
         >
-          <ExternalLink className="w-4 h-4 text-neutral-400" />
+          <ExternalLink className="w-4 h-4 text-gray-500" />
         </a>
         <button
           onClick={onDelete}
-          className="w-8 h-8 flex items-center justify-center hover:bg-red-50 rounded-lg transition-colors"
+          className="w-8 h-8 flex items-center justify-center hover:bg-red-500/20 rounded-lg transition-colors"
         >
-          <Trash2 className="w-4 h-4 text-red-500" />
+          <Trash2 className="w-4 h-4 text-red-400" />
         </button>
       </div>
-      <GripVertical className="w-4 h-4 text-neutral-300 flex-shrink-0" />
+      <GripVertical className="w-4 h-4 text-gray-600 flex-shrink-0" />
     </div>
   );
 };
@@ -376,9 +392,9 @@ const OtherBlockItem = ({ block, onDelete }) => {
   
   const getIcon = () => {
     switch (block_type) {
-      case 'text': return <Type className="w-4 h-4 text-neutral-500" />;
-      case 'music': return <Music className="w-4 h-4 text-neutral-500" />;
-      default: return <Type className="w-4 h-4 text-neutral-500" />;
+      case 'text': return <Type className="w-4 h-4 text-gray-400" />;
+      case 'music': return <Music className="w-4 h-4 text-gray-400" />;
+      default: return <Type className="w-4 h-4 text-gray-400" />;
     }
   };
   
@@ -391,21 +407,21 @@ const OtherBlockItem = ({ block, onDelete }) => {
   };
   
   return (
-    <div className="group flex items-center gap-3 p-3 bg-neutral-50 rounded-xl hover:bg-neutral-100 transition-colors">
-      <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center flex-shrink-0 border border-neutral-200">
+    <div className="group flex items-center gap-3 p-3 bg-white/5 rounded-xl hover:bg-white/10 transition-colors">
+      <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center flex-shrink-0">
         {getIcon()}
       </div>
       <div className="flex-1 min-w-0">
-        <div className="text-sm font-medium text-neutral-900 capitalize">{block_type === 'text' ? 'Текст' : block_type === 'music' ? 'Музыка' : block_type}</div>
-        <div className="text-xs text-neutral-400 truncate">{getPreview()}</div>
+        <div className="text-sm font-medium text-white capitalize">{block_type === 'text' ? 'Текст' : block_type === 'music' ? 'Музыка' : block_type}</div>
+        <div className="text-xs text-gray-500 truncate">{getPreview()}</div>
       </div>
       <button
         onClick={onDelete}
-        className="w-8 h-8 flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-red-50 rounded-lg transition-all"
+        className="w-8 h-8 flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-red-500/20 rounded-lg transition-all"
       >
-        <Trash2 className="w-4 h-4 text-red-500" />
+        <Trash2 className="w-4 h-4 text-red-400" />
       </button>
-      <GripVertical className="w-4 h-4 text-neutral-300 flex-shrink-0" />
+      <GripVertical className="w-4 h-4 text-gray-600 flex-shrink-0" />
     </div>
   );
 };
@@ -447,42 +463,42 @@ const LinkModal = ({ pageId, onClose, onSuccess }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-50" onClick={onClose}>
-      <div className="w-full max-w-[480px] bg-white rounded-t-2xl sm:rounded-2xl p-6 animate-slide-up" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center z-50" onClick={onClose}>
+      <div className="w-full max-w-[480px] bg-[#171717] rounded-t-2xl sm:rounded-2xl p-6 animate-slide-up border border-white/10" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-neutral-900">Добавить ссылку</h2>
-          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center hover:bg-neutral-100 rounded-full transition-colors">
-            <X className="w-5 h-5 text-neutral-500" />
+          <h2 className="text-xl font-bold text-white">Добавить ссылку</h2>
+          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center hover:bg-white/10 rounded-full transition-colors">
+            <X className="w-5 h-5 text-gray-400" />
           </button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-2">Название</label>
+            <label className="block text-sm font-medium text-gray-400 mb-2">Название</label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400"
+              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-gray-500 focus:outline-none focus:border-white/30 focus:ring-1 focus:ring-white/30"
               placeholder="Мой сайт"
               disabled={loading}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-2">URL</label>
+            <label className="block text-sm font-medium text-gray-400 mb-2">URL</label>
             <input
               type="text"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
-              className="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400"
+              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-gray-500 focus:outline-none focus:border-white/30 focus:ring-1 focus:ring-white/30"
               placeholder="example.com"
               disabled={loading}
             />
           </div>
           <div className="flex gap-3 pt-2">
-            <button type="button" onClick={onClose} className="flex-1 py-3 bg-neutral-100 text-neutral-700 rounded-xl font-medium hover:bg-neutral-200 transition-colors">
+            <button type="button" onClick={onClose} className="flex-1 py-3 bg-white/10 text-white rounded-xl font-medium hover:bg-white/20 transition-colors">
               Отмена
             </button>
-            <button type="submit" disabled={loading} className="flex-1 py-3 bg-neutral-900 text-white rounded-xl font-medium hover:bg-neutral-800 transition-colors disabled:opacity-50">
+            <button type="submit" disabled={loading} className="flex-1 py-3 bg-white text-black rounded-xl font-medium hover:bg-gray-200 transition-colors disabled:opacity-50">
               {loading ? 'Добавление...' : 'Добавить'}
             </button>
           </div>
@@ -510,12 +526,12 @@ const BlockTypeModal = ({ pageId, onClose, onSuccess }) => {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-50" onClick={onClose}>
-      <div className="w-full max-w-[480px] bg-white rounded-t-2xl sm:rounded-2xl p-6 animate-slide-up" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center z-50" onClick={onClose}>
+      <div className="w-full max-w-[480px] bg-[#171717] rounded-t-2xl sm:rounded-2xl p-6 animate-slide-up border border-white/10" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-neutral-900">Выберите тип блока</h2>
-          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center hover:bg-neutral-100 rounded-full transition-colors">
-            <X className="w-5 h-5 text-neutral-500" />
+          <h2 className="text-xl font-bold text-white">Выберите тип блока</h2>
+          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center hover:bg-white/10 rounded-full transition-colors">
+            <X className="w-5 h-5 text-gray-400" />
           </button>
         </div>
         <div className="space-y-2">
@@ -525,14 +541,14 @@ const BlockTypeModal = ({ pageId, onClose, onSuccess }) => {
               <button
                 key={type.id}
                 onClick={() => setSelectedType(type.id)}
-                className="w-full flex items-center gap-4 p-4 bg-neutral-50 hover:bg-neutral-100 rounded-xl transition-colors text-left"
+                className="w-full flex items-center gap-4 p-4 bg-white/5 hover:bg-white/10 rounded-xl transition-colors text-left border border-white/5 hover:border-white/10"
               >
-                <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center border border-neutral-200">
-                  <Icon className="w-5 h-5 text-neutral-600" />
+                <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center">
+                  <Icon className="w-5 h-5 text-gray-300" />
                 </div>
                 <div>
-                  <div className="font-medium text-neutral-900">{type.label}</div>
-                  <div className="text-sm text-neutral-500">{type.description}</div>
+                  <div className="font-medium text-white">{type.label}</div>
+                  <div className="text-sm text-gray-500">{type.description}</div>
                 </div>
               </button>
             );
@@ -574,27 +590,27 @@ const TextBlockModal = ({ pageId, onClose, onSuccess }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-50" onClick={onClose}>
-      <div className="w-full max-w-[480px] bg-white rounded-t-2xl sm:rounded-2xl p-6 animate-slide-up" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center z-50" onClick={onClose}>
+      <div className="w-full max-w-[480px] bg-[#171717] rounded-t-2xl sm:rounded-2xl p-6 animate-slide-up border border-white/10" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-neutral-900">Добавить текст</h2>
-          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center hover:bg-neutral-100 rounded-full transition-colors">
-            <X className="w-5 h-5 text-neutral-500" />
+          <h2 className="text-xl font-bold text-white">Добавить текст</h2>
+          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center hover:bg-white/10 rounded-full transition-colors">
+            <X className="w-5 h-5 text-gray-400" />
           </button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
-            className="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400 resize-none min-h-[120px]"
+            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-gray-500 focus:outline-none focus:border-white/30 focus:ring-1 focus:ring-white/30 resize-none min-h-[120px]"
             placeholder="Ваш текст..."
             disabled={loading}
           />
           <div className="flex gap-3 pt-2">
-            <button type="button" onClick={onClose} className="flex-1 py-3 bg-neutral-100 text-neutral-700 rounded-xl font-medium hover:bg-neutral-200 transition-colors">
+            <button type="button" onClick={onClose} className="flex-1 py-3 bg-white/10 text-white rounded-xl font-medium hover:bg-white/20 transition-colors">
               Отмена
             </button>
-            <button type="submit" disabled={loading} className="flex-1 py-3 bg-neutral-900 text-white rounded-xl font-medium hover:bg-neutral-800 transition-colors disabled:opacity-50">
+            <button type="submit" disabled={loading} className="flex-1 py-3 bg-white text-black rounded-xl font-medium hover:bg-gray-200 transition-colors disabled:opacity-50">
               {loading ? 'Добавление...' : 'Добавить'}
             </button>
           </div>
@@ -660,23 +676,23 @@ const MusicBlockModal = ({ pageId, onClose, onSuccess }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-50" onClick={onClose}>
-      <div className="w-full max-w-[480px] bg-white rounded-t-2xl sm:rounded-2xl p-6 animate-slide-up" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center z-50" onClick={onClose}>
+      <div className="w-full max-w-[480px] bg-[#171717] rounded-t-2xl sm:rounded-2xl p-6 animate-slide-up border border-white/10" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-neutral-900">Добавить музыку</h2>
-          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center hover:bg-neutral-100 rounded-full transition-colors">
-            <X className="w-5 h-5 text-neutral-500" />
+          <h2 className="text-xl font-bold text-white">Добавить музыку</h2>
+          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center hover:bg-white/10 rounded-full transition-colors">
+            <X className="w-5 h-5 text-gray-400" />
           </button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-neutral-700 mb-2">Spotify/Apple Music URL</label>
+            <label className="block text-sm font-medium text-gray-400 mb-2">Spotify/Apple Music URL</label>
             <div className="flex gap-2">
               <input
                 type="url"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
-                className="flex-1 px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl text-neutral-900 placeholder:text-neutral-400 focus:outline-none focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400"
+                className="flex-1 px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-gray-500 focus:outline-none focus:border-white/30 focus:ring-1 focus:ring-white/30"
                 placeholder="https://..."
                 disabled={loading}
               />
@@ -684,7 +700,7 @@ const MusicBlockModal = ({ pageId, onClose, onSuccess }) => {
                 type="button"
                 onClick={handleResolve}
                 disabled={loading}
-                className="px-4 py-3 bg-neutral-100 text-neutral-700 rounded-xl font-medium hover:bg-neutral-200 transition-colors disabled:opacity-50"
+                className="px-4 py-3 bg-white/10 text-white rounded-xl font-medium hover:bg-white/20 transition-colors disabled:opacity-50"
               >
                 {loading ? '...' : 'Найти'}
               </button>
@@ -692,15 +708,15 @@ const MusicBlockModal = ({ pageId, onClose, onSuccess }) => {
           </div>
 
           {musicData && (
-            <div className="p-4 bg-neutral-50 rounded-xl">
+            <div className="p-4 bg-white/5 rounded-xl border border-white/10">
               <div className="flex gap-3">
                 {musicData.cover && (
                   <img src={musicData.cover} alt={musicData.title} className="w-14 h-14 rounded-lg object-cover" />
                 )}
                 <div>
-                  <div className="font-medium text-neutral-900">{musicData.title}</div>
-                  <div className="text-sm text-neutral-500">{musicData.artist}</div>
-                  <div className="text-xs text-neutral-400 mt-1">
+                  <div className="font-medium text-white">{musicData.title}</div>
+                  <div className="text-sm text-gray-400">{musicData.artist}</div>
+                  <div className="text-xs text-gray-500 mt-1">
                     {musicData.platforms?.length || 0} платформ
                   </div>
                 </div>
@@ -709,10 +725,10 @@ const MusicBlockModal = ({ pageId, onClose, onSuccess }) => {
           )}
 
           <div className="flex gap-3 pt-2">
-            <button type="button" onClick={onClose} className="flex-1 py-3 bg-neutral-100 text-neutral-700 rounded-xl font-medium hover:bg-neutral-200 transition-colors">
+            <button type="button" onClick={onClose} className="flex-1 py-3 bg-white/10 text-white rounded-xl font-medium hover:bg-white/20 transition-colors">
               Отмена
             </button>
-            <button type="submit" disabled={loading || !musicData} className="flex-1 py-3 bg-neutral-900 text-white rounded-xl font-medium hover:bg-neutral-800 transition-colors disabled:opacity-50">
+            <button type="submit" disabled={loading || !musicData} className="flex-1 py-3 bg-white text-black rounded-xl font-medium hover:bg-gray-200 transition-colors disabled:opacity-50">
               {loading ? 'Добавление...' : 'Добавить'}
             </button>
           </div>
