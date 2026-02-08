@@ -556,11 +556,7 @@ async def upload_image(file: UploadFile = File(...), current_user = Depends(get_
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://linkfolio-75.preview.emergentagent.com",
-        "http://localhost:3000",
-        "http://127.0.0.1:3000"
-    ],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["*"],
