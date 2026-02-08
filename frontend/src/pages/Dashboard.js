@@ -4,6 +4,7 @@ import { api, isAuthenticated, logout } from '../utils/api';
 import { toast } from 'sonner';
 import { Plus, Edit2, Trash2, ExternalLink, BarChart, Settings as SettingsIcon, LogOut } from 'lucide-react';
 import PageEditor from '../components/PageEditor';
+import { Logo } from '../components/Logo';
 
 const Dashboard = () => {
   const navigate = useNavigate();
