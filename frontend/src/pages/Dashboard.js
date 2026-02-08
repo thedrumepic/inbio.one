@@ -137,7 +137,7 @@ const Dashboard = () => {
                     rel="noopener noreferrer"
                     className="text-sm text-gray-400 hover:text-white flex items-center gap-1 truncate"
                   >
-                    biolink.app/{page.username}
+                    1bio.cc/{page.username}
                     <ExternalLink className="w-3 h-3 flex-shrink-0" />
                   </a>
                   
@@ -284,9 +284,9 @@ const CreatePageModal = ({ onClose, onSuccess }) => {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <label className="text-sm text-gray-400">Имя пользователя</label>
+            <label className="text-sm text-gray-400">Ссылка вашей страницы</label>
             <div className="flex items-center gap-2 input">
-              <span className="text-gray-400 text-sm">biolink.app/</span>
+              <span className="text-gray-400 text-sm">1bio.cc/</span>
               <input
                 type="text"
                 value={username}
@@ -300,13 +300,13 @@ const CreatePageModal = ({ onClose, onSuccess }) => {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm text-gray-400">Имя</label>
+            <label className="text-sm text-gray-400">Название</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="input"
-              placeholder="Ваше имя"
+              placeholder="Название страницы"
               disabled={loading}
               data-testid="name-input"
             />

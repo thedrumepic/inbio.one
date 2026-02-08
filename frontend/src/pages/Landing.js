@@ -57,7 +57,7 @@ const Landing = () => {
         <form onSubmit={handleCreate} className="space-y-4" data-testid="username-form">
           <div className="card-glass">
             <div className="flex items-center gap-2">
-              <span className="text-gray-400 text-sm">biolink.app/</span>
+              <span className="text-gray-400 text-sm">1bio.cc/</span>
               <input
                 type="text"
                 value={username}

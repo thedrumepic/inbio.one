@@ -201,7 +201,7 @@ const PublicPage = () => {
         )}
       </div>
 
-      {/* Powered by 1link.pw */}
+      {/* Powered by 1bio.cc */}
       <div className="fixed bottom-0 left-0 right-0 py-3 flex justify-center bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/90 to-transparent pointer-events-none z-50">
         <a 
           href="https://1link.pw" 
@@ -209,7 +209,7 @@ const PublicPage = () => {
           rel="noopener noreferrer"
           className="text-xs text-gray-500 hover:text-gray-400 transition-colors pointer-events-auto"
         >
-          Powered by 1link.pw
+          Powered by 1bio.cc
         </a>
       </div>
     </div>
