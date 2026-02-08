@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { api, setAuthToken } from '../utils/api';
 import { toast } from 'sonner';
-import { UserPlus, ArrowLeft } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
+import { Logo } from '../components/Logo';
 
 const Register = () => {
   const navigate = useNavigate();
