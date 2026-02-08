@@ -204,8 +204,6 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Block CRUD Operations"
-    - "Image Upload"
     - "New Page Editor Interface"
   stuck_tasks: []
   test_all: false
