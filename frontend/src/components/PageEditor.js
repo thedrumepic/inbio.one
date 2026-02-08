@@ -170,155 +170,156 @@ const PageEditor = ({ page, onClose }) => {
           />
         </div>
 
-        {/* Avatar Section - Overlapping cover */}
-        <div className="relative px-4">
-          <div className="relative -mt-14 flex justify-center">
-            <div className="relative">
-              <div
-                className="w-28 h-28 rounded-full bg-[#0a0a0a] border-4 border-[#0a0a0a] cursor-pointer overflow-hidden"
-                onClick={() => avatarInputRef.current?.click()}
-                data-testid="avatar-upload"
-              >
-                {pageData.avatar ? (
-                  <img
-                    src={pageData.avatar}
-                    alt="Аватар"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-white/10 flex items-center justify-center">
-                    <Camera className="w-6 h-6 text-gray-500" />
-                  </div>
-                )}
+        {/* Content Card - wrapping avatar, inputs, links */}
+        <div className="relative -mt-8">
+          <div className="bg-[#171717] rounded-t-[32px] min-h-[400px] px-4 pb-8">
+            {/* Avatar Section - Overlapping into card */}
+            <div className="relative flex justify-center">
+              <div className="relative -mt-14">
+                <div
+                  className="w-28 h-28 rounded-full bg-[#171717] border-4 border-[#171717] cursor-pointer overflow-hidden"
+                  onClick={() => avatarInputRef.current?.click()}
+                  data-testid="avatar-upload"
+                >
+                  {pageData.avatar ? (
+                    <img
+                      src={pageData.avatar}
+                      alt="Аватар"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-white/10 flex items-center justify-center">
+                      <Camera className="w-6 h-6 text-gray-500" />
+                    </div>
+                  )}
+                </div>
+                
+                {/* Edit avatar button */}
+                <button
+                  onClick={() => avatarInputRef.current?.click()}
+                  className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-8 h-8 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/20 hover:bg-white/20 transition-colors"
+                  data-testid="edit-avatar"
+                >
+                  <Camera className="w-4 h-4 text-white" />
+                </button>
               </div>
               
-              {/* Edit avatar button */}
+              <input
+                ref={avatarInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => handleImageUpload(e.target.files[0], 'avatar')}
+              />
+            </div>
+
+            {/* Profile Fields */}
+            <div className="mt-6 space-y-4">
+              {/* Name Input */}
+              <div>
+                <input
+                  type="text"
+                  value={pageData.name}
+                  onChange={(e) => setPageData((prev) => ({ ...prev, name: e.target.value }))}
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-base placeholder:text-gray-500 focus:outline-none focus:border-white/30 focus:ring-1 focus:ring-white/30 transition-colors"
+                  placeholder="Имя"
+                  data-testid="name-input"
+                />
+              </div>
+
+              {/* Bio Textarea */}
+              <div>
+                <textarea
+                  value={pageData.bio}
+                  onChange={(e) => setPageData((prev) => ({ ...prev, bio: e.target.value }))}
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-base placeholder:text-gray-500 focus:outline-none focus:border-white/30 focus:ring-1 focus:ring-white/30 transition-colors resize-none min-h-[100px]"
+                  placeholder="Описание"
+                  data-testid="bio-input"
+                />
+              </div>
+            </div>
+
+            {/* Links Section */}
+            <div className="mt-6">
+              {/* Existing Links */}
+              {linkBlocks.length > 0 && (
+                <div className="space-y-2 mb-4">
+                  {linkBlocks.map((block) => (
+                    <LinkBlockItem
+                      key={block.id}
+                      block={block}
+                      onDelete={() => handleDeleteBlock(block.id)}
+                    />
+                  ))}
+                </div>
+              )}
+
+              {/* Add Links Button */}
               <button
-                onClick={() => avatarInputRef.current?.click()}
-                className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-8 h-8 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/20 hover:bg-white/20 transition-colors"
-                data-testid="edit-avatar"
+                onClick={() => setShowLinkModal(true)}
+                className="w-full py-4 bg-white/5 border border-dashed border-white/20 rounded-xl text-gray-400 font-medium hover:border-white/40 hover:bg-white/10 transition-colors flex items-center justify-center gap-2"
+                data-testid="add-link-button"
               >
-                <Camera className="w-4 h-4 text-white" />
+                <Plus className="w-5 h-5" />
+                Добавить ссылки
               </button>
             </div>
-            
-            <input
-              ref={avatarInputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={(e) => handleImageUpload(e.target.files[0], 'avatar')}
-            />
-          </div>
-        </div>
 
-        {/* Profile Fields */}
-        <div className="px-4 mt-6 space-y-4">
-          {/* Name Input */}
-          <div>
-            <input
-              type="text"
-              value={pageData.name}
-              onChange={(e) => setPageData((prev) => ({ ...prev, name: e.target.value }))}
-              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-base placeholder:text-gray-500 focus:outline-none focus:border-white/30 focus:ring-1 focus:ring-white/30 transition-colors"
-              placeholder="Имя"
-              data-testid="name-input"
-            />
-          </div>
+            {/* Other Blocks Section */}
+            <div className="mt-4">
+              {/* Existing Other Blocks */}
+              {otherBlocks.length > 0 && (
+                <div className="space-y-3 mb-4">
+                  {otherBlocks.map((block) => (
+                    <OtherBlockItem
+                      key={block.id}
+                      block={block}
+                      onDelete={() => handleDeleteBlock(block.id)}
+                    />
+                  ))}
+                </div>
+              )}
 
-          {/* Bio Textarea */}
-          <div>
-            <textarea
-              value={pageData.bio}
-              onChange={(e) => setPageData((prev) => ({ ...prev, bio: e.target.value }))}
-              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-base placeholder:text-gray-500 focus:outline-none focus:border-white/30 focus:ring-1 focus:ring-white/30 transition-colors resize-none min-h-[100px]"
-              placeholder="Описание"
-              data-testid="bio-input"
-            />
-          </div>
-        </div>
+              {/* Add New Block Button */}
+              <button
+                onClick={() => setShowBlockModal(true)}
+                className="w-full py-4 bg-white/5 border border-dashed border-white/20 rounded-xl text-gray-400 font-medium hover:border-white/40 hover:bg-white/10 transition-colors flex items-center justify-center gap-2"
+                data-testid="add-block-button"
+              >
+                <Plus className="w-5 h-5" />
+                Добавить новый блок
+              </button>
 
-        {/* Links Section */}
-        <div className="px-4 mt-6">
-          {/* Existing Links */}
-          {linkBlocks.length > 0 && (
-            <div className="space-y-2 mb-4">
-              {linkBlocks.map((block) => (
-                <LinkBlockItem
-                  key={block.id}
-                  block={block}
-                  onDelete={() => handleDeleteBlock(block.id)}
-                />
-              ))}
+              {/* Loading State */}
+              {loadingBlocks && (
+                <div className="py-4 text-center">
+                  <div className="w-6 h-6 border-2 border-white/20 border-t-white rounded-full animate-spin mx-auto"></div>
+                </div>
+              )}
             </div>
-          )}
 
-          {/* Add Links Button */}
-          <button
-            onClick={() => setShowLinkModal(true)}
-            className="w-full py-4 bg-white/5 border border-dashed border-white/20 rounded-xl text-gray-400 font-medium hover:border-white/40 hover:bg-white/10 transition-colors flex items-center justify-center gap-2"
-            data-testid="add-link-button"
-          >
-            <Plus className="w-5 h-5" />
-            Добавить ссылки
-          </button>
-        </div>
+            {/* Footer Hint */}
+            <div className="mt-6">
+              <p className="text-center text-sm text-gray-500 leading-relaxed">
+                Добавь блоки с текстом, картинками, кнопками или видео на YouTube.
+                <br />
+                Разделяй всё по смыслу разделителями.
+              </p>
+            </div>
 
-        {/* Other Blocks Section */}
-        <div className="px-4 mt-4">
-          <div className="bg-white/5 rounded-xl border border-white/10 p-4">
-            {/* Existing Other Blocks */}
-            {otherBlocks.length > 0 && (
-              <div className="space-y-3 mb-4">
-                {otherBlocks.map((block) => (
-                  <OtherBlockItem
-                    key={block.id}
-                    block={block}
-                    onDelete={() => handleDeleteBlock(block.id)}
-                  />
-                ))}
-              </div>
-            )}
-
-            {/* Add New Block Button */}
-            <button
-              onClick={() => setShowBlockModal(true)}
-              className="w-full py-4 bg-white/5 border border-dashed border-white/20 rounded-xl text-gray-400 font-medium hover:border-white/40 hover:bg-white/10 transition-colors flex items-center justify-center gap-2"
-              data-testid="add-block-button"
-            >
-              <Plus className="w-5 h-5" />
-              Добавить новый блок
-            </button>
-
-            {/* Loading State */}
-            {loadingBlocks && (
-              <div className="py-4 text-center">
-                <div className="w-6 h-6 border-2 border-white/20 border-t-white rounded-full animate-spin mx-auto"></div>
-              </div>
-            )}
+            {/* Powered by */}
+            <div className="mt-8 flex justify-center">
+              <a 
+                href="https://1bio.cc" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 text-gray-600 hover:text-gray-400 transition-colors"
+              >
+                <span className="text-xs">Powered by</span>
+                <Logo size="xs" className="opacity-60" />
+              </a>
+            </div>
           </div>
-        </div>
-
-        {/* Footer Hint */}
-        <div className="px-4 mt-6">
-          <p className="text-center text-sm text-gray-500 leading-relaxed">
-            Добавь блоки с текстом, картинками, кнопками или видео на YouTube.
-            <br />
-            Разделяй всё по смыслу разделителями.
-          </p>
-        </div>
-
-        {/* Powered by */}
-        <div className="px-4 mt-8 flex justify-center">
-          <a 
-            href="https://1bio.cc" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="flex items-center gap-1.5 text-gray-600 hover:text-gray-400 transition-colors"
-          >
-            <span className="text-xs">Powered by</span>
-            <Logo size="xs" className="opacity-60" />
-          </a>
         </div>
       </main>
 
