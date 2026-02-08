@@ -345,17 +345,17 @@ class BioLinkAPITester:
             print("❌ Skipping upload tests - no auth token")
             return
         
-        # Create a small test image (1x1 pixel PNG)
-        import base64
+        # Create a proper test image using PIL
+        from PIL import Image
         from io import BytesIO
         
-        # Minimal PNG data (1x1 transparent pixel)
-        png_data = base64.b64decode(
-            'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChAI9jU77zgAAAABJRU5ErkJggg=='
-        )
+        img = Image.new('RGB', (100, 100), color='red')
+        img_buffer = BytesIO()
+        img.save(img_buffer, format='PNG')
+        img_data = img_buffer.getvalue()
         
         # Test image upload
-        files = {'file': ('test.png', BytesIO(png_data), 'image/png')}
+        files = {'file': ('test.png', BytesIO(img_data), 'image/png')}
         success, response = self.run_test(
             "Upload image",
             "POST",
