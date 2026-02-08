@@ -54,53 +54,53 @@ const PublicPage = () => {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] pb-20" data-testid="public-page">
-      <div className="max-w-[480px] mx-auto">
-        {/* Cover */}
+      <div className="max-w-[480px] mx-auto px-4 py-6 space-y-4">
+        
+        {/* ===== LEVEL 1: BANNER BLOCK (Обложка) ===== */}
         {page.cover ? (
           <div 
-            className="w-full h-48 bg-cover bg-center"
+            className="h-40 rounded-2xl bg-cover bg-center overflow-hidden"
             style={{ backgroundImage: `url(${page.cover})` }}
             data-testid="page-cover"
           />
         ) : (
-          <div className="w-full h-32 bg-white/5" />
+          <div className="h-24 rounded-2xl bg-[#171717]" />
         )}
 
-        {/* Content Card - wrapping avatar, name, bio, links */}
-        <div className="relative -mt-8">
-          <div className="bg-[#171717] rounded-t-[32px] min-h-[400px] px-4 pb-8">
-            {/* Avatar - Overlapping into card */}
-            <div className="relative flex justify-center">
-              <div className="-mt-14">
-                {page.avatar ? (
-                  <img
-                    src={page.avatar}
-                    alt={page.name}
-                    className="w-28 h-28 rounded-full border-4 border-[#171717] object-cover"
-                    data-testid="page-avatar"
-                  />
-                ) : (
-                  <div className="w-28 h-28 rounded-full border-4 border-[#171717] bg-white/10 flex items-center justify-center">
-                    <User className="w-12 h-12 text-gray-500" />
-                  </div>
-                )}
+        {/* ===== LEVEL 2: PROFILE & LINKS CARD ===== */}
+        <div className="relative">
+          {/* Avatar - overlapping banner */}
+          <div className="absolute left-1/2 -translate-x-1/2 -top-12 z-10">
+            {page.avatar ? (
+              <img
+                src={page.avatar}
+                alt={page.name}
+                className="w-24 h-24 rounded-full border-4 border-[#0a0a0a] object-cover"
+                data-testid="page-avatar"
+              />
+            ) : (
+              <div className="w-24 h-24 rounded-full border-4 border-[#0a0a0a] bg-[#171717] flex items-center justify-center">
+                <User className="w-10 h-10 text-gray-500" />
               </div>
-            </div>
+            )}
+          </div>
 
+          {/* Profile Card */}
+          <div className="bg-[#171717] rounded-2xl border border-white/10 pt-16 pb-6 px-4">
             {/* Name & Bio */}
-            <div className="text-center mt-4 mb-6">
+            <div className="text-center mb-6">
               <h1 className="text-xl font-bold text-white mb-2" data-testid="page-name">{page.name}</h1>
               {page.bio && (
                 <p className="text-gray-400 text-sm" data-testid="page-bio">{page.bio}</p>
               )}
             </div>
 
-            {/* Tabs */}
+            {/* Tabs (if events or showcases exist) */}
             {(events.length > 0 || showcases.length > 0) && (
               <div className="flex justify-center gap-2 mb-6 overflow-x-auto" data-testid="tabs-container">
                 <button
                   onClick={() => setActiveTab('profile')}
-                  className={`px-6 py-2 rounded-full text-sm font-medium transition-colors ${
+                  className={`px-5 py-2 rounded-full text-sm font-medium transition-colors ${
                     activeTab === 'profile' 
                       ? 'bg-white text-black' 
                       : 'bg-white/10 text-white hover:bg-white/20'
@@ -112,7 +112,7 @@ const PublicPage = () => {
                 {events.length > 0 && (
                   <button
                     onClick={() => setActiveTab('events')}
-                    className={`px-6 py-2 rounded-full text-sm font-medium transition-colors ${
+                    className={`px-5 py-2 rounded-full text-sm font-medium transition-colors ${
                       activeTab === 'events' 
                         ? 'bg-white text-black' 
                         : 'bg-white/10 text-white hover:bg-white/20'
@@ -125,7 +125,7 @@ const PublicPage = () => {
                 {showcases.length > 0 && (
                   <button
                     onClick={() => setActiveTab('showcases')}
-                    className={`px-6 py-2 rounded-full text-sm font-medium transition-colors ${
+                    className={`px-5 py-2 rounded-full text-sm font-medium transition-colors ${
                       activeTab === 'showcases' 
                         ? 'bg-white text-black' 
                         : 'bg-white/10 text-white hover:bg-white/20'
@@ -138,15 +138,15 @@ const PublicPage = () => {
               </div>
             )}
 
-            {/* Content */}
-            <div>
+            {/* Links/Content inside card */}
+            <div data-testid="blocks-container">
               {activeTab === 'profile' && (
-                <div className="space-y-3" data-testid="blocks-container">
+                <div className="space-y-3">
                   {blocks.map((block) => (
                     <BlockRenderer key={block.id} block={block} />
                   ))}
                   {blocks.length === 0 && (
-                    <div className="text-center py-12 text-gray-500">
+                    <div className="text-center py-8 text-gray-500">
                       Пока нет контента
                     </div>
                   )}
@@ -156,38 +156,7 @@ const PublicPage = () => {
               {activeTab === 'events' && (
                 <div className="space-y-3" data-testid="events-container">
                   {events.map((event) => (
-                    <div key={event.id} className="bg-white/5 border border-white/10 rounded-xl p-4" data-testid="event-card">
-                      {event.cover && (
-                        <img
-                          src={event.cover}
-                          alt={event.title}
-                          className="w-full h-40 object-cover rounded-lg mb-4"
-                        />
-                      )}
-                      <div className="flex gap-4">
-                        <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-white/10 flex flex-col items-center justify-center">
-                          <Calendar className="w-5 h-5 text-white" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-white mb-1">{event.title}</h3>
-                          <p className="text-sm text-gray-400 mb-1">{event.date}</p>
-                          {event.description && (
-                            <p className="text-sm text-gray-500 mb-2">{event.description}</p>
-                          )}
-                          {event.button_url && (
-                            <a
-                              href={event.button_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 text-sm text-white hover:text-gray-300 transition-colors"
-                            >
-                              {event.button_text}
-                              <ExternalLink className="w-3 h-3" />
-                            </a>
-                          )}
-                        </div>
-                      </div>
-                    </div>
+                    <EventCard key={event.id} event={event} />
                   ))}
                 </div>
               )}
@@ -195,48 +164,26 @@ const PublicPage = () => {
               {activeTab === 'showcases' && (
                 <div className="grid grid-cols-2 gap-3" data-testid="showcases-container">
                   {showcases.map((showcase) => (
-                    <div key={showcase.id} className="bg-white/5 border border-white/10 rounded-xl p-3" data-testid="showcase-card">
-                      {showcase.cover && (
-                        <img
-                          src={showcase.cover}
-                          alt={showcase.title}
-                          className="w-full aspect-square object-cover rounded-lg mb-3"
-                        />
-                      )}
-                      <h3 className="font-semibold text-white text-sm mb-1">{showcase.title}</h3>
-                      {showcase.price && (
-                        <p className="text-sm text-gray-400 mb-2">{showcase.price}</p>
-                      )}
-                      {showcase.button_url && (
-                        <a
-                          href={showcase.button_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="block w-full py-2 text-center text-xs font-medium bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors"
-                        >
-                          {showcase.button_text}
-                        </a>
-                      )}
-                    </div>
+                    <ShowcaseCard key={showcase.id} showcase={showcase} />
                   ))}
                 </div>
               )}
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Powered by 1bio */}
-      <div className="fixed bottom-0 left-0 right-0 py-4 flex justify-center bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/90 to-transparent pointer-events-none z-50">
-        <a 
-          href="https://1bio.cc" 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="flex items-center gap-1.5 text-gray-600 hover:text-gray-400 transition-colors pointer-events-auto"
-        >
-          <span className="text-xs">Powered by</span>
-          <Logo size="xs" className="opacity-60" />
-        </a>
+        {/* ===== FOOTER ===== */}
+        <div className="pt-8 pb-4">
+          <a 
+            href="https://1bio.cc" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-1.5 text-gray-600 hover:text-gray-400 transition-colors"
+          >
+            <span className="text-xs">Powered by</span>
+            <Logo size="xs" className="opacity-60" />
+          </a>
+        </div>
       </div>
     </div>
   );
@@ -315,5 +262,66 @@ const BlockRenderer = ({ block }) => {
 
   return null;
 };
+
+const EventCard = ({ event }) => (
+  <div className="bg-white/5 border border-white/10 rounded-xl p-4" data-testid="event-card">
+    {event.cover && (
+      <img
+        src={event.cover}
+        alt={event.title}
+        className="w-full h-40 object-cover rounded-lg mb-4"
+      />
+    )}
+    <div className="flex gap-4">
+      <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-white/10 flex flex-col items-center justify-center">
+        <Calendar className="w-5 h-5 text-white" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <h3 className="font-semibold text-white mb-1">{event.title}</h3>
+        <p className="text-sm text-gray-400 mb-1">{event.date}</p>
+        {event.description && (
+          <p className="text-sm text-gray-500 mb-2">{event.description}</p>
+        )}
+        {event.button_url && (
+          <a
+            href={event.button_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-sm text-white hover:text-gray-300 transition-colors"
+          >
+            {event.button_text}
+            <ExternalLink className="w-3 h-3" />
+          </a>
+        )}
+      </div>
+    </div>
+  </div>
+);
+
+const ShowcaseCard = ({ showcase }) => (
+  <div className="bg-white/5 border border-white/10 rounded-xl p-3" data-testid="showcase-card">
+    {showcase.cover && (
+      <img
+        src={showcase.cover}
+        alt={showcase.title}
+        className="w-full aspect-square object-cover rounded-lg mb-3"
+      />
+    )}
+    <h3 className="font-semibold text-white text-sm mb-1">{showcase.title}</h3>
+    {showcase.price && (
+      <p className="text-sm text-gray-400 mb-2">{showcase.price}</p>
+    )}
+    {showcase.button_url && (
+      <a
+        href={showcase.button_url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block w-full py-2 text-center text-xs font-medium bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors"
+      >
+        {showcase.button_text}
+      </a>
+    )}
+  </div>
+);
 
 export default PublicPage;
