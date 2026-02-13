@@ -1,0 +1,25 @@
+{
+  "my_local_db": {
+    "users": [
+      {
+        "id": "5346d13b-c32d-4de8-bd74-1af4daec5856",
+        "email": "thedrumepic@gmail.com",
+        "password": "$2b$12$2LNaKXwv.ESbW6eGSv.pE.nsWHqCtOLYzUvxytTwgOTkJrsNUCZUm",
+        "created_at": "2026-02-11T01:26:12.896677+00:00",
+        "role": "owner"
+      }
+    ],
+    "pages": [
+      {
+        "id": "df8095f5-e0ff-447c-afc7-89c592171d66",
+        "user_id": "5346d13b-c32d-4de8-bd74-1af4daec5856",
+        "username": "test",
+        "name": "test",
+        "bio": "",
+        "avatar": "/uploads/avatars/eac89cea-74d4-4efb-8b51-cf1a44822b01.jpg",
+        "cover": "/uploads/covers/e03f2707-1545-40ca-aee2-478824c6e4ae.jpg",
+        "created_at": "2026-02-11T01:26:12.897647+00:00"
+      }
+    ]
+  }
+}

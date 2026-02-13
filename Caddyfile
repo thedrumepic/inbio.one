@@ -1,0 +1,17 @@
+inbio.one {
+    # Прокси для API (Бэкенд)
+    reverse_proxy /api/* backend:8000 {
+        header_up X-Forwarded-Proto {scheme}
+    }
+
+    # Прокси для Фронтенда
+    reverse_proxy * frontend:80 {
+        # Важно: если файл не найден на фронтенде (например, роут /edit), 
+        # Caddy должен перенаправить запрос на index.html
+        handle_response {
+            @404 status 404
+            rewrite @404 /index.html
+            copy_response
+        }
+    }
+}

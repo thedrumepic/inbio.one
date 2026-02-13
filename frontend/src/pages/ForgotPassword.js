@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { ArrowLeft, Mail } from 'lucide-react';
+import { api } from '../utils/api';
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
@@ -10,15 +11,26 @@ const ForgotPassword = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!email) {
       toast.error('Введите email');
       return;
     }
 
-    // Simulate sending reset email
-    toast.success('Инструкции отправлены на email');
-    setSent(true);
+    try {
+      const response = await api.forgotPassword({ email });
+
+      if (response.ok) {
+        toast.success('Инструкции отправлены на email');
+        setSent(true);
+      } else {
+        const error = await response.json();
+        toast.error(error.detail || 'Ошибка отправки');
+      }
+    } catch (error) {
+      console.error('Forgot password error:', error);
+      toast.error('Ошибка соединения');
+    }
   };
 
   return (
@@ -34,12 +46,12 @@ const ForgotPassword = () => {
         </button>
 
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-white/10 backdrop-blur-xl mb-2">
-            <Mail className="w-7 h-7 text-white" />
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-secondary backdrop-blur-xl mb-2">
+            <Mail className="w-7 h-7 text-foreground" />
           </div>
           <h1 className="text-3xl font-bold">Забыли пароль?</h1>
-          <p className="text-gray-400 text-sm">
-            {sent 
+          <p className="text-muted-foreground text-sm">
+            {sent
               ? 'Проверьте вашу почту для инструкций по восстановлению'
               : 'Введите email для восстановления доступа'
             }
@@ -49,7 +61,7 @@ const ForgotPassword = () => {
         {!sent ? (
           <form onSubmit={handleSubmit} className="space-y-4" data-testid="forgot-password-form">
             <div className="space-y-2">
-              <label className="text-sm text-gray-400">Email</label>
+              <label className="text-sm text-muted-foreground">Email</label>
               <input
                 type="email"
                 value={email}

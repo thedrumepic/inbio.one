@@ -1,0 +1,13 @@
+venv/
+__pycache__/
+*.pyc
+.env
+.git
+.gitignore
+server.log
+delete_root_user.py
+delete_user.py
+upgrade_admin.py
+backend_test.py
+test_*.py
+verify_api.py

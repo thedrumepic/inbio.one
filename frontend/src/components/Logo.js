@@ -1,9 +1,24 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
-// Logo component using the uploaded 1bio logo
-// URL: https://customer-assets.emergentagent.com/job_open-files/artifacts/k70lhjzs_1bio-logo.png
 
-const Logo = ({ className = "", size = "default" }) => {
+const Logo = ({ className = "", size = "default", forceTheme = null }) => {
+  const [isDark, setIsDark] = useState(document.documentElement.classList.contains('dark'));
+
+  useEffect(() => {
+    // If theme is forced, we don't need to observe changes
+    if (forceTheme) return;
+    const observer = new MutationObserver(() => {
+      setIsDark(document.documentElement.classList.contains('dark'));
+    });
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class'],
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
   const sizes = {
     xs: "h-5",
     sm: "h-7",
@@ -12,10 +27,21 @@ const Logo = ({ className = "", size = "default" }) => {
     xl: "h-14",
   };
 
+  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000';
+
+  let logoFile;
+  if (forceTheme === 'light') {
+    logoFile = 'logo-dark.png';
+  } else if (forceTheme === 'dark') {
+    logoFile = 'logo.png';
+  } else {
+    logoFile = isDark ? 'logo.png' : 'logo-dark.png';
+  }
+
   return (
     <img
-      src="https://customer-assets.emergentagent.com/job_open-files/artifacts/k70lhjzs_1bio-logo.png"
-      alt="1bio"
+      src={`${BACKEND_URL}/uploads/logo/${logoFile}`}
+      alt="inbio"
       className={`${sizes[size] || sizes.default} w-auto object-contain ${className}`}
     />
   );
@@ -25,8 +51,8 @@ const Logo = ({ className = "", size = "default" }) => {
 const LogoText = ({ className = "" }) => {
   return (
     <span className={`font-bold tracking-tight ${className}`}>
-      <span className="text-white">1</span>
-      <span className="text-white">bio</span>
+      <span className="text-foreground">1</span>
+      <span className="text-foreground">bio</span>
     </span>
   );
 };

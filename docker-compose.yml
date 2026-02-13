@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    container_name: inbio_backend
+    restart: unless-stopped
+    environment:
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - OWNER_EMAIL=${OWNER_EMAIL}
+      - DB_FILE_PATH=/app/data/local_db.json
+      # Add other env vars if needed, e.g. JWT_SECRET_KEY
+    volumes:
+      - ./data:/app/data
+      - ./backend/uploads:/app/uploads
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        - REACT_APP_GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+    container_name: inbio_frontend
+    restart: unless-stopped
+    # Nginx inside serves on port 80
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: inbio_caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - backend
+      - frontend
+
+volumes:
+  caddy_data:
+  caddy_config:

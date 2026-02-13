@@ -8,14 +8,18 @@
 
 body {
   font-family: 'Inter', sans-serif;
-  background-color: #0a0a0a;
-  color: #ededed;
+  /* background & color handled by index.css */
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: 'Manrope', sans-serif;
   font-weight: 700;
 }
@@ -26,19 +30,19 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Button styles */
 .btn-primary {
-  background: #ffffff;
-  color: #000000;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
   border: none;
   border-radius: 9999px;
   padding: 0.75rem 2rem;
   font-weight: 600;
   font-size: 0.875rem;
   cursor: pointer;
-  transition: transform 0.2s, background 0.2s;
+  transition: transform 0.2s, opacity 0.2s;
 }
 
 .btn-primary:hover {
-  background: #e5e5e5;
+  opacity: 0.9;
   transform: translateY(-1px);
 }
 
@@ -47,9 +51,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .btn-secondary {
-  background: rgba(255, 255, 255, 0.1);
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: hsl(var(--secondary));
+  color: hsl(var(--secondary-foreground));
+  border: 1px solid hsl(var(--border));
   backdrop-filter: blur(16px);
   border-radius: 9999px;
   padding: 0.5rem 1.5rem;
@@ -60,13 +64,13 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: hsl(var(--secondary) / 0.8);
   transform: translateY(-1px);
 }
 
 .btn-ghost {
   background: transparent;
-  color: #a1a1aa;
+  color: hsl(var(--muted-foreground));
   border: none;
   border-radius: 0.5rem;
   padding: 0.5rem 1rem;
@@ -76,38 +80,38 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .btn-ghost:hover {
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.05);
+  color: hsl(var(--foreground));
+  background: hsl(var(--secondary));
 }
 
 /* Card styles */
 .card {
-  background: #171717;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
   border-radius: 1.5rem;
   padding: 1.5rem;
   transition: border-color 0.3s;
 }
 
 .card:hover {
-  border-color: rgba(255, 255, 255, 0.2);
+  border-color: hsl(var(--foreground) / 0.1);
 }
 
 .card-glass {
-  background: rgba(0, 0, 0, 0.4);
+  background: hsl(var(--card) / 0.6);
   backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid hsl(var(--border));
   border-radius: 1.5rem;
   padding: 1.5rem;
 }
 
 /* Input styles */
 .input {
-  background: rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: hsl(var(--secondary));
+  border: 1px solid hsl(var(--border));
   border-radius: 0.75rem;
   padding: 0.75rem 1rem;
-  color: #ffffff;
+  color: hsl(var(--foreground));
   font-size: 0.875rem;
   width: 100%;
   transition: border-color 0.2s;
@@ -115,12 +119,12 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .input::placeholder {
-  color: #737373;
+  color: hsl(var(--muted-foreground));
 }
 
 .input:focus {
-  border-color: rgba(255, 255, 255, 0.3);
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.3);
+  border-color: hsl(var(--ring));
+  box-shadow: 0 0 0 1px hsl(var(--ring));
 }
 
 /* Animations */
@@ -129,6 +133,7 @@ h1, h2, h3, h4, h5, h6 {
     opacity: 0;
     transform: translateY(1rem);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -171,21 +176,43 @@ a[href*="emergentagent.com"] {
   text-align: center;
 }
 
-.mt-2 { margin-top: 0.5rem; }
-.mt-4 { margin-top: 1rem; }
-.mt-6 { margin-top: 1.5rem; }
-.mt-8 { margin-top: 2rem; }
+.mt-2 {
+  margin-top: 0.5rem;
+}
 
-.mb-2 { margin-bottom: 0.5rem; }
-.mb-4 { margin-bottom: 1rem; }
-.mb-6 { margin-bottom: 1.5rem; }
-.mb-8 { margin-bottom: 2rem; }
-
-.space-y-4 > * + * {
+.mt-4 {
   margin-top: 1rem;
 }
 
-.space-y-6 > * + * {
+.mt-6 {
+  margin-top: 1.5rem;
+}
+
+.mt-8 {
+  margin-top: 2rem;
+}
+
+.mb-2 {
+  margin-bottom: 0.5rem;
+}
+
+.mb-4 {
+  margin-bottom: 1rem;
+}
+
+.mb-6 {
+  margin-bottom: 1.5rem;
+}
+
+.mb-8 {
+  margin-bottom: 2rem;
+}
+
+.space-y-4>*+* {
+  margin-top: 1rem;
+}
+
+.space-y-6>*+* {
   margin-top: 1.5rem;
 }
 
@@ -202,6 +229,7 @@ a[href*="emergentagent.com"] {
     opacity: 0;
     transform: translateY(100%);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -214,6 +242,7 @@ a[href*="emergentagent.com"] {
       opacity: 0;
       transform: scale(0.95);
     }
+
     to {
       opacity: 1;
       transform: scale(1);

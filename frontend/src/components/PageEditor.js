@@ -1,112 +1,104 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { api } from '../utils/api';
+import { Tooltip } from './ui/Tooltip';
+import { api, getImageUrl } from '../utils/api';
 import { toast } from 'sonner';
 import { Logo } from './Logo';
+import ConfirmationModal from './ui/ConfirmationModal';
+import { ThemeToggle } from './ThemeToggle';
 import {
   Trash2,
   Camera,
   Plus,
   X,
-  Link2,
   Type,
   Music,
   GripVertical,
-  ExternalLink,
-  ArrowLeft,
-  Bold,
-  Italic,
-  Underline,
-  Strikethrough,
-  Eraser,
+  ArrowUp,
+  ArrowDown,
+  Pencil,
+  Link2,
   Eye,
   EyeOff,
+  HelpCircle,
+  ShoppingBag,
+  Calendar,
+  MessageSquare,
+  MapPin,
+  Heart,
+  Timer,
+  Minus,
 } from 'lucide-react';
+import { TextBlockEditor, TextBlockRenderer } from './blocks/TextBlock';
+import { MusicBlockEditor, MusicBlockRenderer } from './blocks/MusicBlock';
+import { LinkBlockRenderer, LinkModal, SOCIAL_PLATFORMS } from './blocks/LinkBlock';
+import { ButtonBlockEditor, ButtonBlockRenderer } from './blocks/ButtonBlock';
+import { FAQBlockEditor, FAQBlockRenderer } from './blocks/FAQBlock';
+import { YouTubeBlockEditor, YouTubeBlockRenderer } from './blocks/YouTubeBlock';
+import { ImageGalleryBlockEditor, ImageGalleryBlockRenderer } from './blocks/ImageGalleryBlock';
+import { CountdownBlockEditor, CountdownBlockRenderer } from './blocks/CountdownBlock';
+import { TikTokBlockEditor, TikTokBlockRenderer } from './blocks/TikTokBlock';
+import { SocialIconsBlockEditor, SocialIconsBlockRenderer } from './blocks/SocialIconsBlock';
+import { InstagramPostBlockEditor, InstagramPostBlockRenderer } from './blocks/InstagramPostBlock';
+import { SpotifyBlockEditor, SpotifyBlockRenderer } from './blocks/SpotifyBlock';
+import { AppleMusicBlockEditor, AppleMusicBlockRenderer } from './blocks/AppleMusicBlock';
+import { PinterestBlockEditor, PinterestBlockRenderer } from './blocks/PinterestBlock';
+import { DividerBlockEditor, DividerBlockRenderer } from './blocks/DividerBlock';
+import { ContactFormBlockEditor, ContactFormBlockRenderer } from './blocks/ContactFormBlock';
+import { MessengersBlockEditor, MessengersBlockRenderer } from './blocks/MessengersBlock';
+import { MapBlockEditor, MapBlockRenderer } from './blocks/MapBlock';
+import { DonationBlockEditor, DonationBlockRenderer } from './blocks/DonationBlock';
+import { ShowcaseBlockEditor, ShowcaseBlockRenderer } from './blocks/ShowcaseBlock';
+import { EventsBlockEditor, EventsBlockRenderer } from './blocks/EventsBlock';
+import EditorHelpModal from './EditorHelpModal';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable';
 
-// ===== STREAMING SERVICE ICONS =====
-const StreamingIcons = {
-  spotify: (
-    <svg viewBox="0 0 24 24" className="w-5 h-5" fill="#1DB954">
-      <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
-    </svg>
-  ),
-  appleMusic: (
-    <svg viewBox="0 0 24 24" className="w-5 h-5" fill="#FA243C">
-      <path d="M23.994 6.124a9.23 9.23 0 00-.24-2.19c-.317-1.31-1.062-2.31-2.18-3.043a5.022 5.022 0 00-1.877-.726 10.496 10.496 0 00-1.564-.15c-.04-.003-.083-.01-.124-.013H5.986c-.152.01-.303.017-.455.026-.747.043-1.49.123-2.193.364-1.29.442-2.3 1.218-2.97 2.418a5.763 5.763 0 00-.33.762 9.964 9.964 0 00-.359 2.016c-.02.19-.033.38-.048.57v10.48c.015.18.028.362.048.542.093.9.25 1.785.584 2.632.39 1.004 1.007 1.842 1.86 2.488.608.46 1.293.76 2.035.96.603.163 1.22.245 1.846.282.144.01.287.02.43.024h12.053c.14-.006.28-.013.42-.02.63-.034 1.252-.113 1.86-.27.73-.19 1.4-.478 2--.904 1.12-.79 1.903-1.82 2.336-3.103a9.053 9.053 0 00.4-2.62V6.124zm-6.663 8.836c0 .418-.055.836-.196 1.233-.143.396-.333.773-.596 1.11a3.2 3.2 0 01-.95.868c-.376.232-.796.386-1.236.463a3.784 3.784 0 01-1.426-.006 3.094 3.094 0 01-1.196-.51 2.95 2.95 0 01-.876-.954 2.748 2.748 0 01-.383-1.27c-.015-.183-.015-.366.003-.55.03-.304.104-.6.227-.88.21-.48.52-.894.91-1.232.39-.34.84-.59 1.332-.75.33-.104.67-.163 1.014-.184.08-.004.16-.007.24-.007.12 0 .238.006.356.016v-3.97c0-.11-.04-.21-.107-.29a.394.394 0 00-.27-.13l-5.69-.003v7.63c0 .42-.056.84-.197 1.24a3.384 3.384 0 01-.595 1.1 3.2 3.2 0 01-.95.87 3.056 3.056 0 01-1.236.46 3.784 3.784 0 01-1.426-.01 3.094 3.094 0 01-1.196-.51 2.95 2.95 0 01-.876-.95 2.748 2.748 0 01-.383-1.27c-.015-.18-.015-.37.003-.55.03-.3.104-.6.227-.88.21-.48.52-.9.91-1.23.39-.34.84-.59 1.332-.75.33-.1.67-.16 1.014-.18.35-.02.698.01 1.04.08V6.62c0-.14.045-.27.126-.38a.464.464 0 01.33-.17l7.45-.97c.067-.01.133-.01.2-.006.206.012.398.103.54.252a.71.71 0 01.195.48v8.97z"/>
-    </svg>
-  ),
-  youtube: (
-    <svg viewBox="0 0 24 24" className="w-5 h-5" fill="#FF0000">
-      <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-    </svg>
-  ),
-  youtubeMusic: (
-    <svg viewBox="0 0 24 24" className="w-5 h-5" fill="#FF0000">
-      <path d="M12 0C5.376 0 0 5.376 0 12s5.376 12 12 12 12-5.376 12-12S18.624 0 12 0zm0 19.104c-3.924 0-7.104-3.18-7.104-7.104S8.076 4.896 12 4.896s7.104 3.18 7.104 7.104-3.18 7.104-7.104 7.104zm0-13.332c-3.432 0-6.228 2.796-6.228 6.228S8.568 18.228 12 18.228s6.228-2.796 6.228-6.228S15.432 5.772 12 5.772zM9.684 15.54V8.46L15.816 12l-6.132 3.54z"/>
-    </svg>
-  ),
-  yandex: (
-    <svg viewBox="0 0 24 24" className="w-5 h-5" fill="#FFCC00">
-      <path d="M12 0C5.376 0 0 5.376 0 12s5.376 12 12 12 12-5.376 12-12S18.624 0 12 0zm1.398 17.727H11.28V8.682c0-.102-.06-.162-.162-.162H9.27v-1.8h2.502c.96 0 1.626.666 1.626 1.626v9.381zm2.202-9.543c-.666 0-1.206-.54-1.206-1.206s.54-1.206 1.206-1.206 1.206.54 1.206 1.206-.54 1.206-1.206 1.206z"/>
-    </svg>
-  ),
-  deezer: (
-    <svg viewBox="0 0 24 24" className="w-5 h-5" fill="#FEAA2D">
-      <path d="M18.81 4.16v3.03H24V4.16h-5.19zM6.27 8.38v3.027h5.189V8.38H6.27zm12.54 0v3.027H24V8.38h-5.19zM6.27 12.595v3.027h5.189v-3.027H6.27zm6.27 0v3.027h5.19v-3.027h-5.19zm6.27 0v3.027H24v-3.027h-5.19zm-12.54 4.22v3.027h5.189v-3.027H6.27zm6.27 0v3.027h5.19v-3.027h-5.19zm6.27 0v3.027H24v-3.027h-5.19zm-18.54 0v3.027h5.19v-3.027H.27z"/>
-    </svg>
-  ),
-  tidal: (
-    <svg viewBox="0 0 24 24" className="w-5 h-5" fill="#000000">
-      <path d="M12.012 3.992L8.008 7.996 4.004 3.992 0 7.996l4.004 4.004L8.008 8l4.004 4 4.004-4-4.004-4.004zM12.012 12l-4.004 4.004L12.012 20l4.004-4.004L12.012 12zm4-4.004L20.016 12l-4.004 4.004-4.004-4.004 4.004-4.004zM24 7.996l-4.004-4.004-4.004 4.004L20 12l4-4.004z"/>
-    </svg>
-  ),
-  soundcloud: (
-    <svg viewBox="0 0 24 24" className="w-5 h-5" fill="#FF5500">
-      <path d="M1.175 12.225c-.051 0-.094.046-.101.1l-.233 2.154.233 2.105c.007.058.05.098.101.098.05 0 .09-.04.099-.098l.255-2.105-.27-2.154c-.009-.06-.052-.1-.084-.1zm-.899.828c-.06 0-.091.037-.104.094L0 14.479l.165 1.308c.014.057.045.094.107.094.061 0 .1-.037.107-.094l.2-1.308-.2-1.332c-.006-.057-.046-.094-.107-.094zm1.848-1.091c-.067 0-.116.046-.127.113l-.196 2.404.196 2.34c.011.066.06.113.127.113.064 0 .116-.047.127-.113l.227-2.34-.227-2.404c-.011-.066-.063-.113-.127-.113zm.953-.131c-.08 0-.139.058-.149.139l-.163 2.535.163 2.464c.01.08.069.139.149.139.078 0 .136-.059.15-.139l.184-2.464-.184-2.535c-.014-.08-.072-.139-.15-.139zm.984-.149c-.09 0-.159.068-.168.158l-.145 2.684.145 2.545c.009.09.078.158.168.158.087 0 .159-.068.166-.158l.166-2.545-.166-2.684c-.007-.09-.079-.158-.166-.158zm1.007-.091c-.103 0-.18.078-.189.181l-.119 2.775.119 2.607c.009.104.086.181.189.181.1 0 .178-.077.189-.181l.135-2.607-.135-2.775c-.011-.103-.089-.181-.189-.181zm1.047.017c-.115 0-.201.088-.208.203l-.098 2.757.098 2.609c.007.115.093.203.208.203.112 0 .199-.088.209-.203l.111-2.609-.111-2.757c-.01-.115-.097-.203-.209-.203zm1.048-.095c-.127 0-.221.099-.23.226l-.078 2.852.078 2.631c.009.127.103.226.23.226.125 0 .222-.099.229-.226l.09-2.631-.09-2.852c-.007-.127-.104-.226-.229-.226zm1.072-.064c-.139 0-.243.107-.248.248l-.062 2.916.062 2.654c.005.139.109.248.248.248.137 0 .242-.109.251-.248l.07-2.654-.07-2.916c-.009-.141-.114-.248-.251-.248zm.957-.254c-.152 0-.268.12-.275.271l-.041 3.17.041 2.652c.007.152.123.271.275.271.149 0 .267-.119.276-.271l.049-2.652-.049-3.17c-.009-.151-.127-.271-.276-.271zm3.063-.376a3.104 3.104 0 0 0-1.268.27c-.152 0-.27.119-.276.271l-.028 3.276.028 2.608c.006.15.124.27.276.27.15 0 .268-.12.277-.27l.031-2.608-.031-3.276c-.009-.152-.127-.271-.277-.271.34-.179.713-.27 1.096-.27 1.368 0 2.479 1.111 2.479 2.479v3.518c0 .152.119.271.271.271h5.594c1.255 0 2.272-1.02 2.272-2.272 0-2.503-2.032-4.536-4.536-4.536z"/>
-    </svg>
-  ),
-  amazon: (
-    <svg viewBox="0 0 24 24" className="w-5 h-5" fill="#FF9900">
-      <path d="M.045 18.02c.072-.116.187-.124.348-.022 3.636 2.11 7.594 3.166 11.87 3.166 2.852 0 5.668-.533 8.447-1.595l.315-.14c.138-.06.234-.1.293-.13.226-.088.39-.046.496.106.063.09.083.2.053.33-.027.12-.1.24-.2.35-.186.2-.47.39-.84.58-.358.18-.763.37-1.22.57l-.065.028a28.16 28.16 0 0 1-2.57.913c-1.225.384-2.53.66-3.917.825-1.387.164-2.8.18-4.238.052a18.32 18.32 0 0 1-4.202-.78 19.39 19.39 0 0 1-4.095-1.757c-.376-.22-.56-.44-.54-.66.01-.12.06-.22.15-.3zm6.89-3.05c-.746-.09-1.322-.38-1.727-.87-.405-.49-.595-1.09-.57-1.81.014-.55.157-1.05.43-1.5.273-.45.636-.81 1.09-1.08.454-.27.93-.44 1.43-.53.5-.09 1.03-.09 1.59 0 .56.09 1.03.22 1.42.39.39.18.7.4.93.65.232.26.35.56.35.92l-.01.34c-.03.14-.06.24-.09.3-.04.05-.09.08-.16.1-.07.02-.18.02-.32-.02-.14-.03-.33-.1-.57-.18-.36-.13-.74-.25-1.14-.35-.4-.1-.78-.15-1.15-.14-.36.01-.68.07-.95.18-.27.11-.48.27-.63.48-.15.21-.22.46-.22.74 0 .27.08.51.23.7.15.2.37.37.65.51l1.2.48c.6.24 1.1.51 1.48.8.39.29.68.63.86 1.02.18.38.26.84.25 1.36-.02.55-.17 1.04-.45 1.49-.28.44-.65.8-1.12 1.08-.46.27-.97.45-1.52.53-.55.09-1.12.08-1.7-.02-.58-.1-1.1-.27-1.54-.5-.45-.24-.78-.53-1-.87-.22-.35-.3-.73-.24-1.14.03-.2.1-.37.21-.49.11-.12.24-.19.4-.21.15-.02.33.02.53.13.2.11.43.27.7.48.27.22.56.42.88.61.31.19.67.34 1.07.45.4.11.82.14 1.27.1.45-.04.84-.15 1.18-.33.34-.17.59-.41.76-.72.17-.31.24-.67.21-1.09-.03-.42-.18-.78-.45-1.08-.27-.29-.68-.55-1.23-.76l-1.22-.45c-.6-.22-1.06-.46-1.36-.72z"/>
-    </svg>
-  ),
-  vk: (
-    <svg viewBox="0 0 24 24" className="w-5 h-5" fill="#0077FF">
-      <path d="M15.684 0H8.316C1.592 0 0 1.592 0 8.316v7.368C0 22.408 1.592 24 8.316 24h7.368C22.408 24 24 22.408 24 15.684V8.316C24 1.592 22.408 0 15.684 0zm3.692 17.123h-1.744c-.66 0-.864-.525-2.05-1.727-1.033-1-1.49-1.135-1.744-1.135-.356 0-.458.102-.458.593v1.575c0 .424-.135.678-1.253.678-1.846 0-3.896-1.118-5.335-3.202C4.624 10.857 4.03 8.57 4.03 8.096c0-.254.102-.491.593-.491h1.744c.44 0 .61.203.78.677.863 2.49 2.303 4.675 2.896 4.675.22 0 .322-.102.322-.66V9.721c-.068-1.186-.695-1.287-.695-1.71 0-.203.17-.407.44-.407h2.744c.373 0 .508.203.508.643v3.473c0 .372.17.508.271.508.22 0 .407-.136.814-.542 1.27-1.422 2.18-3.61 2.18-3.61.119-.254.322-.491.763-.491h1.744c.525 0 .644.27.525.643-.22 1.017-2.354 4.031-2.354 4.031-.186.305-.254.44 0 .78.186.254.796.779 1.203 1.253.745.847 1.32 1.558 1.473 2.05.17.49-.085.744-.576.744z"/>
-    </svg>
-  ),
-  pandora: (
-    <svg viewBox="0 0 24 24" className="w-5 h-5" fill="#005483">
-      <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm3.549 14.684c-.596 1.754-1.965 2.691-3.891 2.691H8.424V6.633h3.347c1.801 0 3.107.69 3.691 2.15.326.813.469 1.75.469 2.935 0 1.209-.143 2.158-.382 2.966z"/>
-    </svg>
-  ),
-};
+import { CSS } from '@dnd-kit/utilities';
+import { useMediaQuery } from '../hooks/use-media-query';
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+} from './ui/drawer';
 
-// ===== STREAMING SERVICES CONFIG =====
-const STREAMING_SERVICES = [
-  { id: 'spotify', name: 'Spotify', color: '#1DB954' },
-  { id: 'appleMusic', name: 'Apple Music', color: '#FA243C' },
-  { id: 'youtubeMusic', name: 'YouTube Music', color: '#FF0000' },
-  { id: 'yandex', name: 'Yandex Music', color: '#FFCC00' },
-  { id: 'vk', name: 'VK Music', color: '#0077FF' },
-  { id: 'deezer', name: 'Deezer', color: '#FEAA2D' },
-  { id: 'tidal', name: 'Tidal', color: '#000000' },
-  { id: 'soundcloud', name: 'SoundCloud', color: '#FF5500' },
-  { id: 'amazon', name: 'Amazon Music', color: '#FF9900' },
-  { id: 'pandora', name: 'Pandora', color: '#005483' },
-];
+const SortableItem = ({ id, children }) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id });
 
-const getServiceIcon = (serviceId) => {
-  return StreamingIcons[serviceId] || StreamingIcons.spotify;
-};
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 10 : 1,
+    opacity: isDragging ? 0.5 : 1,
+    scale: isDragging ? 1.02 : 1,
+  };
 
-const getServiceName = (serviceId) => {
-  const service = STREAMING_SERVICES.find(s => s.id === serviceId);
-  return service?.name || serviceId;
-};
-
-const getServiceColor = (serviceId) => {
-  const service = STREAMING_SERVICES.find(s => s.id === serviceId);
-  return service?.color || '#888888';
+  // Pass listeners only to the drag handle
+  return (
+    <div ref={setNodeRef} style={style} {...attributes}>
+      {React.cloneElement(children, { dragHandleProps: listeners })}
+    </div>
+  );
 };
 
 const PageEditor = ({ page, onClose }) => {
@@ -115,6 +107,7 @@ const PageEditor = ({ page, onClose }) => {
     bio: page.bio || '',
     avatar: page.avatar,
     cover: page.cover,
+    theme: page.theme || 'auto',
   });
   const [blocks, setBlocks] = useState([]);
   const [saving, setSaving] = useState(false);
@@ -122,13 +115,45 @@ const PageEditor = ({ page, onClose }) => {
   const [showBlockModal, setShowBlockModal] = useState(false);
   const [showLinkModal, setShowLinkModal] = useState(false);
   const [editingBlock, setEditingBlock] = useState(null);
+  const [blockToDeleteId, setBlockToDeleteId] = useState(null);
+  const [saveStatus, setSaveStatus] = useState('saved'); // idle, saving, saved, error
+  const [showHelpModal, setShowHelpModal] = useState(false);
 
   const avatarInputRef = useRef(null);
   const coverInputRef = useRef(null);
+  const hasLoadedInitially = useRef(false);
+  const autosaveTimerRef = useRef(null);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   useEffect(() => {
     loadPageContent();
   }, [page.id]);
+
+  // Эффект для автосохранения
+  useEffect(() => {
+    if (!hasLoadedInitially.current) return;
+
+    setSaveStatus('idle');
+    if (autosaveTimerRef.current) clearTimeout(autosaveTimerRef.current);
+
+    autosaveTimerRef.current = setTimeout(() => {
+      handleSave(true);
+    }, 5000);
+
+    return () => {
+      if (autosaveTimerRef.current) clearTimeout(autosaveTimerRef.current);
+    };
+  }, [pageData, blocks]);
 
   const loadPageContent = async () => {
     try {
@@ -136,6 +161,10 @@ const PageEditor = ({ page, onClose }) => {
       if (response.ok) {
         const data = await response.json();
         setBlocks(data.blocks || []);
+        // Помечаем, что первичная загрузка завершена, ПОСЛЕ установки блоков
+        setTimeout(() => {
+          hasLoadedInitially.current = true;
+        }, 100);
       }
     } catch (error) {
       console.error('Error loading page content:', error);
@@ -147,15 +176,20 @@ const PageEditor = ({ page, onClose }) => {
   const handleImageUpload = async (file, type) => {
     if (!file) return;
 
+    // Use specific categories for uploads
+    const category = type === 'avatar' ? 'avatars' : 'covers';
+
     try {
-      const response = await api.uploadImage(file);
+      const response = await api.uploadImage(file, category);
       if (response.ok) {
         const data = await response.json();
         setPageData((prev) => ({ ...prev, [type]: data.url }));
         toast.success('Изображение загружено');
+      } else {
+        toast.error('Ошибка загрузки');
       }
     } catch (error) {
-      toast.error('Ошибка загрузки');
+      toast.error('Ошибка соединения');
     }
   };
 
@@ -163,34 +197,93 @@ const PageEditor = ({ page, onClose }) => {
     setPageData((prev) => ({ ...prev, [type]: null }));
   };
 
-  const handleSave = async () => {
+  const handleSave = async (isAuto = false) => {
+    if (autosaveTimerRef.current) clearTimeout(autosaveTimerRef.current);
+
     setSaving(true);
+    setSaveStatus('saving');
     try {
-      const response = await api.updatePage(page.id, pageData);
-      if (response.ok) {
-        toast.success('Изменения сохранены');
+      const pagePromise = api.updatePage(page.id, pageData);
+      const blocksPromise = api.reorderBlocks(blocks.map(b => b.id));
+
+      const [pageRes, blocksRes] = await Promise.all([pagePromise, blocksPromise]);
+
+      if (pageRes.ok && blocksRes.ok) {
+        if (!isAuto) toast.success('Изменения сохранены');
+        setSaveStatus('saved');
+      } else {
+        if (!isAuto) toast.error('Ошибка сохранения');
+        setSaveStatus('error');
       }
     } catch (error) {
-      toast.error('Ошибка сохранения');
+      if (!isAuto) toast.error('Ошибка соединения');
+      setSaveStatus('error');
     } finally {
       setSaving(false);
     }
   };
 
   const handleDeleteBlock = async (blockId) => {
-    if (window.confirm('Удалить этот блок?')) {
-      try {
-        await api.deleteBlock(blockId);
+    try {
+      const response = await api.deleteBlock(blockId);
+      if (response.ok) {
         toast.success('Блок удалён');
         loadPageContent();
-      } catch (error) {
-        toast.error('Ошибка удаления');
       }
+    } catch (error) {
+      console.error('Error deleting block:', error);
+      toast.error('Ошибка удаления');
     }
   };
 
   const handleEditBlock = (block) => {
     setEditingBlock(block);
+  };
+
+  const handleMoveBlock = (index, direction) => {
+    const newIndex = index + direction;
+    if (newIndex < 0 || newIndex >= blocks.length) return;
+    const newBlocks = arrayMove(blocks, index, newIndex);
+    setBlocks(newBlocks);
+  };
+
+  const handleSwapBlocks = (blockA, blockB) => {
+    const idxA = blocks.findIndex(b => b.id === blockA.id);
+    const idxB = blocks.findIndex(b => b.id === blockB.id);
+    if (idxA === -1 || idxB === -1) return;
+
+    const newBlocks = [...blocks];
+    newBlocks[idxA] = blockB;
+    newBlocks[idxB] = blockA;
+    setBlocks(newBlocks);
+  };
+
+  const handleInternalMove = (list, index, direction) => {
+    const targetIndex = index + direction;
+    if (targetIndex < 0 || targetIndex >= list.length) return;
+    handleSwapBlocks(list[index], list[targetIndex]);
+  };
+
+  const handleDragEnd = async (event) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = blocks.findIndex((b) => b.id === active.id);
+    const newIndex = blocks.findIndex((b) => b.id === over.id);
+
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    const newBlocks = arrayMove(blocks, oldIndex, newIndex);
+    setBlocks(newBlocks);
+  };
+
+  const handleBlockUpdateSuccess = async () => {
+    setEditingBlock(null);
+    // Сначала перезагружаем контент, чтобы получить актуальные данные
+    await loadPageContent();
+    // Затем принудительно сохраняем, чтобы сбросить таймер и обновить статус на "Сохранено"
+    // Это создаст ощущение мгновенной синхронизации
+    handleSave(true);
   };
 
   const linkBlocks = blocks.filter(b => b.block_type === 'link');
@@ -202,11 +295,9 @@ const PageEditor = ({ page, onClose }) => {
         <TextBlockEditor
           block={editingBlock === 'new_text' ? null : editingBlock}
           pageId={page.id}
+          blocksCount={blocks.length}
           onClose={() => setEditingBlock(null)}
-          onSuccess={() => {
-            setEditingBlock(null);
-            loadPageContent();
-          }}
+          onSuccess={handleBlockUpdateSuccess}
         />
       );
     }
@@ -215,70 +306,320 @@ const PageEditor = ({ page, onClose }) => {
         <MusicBlockEditor
           block={editingBlock === 'new_music' ? null : editingBlock}
           pageId={page.id}
+          blocksCount={blocks.length}
           onClose={() => setEditingBlock(null)}
-          onSuccess={() => {
-            setEditingBlock(null);
-            loadPageContent();
-          }}
+          onSuccess={handleBlockUpdateSuccess}
+        />
+      );
+    }
+    if (editingBlock.block_type === 'link') {
+      return (
+        <LinkModal
+          block={editingBlock}
+          pageId={page.id}
+          onClose={() => setEditingBlock(null)}
+          onSuccess={handleBlockUpdateSuccess}
+        />
+      );
+    }
+    if (editingBlock.block_type === 'button' || editingBlock === 'new_button') {
+      return (
+        <ButtonBlockEditor
+          block={editingBlock === 'new_button' ? null : editingBlock}
+          pageId={page.id}
+          blocksCount={blocks.length}
+          onClose={() => setEditingBlock(null)}
+          onSuccess={handleBlockUpdateSuccess}
+        />
+      );
+    }
+    if (editingBlock.block_type === 'faq' || editingBlock === 'new_faq') {
+      return (
+        <FAQBlockEditor
+          block={editingBlock === 'new_faq' ? null : editingBlock}
+          pageId={page.id}
+          blocksCount={blocks.length}
+          onClose={() => setEditingBlock(null)}
+          onSuccess={handleBlockUpdateSuccess}
+        />
+      );
+    }
+    if (editingBlock.block_type === 'youtube' || editingBlock === 'new_youtube') {
+      return (
+        <YouTubeBlockEditor
+          block={editingBlock === 'new_youtube' ? null : editingBlock}
+          pageId={page.id}
+          blocksCount={blocks.length}
+          onClose={() => setEditingBlock(null)}
+          onSuccess={handleBlockUpdateSuccess}
+        />
+      );
+    }
+    if (editingBlock.block_type === 'gallery' || editingBlock === 'new_gallery') {
+      return (
+        <ImageGalleryBlockEditor
+          block={editingBlock === 'new_gallery' ? null : editingBlock}
+          pageId={page.id}
+          blocksCount={blocks.length}
+          onClose={() => setEditingBlock(null)}
+          onSuccess={handleBlockUpdateSuccess}
+        />
+      );
+    }
+    if (editingBlock.block_type === 'countdown' || editingBlock === 'new_countdown') {
+      return (
+        <CountdownBlockEditor
+          block={editingBlock === 'new_countdown' ? null : editingBlock}
+          pageId={page.id}
+          blocksCount={blocks.length}
+          onClose={() => setEditingBlock(null)}
+          onSuccess={handleBlockUpdateSuccess}
+        />
+      );
+    }
+    if (editingBlock.block_type === 'tiktok' || editingBlock === 'new_tiktok') {
+      return (
+        <TikTokBlockEditor
+          block={editingBlock === 'new_tiktok' ? null : editingBlock}
+          pageId={page.id}
+          blocksCount={blocks.length}
+          onClose={() => setEditingBlock(null)}
+          onSuccess={handleBlockUpdateSuccess}
+        />
+      );
+    }
+    if (editingBlock.block_type === 'social_icons' || editingBlock === 'new_social_icons') {
+      return (
+        <SocialIconsBlockEditor
+          block={editingBlock === 'new_social_icons' ? null : editingBlock}
+          pageId={page.id}
+          blocksCount={blocks.length}
+          onClose={() => setEditingBlock(null)}
+          onSuccess={handleBlockUpdateSuccess}
+        />
+      );
+    }
+    if (editingBlock.block_type === 'instagram_post' || editingBlock === 'new_instagram_post') {
+      return (
+        <InstagramPostBlockEditor
+          block={editingBlock === 'new_instagram_post' ? null : editingBlock}
+          pageId={page.id}
+          blocksCount={blocks.length}
+          onClose={() => setEditingBlock(null)}
+          onSuccess={handleBlockUpdateSuccess}
+        />
+      );
+    }
+    if (editingBlock.block_type === 'spotify' || editingBlock === 'new_spotify') {
+      return (
+        <SpotifyBlockEditor
+          block={editingBlock === 'new_spotify' ? null : editingBlock}
+          pageId={page.id}
+          blocksCount={blocks.length}
+          onClose={() => setEditingBlock(null)}
+          onSuccess={handleBlockUpdateSuccess}
+        />
+      );
+    }
+    if (editingBlock.block_type === 'applemusic' || editingBlock === 'new_applemusic') {
+      return (
+        <AppleMusicBlockEditor
+          block={editingBlock === 'new_applemusic' ? null : editingBlock}
+          pageId={page.id}
+          blocksCount={blocks.length}
+          onClose={() => setEditingBlock(null)}
+          onSuccess={handleBlockUpdateSuccess}
+        />
+      );
+    }
+    if (editingBlock.block_type === 'pinterest' || editingBlock === 'new_pinterest') {
+      return (
+        <PinterestBlockEditor
+          block={editingBlock === 'new_pinterest' ? null : editingBlock}
+          pageId={page.id}
+          blocksCount={blocks.length}
+          onClose={() => setEditingBlock(null)}
+          onSuccess={handleBlockUpdateSuccess}
+        />
+      );
+    }
+    if (editingBlock.block_type === 'divider' || editingBlock === 'new_divider') {
+      return (
+        <DividerBlockEditor
+          block={editingBlock === 'new_divider' ? null : editingBlock}
+          pageId={page.id}
+          blocksCount={blocks.length}
+          onClose={() => setEditingBlock(null)}
+          onSuccess={handleBlockUpdateSuccess}
+        />
+      );
+    }
+    if (editingBlock.block_type === 'contact_form' || editingBlock === 'new_contact_form') {
+      return (
+        <ContactFormBlockEditor
+          block={editingBlock === 'new_contact_form' ? null : editingBlock}
+          pageId={page.id}
+          blocksCount={blocks.length}
+          onClose={() => setEditingBlock(null)}
+          onSuccess={handleBlockUpdateSuccess}
+        />
+      );
+    }
+    if (editingBlock.block_type === 'messengers' || editingBlock === 'new_messengers') {
+      return (
+        <MessengersBlockEditor
+          block={editingBlock === 'new_messengers' ? null : editingBlock}
+          pageId={page.id}
+          blocksCount={blocks.length}
+          onClose={() => setEditingBlock(null)}
+          onSuccess={handleBlockUpdateSuccess}
+        />
+      );
+    }
+    if (editingBlock.block_type === 'map' || editingBlock === 'new_map') {
+      return (
+        <MapBlockEditor
+          block={editingBlock === 'new_map' ? null : editingBlock}
+          pageId={page.id}
+          blocksCount={blocks.length}
+          onClose={() => setEditingBlock(null)}
+          onSuccess={handleBlockUpdateSuccess}
+        />
+      );
+    }
+    if (editingBlock.block_type === 'donation' || editingBlock === 'new_donation') {
+      return (
+        <DonationBlockEditor
+          block={editingBlock === 'new_donation' ? null : editingBlock}
+          pageId={page.id}
+          blocksCount={blocks.length}
+          onClose={() => setEditingBlock(null)}
+          onSuccess={handleBlockUpdateSuccess}
+        />
+      );
+    }
+    if (editingBlock.block_type === 'showcase' || editingBlock === 'new_showcase') {
+      return (
+        <ShowcaseBlockEditor
+          block={editingBlock === 'new_showcase' ? null : editingBlock}
+          pageId={page.id}
+          blocksCount={blocks.length}
+          onClose={() => setEditingBlock(null)}
+          onSuccess={handleBlockUpdateSuccess}
+        />
+      );
+    }
+    if (editingBlock.block_type === 'events' || editingBlock === 'new_events') {
+      return (
+        <EventsBlockEditor
+          block={editingBlock === 'new_events' ? null : editingBlock}
+          pageId={page.id}
+          blocksCount={blocks.length}
+          onClose={() => setEditingBlock(null)}
+          onSuccess={handleBlockUpdateSuccess}
         />
       );
     }
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a]" data-testid="page-editor">
-      <header className="sticky top-0 z-50 bg-[#0a0a0a] border-b border-white/10">
-        <div className="max-w-[480px] mx-auto px-4 h-14 flex items-center justify-between">
-          <button
-            onClick={onClose}
-            className="text-white font-semibold text-base hover:text-gray-300 transition-colors flex items-center gap-2"
-            data-testid="page-username"
-          >
-            <Logo size="sm" />
-            <span className="text-gray-400">/</span>
-            <span>{page.username}</span>
-          </button>
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="bg-white text-black px-6 py-2 rounded-full text-sm font-semibold hover:bg-gray-200 transition-colors disabled:opacity-50"
-            data-testid="save-button"
-          >
-            {saving ? 'Сохранение...' : 'Сохранить'}
-          </button>
+    <div className="min-h-screen bg-background pb-20" data-testid="page-editor">
+      <header className="sticky top-0 z-50 bg-background border-b border-border">
+        <div className="max-w-[440px] mx-auto px-4 h-14 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <a
+              href="/dashboard"
+              className="flex items-center gap-2 text-foreground font-bold text-sm truncate hover:opacity-70 transition-opacity min-w-0 max-w-[200px]"
+            >
+              /{page.username}
+              {/* Компактный индикатор статуса */}
+              {saveStatus === 'saving' && (
+                <Tooltip content="Сохранение...">
+                  <div className="w-2 h-2 bg-gray-500 rounded-full animate-pulse shrink-0" />
+                </Tooltip>
+              )}
+              {saveStatus === 'saved' && (
+                <Tooltip content="Сохранено">
+                  <div className="w-2 h-2 bg-[#7dd3a8] rounded-full shrink-0" />
+                </Tooltip>
+              )}
+              {saveStatus === 'idle' && (
+                <Tooltip content="Не сохранено">
+                  <div className="w-2 h-2 bg-yellow-500 rounded-full shrink-0" />
+                </Tooltip>
+              )}
+              {saveStatus === 'error' && (
+                <Tooltip content="Ошибка при сохранении">
+                  <div className="w-2 h-2 bg-red-500 rounded-full shrink-0" />
+                </Tooltip>
+              )}
+            </a>
+          </div>
+          <div className="flex items-center gap-3">
+            <ThemeToggle
+              value={pageData.theme}
+              onChange={(newTheme) => setPageData(prev => ({ ...prev, theme: newTheme }))}
+            />
+            <Tooltip content="Как это работает?">
+              <button
+                onClick={() => setShowHelpModal(true)}
+                className="p-2 text-muted-foreground hover:text-foreground hover:bg-secondary rounded-full transition-all"
+              >
+                <HelpCircle className="w-5 h-5" />
+              </button>
+            </Tooltip>
+
+
+
+
+            <button
+              onClick={() => {
+                if (saveStatus === 'saved') {
+                  window.open(`/${page.username}`, '_blank');
+                } else {
+                  handleSave(false);
+                }
+              }}
+              disabled={saving}
+              className={`min-w-[100px] px-5 py-1.5 rounded-full text-xs font-bold transition-all duration-300 ${saveStatus === 'saved'
+                ? 'bg-secondary text-foreground hover:bg-secondary/80'
+                : 'bg-foreground text-background hover:bg-foreground/90'
+                } disabled:opacity-50 flex items-center justify-center gap-2`}
+            >
+              {saveStatus === 'saving' ? 'Сохраняем...' : saveStatus === 'saved' ? 'Перейти' : 'Сохранить'}
+            </button>
+          </div>
         </div>
       </header>
 
-      <main className="max-w-[480px] mx-auto px-4 py-6 space-y-4">
-        {/* LEVEL 1: BANNER */}
-        <div className="relative">
+      <main className="max-w-[440px] mx-auto px-4 py-6">
+        {/* Banner Section */}
+        <div className="relative mb-2">
           <div
-            className="relative h-40 bg-[#171717] rounded-2xl cursor-pointer overflow-hidden border border-white/10"
+            className="relative h-[215px] bg-card rounded-t-[12px] cursor-pointer overflow-hidden border border-border"
             onClick={() => coverInputRef.current?.click()}
-            data-testid="cover-upload"
           >
             {pageData.cover ? (
-              <img src={pageData.cover} alt="Обложка" className="w-full h-full object-cover" />
+              <img src={getImageUrl(pageData.cover)} alt="Обложка" className="w-full h-full object-cover" />
             ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <div className="text-center">
-                  <Camera className="w-8 h-8 text-gray-500 mx-auto mb-2" />
-                  <span className="text-sm text-gray-500">Добавить обложку</span>
+              <div className="w-full h-full flex items-start justify-center pt-10">
+                <div className="text-center group">
+                  <Camera className="w-8 h-8 text-gray-500 mx-auto mb-2 group-hover:text-gray-300 transition-colors" />
+                  <span className="text-[10px] text-gray-500 group-hover:text-gray-300">Рекомендуемый размер 1500x500 px</span>
                 </div>
               </div>
             )}
           </div>
-          
+
           {pageData.cover && (
             <button
               onClick={(e) => { e.stopPropagation(); handleRemoveImage('cover'); }}
-              className="absolute top-3 right-3 w-9 h-9 bg-black/60 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-black/80 transition-colors"
-              data-testid="delete-cover"
+              className="absolute top-3 right-3 w-8 h-8 bg-black/60 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-red-500 hover:scale-110 transition-all duration-200 z-20"
             >
-              <Trash2 className="w-4 h-4 text-white" />
+              <Trash2 className="w-3.5 h-3.5 text-white" />
             </button>
           )}
-          
+
           <input
             ref={coverInputRef}
             type="file"
@@ -288,33 +629,102 @@ const PageEditor = ({ page, onClose }) => {
           />
         </div>
 
-        {/* LEVEL 2: PROFILE CARD */}
-        <div className="relative">
-          <div className="absolute left-1/2 -translate-x-1/2 -top-12 z-10">
-            <div className="relative">
-              <div
-                className="w-24 h-24 rounded-full bg-[#171717] border-4 border-[#0a0a0a] cursor-pointer overflow-hidden"
-                onClick={() => avatarInputRef.current?.click()}
-                data-testid="avatar-upload"
-              >
-                {pageData.avatar ? (
-                  <img src={pageData.avatar} alt="Аватар" className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full bg-white/10 flex items-center justify-center">
-                    <Camera className="w-6 h-6 text-gray-500" />
+        {/* Profile & Links Card */}
+        <div className="relative -mt-12 z-10 space-y-4">
+          <div className="relative">
+            <div className="absolute left-1/2 -translate-x-1/2 -top-12 z-20">
+              <div className="relative group">
+                <div
+                  className="w-24 h-24 rounded-full bg-card border-4 border-background cursor-pointer overflow-hidden shadow-2xl"
+                  onClick={() => avatarInputRef.current?.click()}
+                >
+                  {pageData.avatar ? (
+                    <img src={getImageUrl(pageData.avatar)} alt="Аватар" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Camera className="w-6 h-6 text-gray-500" />
+                    </div>
+                  )}
+                </div>
+
+                <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 flex items-center z-30">
+                  <div className="relative">
+                    <button
+                      onClick={() => avatarInputRef.current?.click()}
+                      className="w-6 h-6 bg-foreground text-background rounded-full flex items-center justify-center border border-border hover:bg-foreground/90 hover:scale-110 transition-all duration-200 shadow-lg"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                    </button>
+                    {pageData.avatar && (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleRemoveImage('avatar'); }}
+                        className="absolute left-[calc(100%+4px)] top-1/2 -translate-y-1/2 w-7 h-7 bg-black/80 rounded-full flex items-center justify-center border border-white/20 hover:bg-red-500 hover:scale-110 transition-all duration-200 opacity-0 group-hover:opacity-100 shadow-lg"
+                      >
+                        <Trash2 className="w-3.5 h-3.5 text-white" />
+                      </button>
+                    )}
                   </div>
-                )}
+                </div>
               </div>
-              
-              <button
-                onClick={() => avatarInputRef.current?.click()}
-                className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-7 h-7 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/30 hover:bg-white/30 transition-colors"
-                data-testid="edit-avatar"
+            </div>
+
+            <div className="bg-card rounded-[12px] border border-border pt-16 pb-6 px-4 shadow-xl">
+              <div className="space-y-4 mb-4">
+                <input
+                  type="text"
+                  value={pageData.name}
+                  onChange={(e) => setPageData((prev) => ({ ...prev, name: e.target.value }))}
+                  className="w-full px-4 py-3 bg-secondary border border-border rounded-[12px] text-foreground text-left font-medium text-base placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-foreground/20 transition-all"
+                  placeholder="Имя или название страницы"
+                />
+                <textarea
+                  value={pageData.bio}
+                  onChange={(e) => setPageData((prev) => ({ ...prev, bio: e.target.value }))}
+                  onInput={(e) => {
+                    e.target.style.height = 'auto';
+                    e.target.style.height = e.target.scrollHeight + 'px';
+                  }}
+                  className="w-full px-4 py-3 bg-secondary border border-border rounded-[12px] text-foreground text-sm text-left placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-foreground/20 transition-all resize-y min-h-[100px]"
+                  placeholder="О себе, описание или подпись."
+                  rows={3}
+                />
+              </div>
+
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
               >
-                <Camera className="w-3.5 h-3.5 text-white" />
+                <SortableContext
+                  items={linkBlocks.map(b => b.id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <div className="space-y-4 mb-4">
+                    {linkBlocks.map((block, index) => (
+                      <SortableItem key={block.id} id={block.id}>
+                        <EditableBlockWrapper
+                          block={block}
+                          index={index}
+                          isFirst={index === 0}
+                          isLast={index === linkBlocks.length - 1}
+                          onDelete={() => setBlockToDeleteId(block.id)}
+                          onEdit={() => handleEditBlock(block)}
+                          onMove={(dir) => handleInternalMove(linkBlocks, index, dir)}
+                        />
+                      </SortableItem>
+                    ))}
+                  </div>
+                </SortableContext>
+              </DndContext>
+
+              <button
+                onClick={() => setShowLinkModal(true)}
+                className="w-full py-3 bg-secondary border border-dashed border-border rounded-[12px] text-muted-foreground font-medium hover:border-foreground/40 hover:bg-secondary/80 transition-all flex items-center justify-center gap-2"
+              >
+                <Plus className="w-4 h-4" />
+                <span className="text-sm">Добавить ссылку</span>
               </button>
             </div>
-            
             <input
               ref={avatarInputRef}
               type="file"
@@ -324,88 +734,63 @@ const PageEditor = ({ page, onClose }) => {
             />
           </div>
 
-          <div className="bg-[#171717] rounded-2xl border border-white/10 pt-16 pb-6 px-4">
-            <div className="mb-4">
-              <input
-                type="text"
-                value={pageData.name}
-                onChange={(e) => setPageData((prev) => ({ ...prev, name: e.target.value }))}
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-base placeholder:text-gray-500 focus:outline-none focus:border-white/30 focus:ring-1 focus:ring-white/30 transition-colors"
-                placeholder="Имя"
-                data-testid="name-input"
-              />
-            </div>
-
-            <div className="mb-4">
-              <textarea
-                value={pageData.bio}
-                onChange={(e) => setPageData((prev) => ({ ...prev, bio: e.target.value }))}
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-base placeholder:text-gray-500 focus:outline-none focus:border-white/30 focus:ring-1 focus:ring-white/30 transition-colors resize-none min-h-[80px]"
-                placeholder="Описание"
-                data-testid="bio-input"
-              />
-            </div>
-
-            {linkBlocks.length > 0 && (
-              <div className="space-y-2 mb-4">
-                {linkBlocks.map((block) => (
-                  <LinkBlockItem key={block.id} block={block} onDelete={() => handleDeleteBlock(block.id)} />
-                ))}
-              </div>
+          {/* Other Blocks Section */}
+          <div className="space-y-4">
+            {otherBlocks.length > 0 && (
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+              >
+                <SortableContext
+                  items={otherBlocks.map(b => b.id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <div className="space-y-4">
+                    {otherBlocks.map((block, index) => (
+                      <SortableItem key={block.id} id={block.id}>
+                        <EditableBlockWrapper
+                          block={block}
+                          index={index}
+                          isFirst={index === 0}
+                          isLast={index === otherBlocks.length - 1}
+                          onDelete={() => setBlockToDeleteId(block.id)}
+                          onEdit={() => handleEditBlock(block)}
+                          onMove={(dir) => handleInternalMove(otherBlocks, index, dir)}
+                        />
+                      </SortableItem>
+                    ))}
+                  </div>
+                </SortableContext>
+              </DndContext>
             )}
 
             <button
-              onClick={() => setShowLinkModal(true)}
-              className="w-full py-3 bg-white/5 border border-dashed border-white/20 rounded-xl text-gray-400 font-medium hover:border-white/40 hover:bg-white/10 transition-colors flex items-center justify-center gap-2"
-              data-testid="add-link-button"
+              onClick={() => setShowBlockModal(true)}
+              className="w-full py-4 bg-card border border-border rounded-[12px] text-gray-400 font-medium hover:bg-secondary transition-colors flex items-center justify-center gap-2 shadow-sm group"
             >
-              <Plus className="w-5 h-5" />
-              Добавить ссылки
+              <Plus className="w-5 h-5 group-hover:text-foreground transition-colors" />
+              <span className="group-hover:text-foreground transition-colors">Добавить новый блок</span>
             </button>
+
+            {loadingBlocks && (
+              <div className="py-4 text-center">
+                <div className="w-6 h-6 border-2 border-white/20 border-t-white rounded-full animate-spin mx-auto"></div>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* LEVEL 3: ACTION BUTTONS */}
-        <div className="space-y-3">
-          {otherBlocks.length > 0 && (
-            <div className="space-y-2">
-              {otherBlocks.map((block) => (
-                <OtherBlockItem
-                  key={block.id}
-                  block={block}
-                  onDelete={() => handleDeleteBlock(block.id)}
-                  onEdit={() => handleEditBlock(block)}
-                />
-              ))}
-            </div>
-          )}
-
-          <button
-            onClick={() => setShowBlockModal(true)}
-            className="w-full py-4 bg-[#171717] border border-white/10 rounded-2xl text-gray-400 font-medium hover:border-white/20 hover:bg-[#1a1a1a] transition-colors flex items-center justify-center gap-2"
-            data-testid="add-block-button"
-          >
-            <Plus className="w-5 h-5" />
-            Добавить новый блок
-          </button>
-
-          {loadingBlocks && (
-            <div className="py-4 text-center">
-              <div className="w-6 h-6 border-2 border-white/20 border-t-white rounded-full animate-spin mx-auto"></div>
-            </div>
-          )}
-        </div>
-
-        {/* FOOTER */}
-        <div className="pt-8 pb-4">
-          <a 
-            href="https://1bio.cc" 
-            target="_blank" 
+        {/* Footer */}
+        <div className="pt-16 pb-8">
+          <a
+            href="https://inbio.one"
+            target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-center gap-1.5 text-gray-600 hover:text-gray-400 transition-colors"
+            className="flex items-center justify-center gap-1.5 text-gray-700 hover:text-gray-400 transition-colors"
           >
-            <span className="text-xs">Powered by</span>
-            <Logo size="xs" className="opacity-60" />
+            <span className="text-[10px] tracking-wider uppercase opacity-50">Powered by</span>
+            <Logo size="xs" className="opacity-40" />
           </a>
         </div>
       </main>
@@ -413,8 +798,9 @@ const PageEditor = ({ page, onClose }) => {
       {showLinkModal && (
         <LinkModal
           pageId={page.id}
+          blocksCount={blocks.length}
           onClose={() => setShowLinkModal(false)}
-          onSuccess={() => { setShowLinkModal(false); toast.success('Ссылка добавлена'); loadPageContent(); }}
+          onSuccess={() => { setShowLinkModal(false); toast.success('Ссылка добавлена'); handleBlockUpdateSuccess(); }}
         />
       )}
 
@@ -425,556 +811,380 @@ const PageEditor = ({ page, onClose }) => {
             setShowBlockModal(false);
             if (type === 'text') setEditingBlock('new_text');
             else if (type === 'music') setEditingBlock('new_music');
+            else if (type === 'button') setEditingBlock('new_button');
+            else if (type === 'faq') setEditingBlock('new_faq');
+            else if (type === 'youtube') setEditingBlock('new_youtube');
+            else if (type === 'gallery') setEditingBlock('new_gallery');
+            else if (type === 'countdown') setEditingBlock('new_countdown');
+            else if (type === 'tiktok') setEditingBlock('new_tiktok');
+            else if (type === 'social_icons') setEditingBlock('new_social_icons');
+            else if (type === 'instagram_post') setEditingBlock('new_instagram_post');
+            else if (type === 'spotify') setEditingBlock('new_spotify');
+            else if (type === 'applemusic') setEditingBlock('new_applemusic');
+            else if (type === 'pinterest') setEditingBlock('new_pinterest');
+            else if (type === 'divider') setEditingBlock('new_divider');
+            else if (type === 'contact_form') setEditingBlock('new_contact_form');
+            else if (type === 'messengers') setEditingBlock('new_messengers');
+            else if (type === 'map') setEditingBlock('new_map');
+            else if (type === 'donation') setEditingBlock('new_donation');
+            else if (type === 'showcase') setEditingBlock('new_showcase');
+            else if (type === 'events') setEditingBlock('new_events');
           }}
         />
+      )}
+
+      <ConfirmationModal
+        isOpen={!!blockToDeleteId}
+        onClose={() => setBlockToDeleteId(null)}
+        onConfirm={() => handleDeleteBlock(blockToDeleteId)}
+        title="Удалить блок?"
+        message="Вы уверены, что хотите удалить этот блок? Данное действие нельзя отменить."
+        confirmText="Удалить"
+        cancelText="Отмена"
+      />
+
+      {showHelpModal && (
+        <EditorHelpModal onClose={() => setShowHelpModal(false)} />
       )}
     </div>
   );
 };
 
-// ===== TEXT BLOCK EDITOR =====
-const TextBlockEditor = ({ block, pageId, onClose, onSuccess }) => {
-  const [style, setStyle] = useState(block?.content?.style || 'highlighted');
-  const [title, setTitle] = useState(block?.content?.title || '');
-  const [text, setText] = useState(block?.content?.text || '');
-  const [url, setUrl] = useState(block?.content?.url || '');
-  const [saving, setSaving] = useState(false);
+const EditableBlockWrapper = ({ block, index, isFirst, isLast, onDelete, onEdit, onMove, dragHandleProps }) => {
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
-  const isHighlighted = style === 'highlighted';
-
-  const handleSave = async () => {
-    if (!text.trim()) {
-      toast.error('Введите текст');
-      return;
+  const renderBlock = () => {
+    switch (block.block_type) {
+      case 'text':
+        return <TextBlockRenderer block={block} />;
+      case 'music':
+        return <MusicBlockRenderer block={block} isPreview={true} />;
+      case 'link':
+        return <LinkBlockRenderer block={block} />;
+      case 'button':
+        return <ButtonBlockRenderer block={block} />;
+      case 'faq':
+        return <FAQBlockRenderer block={block} />;
+      case 'youtube':
+        return <YouTubeBlockRenderer block={block} />;
+      case 'gallery':
+        return <ImageGalleryBlockRenderer block={block} />;
+      case 'countdown':
+        return <CountdownBlockRenderer block={block} />;
+      case 'tiktok':
+        return <TikTokBlockRenderer block={block} />;
+      case 'social_icons':
+        return <SocialIconsBlockRenderer block={block} />;
+      case 'instagram_post':
+        return <InstagramPostBlockRenderer block={block} />;
+      case 'spotify':
+        return <SpotifyBlockRenderer block={block} />;
+      case 'applemusic':
+        return <AppleMusicBlockRenderer block={block} />;
+      case 'pinterest':
+        return <PinterestBlockRenderer block={block} />;
+      case 'divider':
+        return <DividerBlockRenderer block={block} />;
+      case 'contact_form':
+        return <ContactFormBlockRenderer block={block} />;
+      case 'messengers':
+        return <MessengersBlockRenderer block={block} />;
+      case 'map':
+        return <MapBlockRenderer block={block} />;
+      case 'donation':
+        return <DonationBlockRenderer block={block} />;
+      case 'showcase':
+        return <ShowcaseBlockRenderer block={block} />;
+      case 'events':
+        return <EventsBlockRenderer block={block} />;
+      default:
+        return <div className="p-4 bg-white/5 rounded-lg">Unknown Block Type</div>;
     }
+  };
 
-    setSaving(true);
-    try {
-      const content = { style, title, text, url };
-      
-      if (block?.id) {
-        const response = await api.updateBlock(block.id, { content });
-        if (response.ok) { toast.success('Блок обновлён'); onSuccess(); }
-      } else {
-        const response = await api.createBlock({
-          page_id: pageId,
-          block_type: 'text',
-          content,
-          order: 0,
-        });
-        if (response.ok) { toast.success('Блок создан'); onSuccess(); }
+  const getBlockLabel = () => {
+    switch (block.block_type) {
+      case 'text': return 'Текст';
+      case 'music': return block.content?.title ? `Музыка: ${block.content.title} ` : 'Музыка';
+      case 'link': {
+        if (block.content?.platform && block.content.platform !== 'custom') {
+          const platform = SOCIAL_PLATFORMS.find(p => p.id === block.content.platform);
+          return platform ? platform.name : 'Ссылка';
+        }
+        return block.content?.title || 'Ссылка';
       }
-    } catch (error) {
-      toast.error('Ошибка сохранения');
-    } finally {
-      setSaving(false);
+      case 'button': return block.content?.title || 'Кнопка';
+      case 'faq': return block.content?.title || 'FAQ (Аккордеон)';
+      case 'youtube': return block.content?.title || 'YouTube Видео';
+      case 'gallery': return block.content?.title || 'Галерея фото';
+      case 'countdown': return block.content?.title || 'Таймер';
+      case 'tiktok': return 'TikTok Видео';
+      case 'social_icons': return 'Социальные иконки';
+      case 'instagram_post': return 'Threads / Instagram';
+      case 'spotify': return block.content?.title || 'Spotify';
+      case 'applemusic': return block.content?.title || 'Apple Music';
+      case 'pinterest': return block.content?.title || 'Pinterest';
+      case 'divider': return 'Разделитель';
+      case 'contact_form': return 'Форма контактов';
+      case 'messengers': return block.content?.button_label || 'Мессенджеры';
+      case 'map': return 'Карта';
+      case 'donation': return 'Донаты / Поддержка';
+      case 'showcase': return block.content?.title || 'Витрина';
+      case 'events': return block.content?.title || 'Афиша событий';
+      default: return block.block_type;
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
-      <header className="sticky top-0 z-50 bg-[#0a0a0a] border-b border-white/10">
-        <div className="max-w-[480px] mx-auto px-4 h-14 flex items-center justify-between">
-          <button onClick={onClose} className="w-10 h-10 flex items-center justify-center hover:bg-white/10 rounded-full transition-colors">
-            <ArrowLeft className="w-5 h-5 text-white" />
-          </button>
-          <h1 className="text-lg font-semibold text-white">Текст</h1>
-          <button onClick={onClose} className="w-10 h-10 flex items-center justify-center hover:bg-white/10 rounded-full transition-colors">
-            <X className="w-5 h-5 text-white" />
-          </button>
-        </div>
-      </header>
-
-      <main className="max-w-[480px] mx-auto px-4 py-6 space-y-4">
-        {/* LEVEL 1: Preview Card - wrapped like button */}
-        <div className="bg-[#171717] rounded-2xl border border-white/10 p-3">
-          <div className={`rounded-xl p-4 ${isHighlighted ? 'bg-[#f5f0e6] border-2 border-gray-300' : 'bg-transparent'}`}>
-            {title && (
-              <h3 className={`text-lg font-semibold mb-2 ${isHighlighted ? 'text-[#2a2a2a]' : 'text-white'}`}>
-                {title}
-              </h3>
-            )}
-            <p className={`text-sm leading-relaxed ${isHighlighted ? 'text-[#4a4a4a] italic' : 'text-gray-400'}`}>
-              {text || 'Введите текст для предпросмотра...'}
-            </p>
-          </div>
+    <div className="relative group/block max-w-[440px] mx-auto mb-4 last:mb-0 transition-all duration-300">
+      {/* Control Bar */}
+      <div className={`flex items-center justify-between px-3 py-2 bg-secondary border border-border ${isCollapsed ? 'rounded-[18px]' : 'rounded-t-[18px] border-b-0'} transition-all duration-300 relative z-10`}>
+        <div className="flex items-center gap-3">
+          <Tooltip content="Удерживайте, чтобы перетащить">
+            <div {...dragHandleProps} className="cursor-grab active:cursor-grabbing p-1 hover:bg-white/5 rounded transition-colors">
+              <GripVertical className="w-4 h-4 text-gray-500" />
+            </div>
+          </Tooltip>
+          <span className="text-[13px] font-bold text-foreground tracking-wide">{getBlockLabel()}</span>
         </div>
 
-        {/* LEVEL 2: Settings Card */}
-        <div className="bg-[#171717] rounded-2xl border border-white/10 overflow-hidden">
-          <div className="flex border-b border-white/10">
+        <div className="flex items-center gap-1">
+          <Tooltip content={isCollapsed ? "Развернуть" : "Свернуть"}>
             <button
-              onClick={() => setStyle('highlighted')}
-              className={`flex-1 py-3 text-sm font-medium transition-colors ${style === 'highlighted' ? 'bg-white/10 text-white' : 'text-gray-500 hover:text-gray-300'}`}
+              onClick={(e) => { e.stopPropagation(); setIsCollapsed(!isCollapsed); }}
+              className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-foreground hover:bg-white/5 rounded-lg transition-all"
             >
-              С выделением
+              {isCollapsed ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
             </button>
+          </Tooltip>
+          <Tooltip content="Вверх">
             <button
-              onClick={() => setStyle('plain')}
-              className={`flex-1 py-3 text-sm font-medium transition-colors ${style === 'plain' ? 'bg-white/10 text-white' : 'text-gray-500 hover:text-gray-300'}`}
+              onClick={(e) => { e.stopPropagation(); onMove(-1); }}
+              className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-foreground hover:bg-white/5 rounded-lg transition-all disabled:opacity-20"
+              disabled={isFirst}
             >
-              Без выделения
+              <ArrowUp className="w-4 h-4" />
             </button>
-          </div>
-
-          <div className="p-4 border-b border-white/10">
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-gray-500 focus:outline-none focus:border-white/30"
-              placeholder="Заголовок (необязательно)"
-            />
-          </div>
-
-          <div className="flex items-center gap-1 px-4 py-3 border-b border-white/10">
-            <button className="w-9 h-9 flex items-center justify-center hover:bg-white/10 rounded-lg transition-colors">
-              <Bold className="w-4 h-4 text-gray-400" />
+          </Tooltip>
+          <Tooltip content="Вниз">
+            <button
+              onClick={(e) => { e.stopPropagation(); onMove(1); }}
+              className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-foreground hover:bg-white/5 rounded-lg transition-all disabled:opacity-20"
+              disabled={isLast}
+            >
+              <ArrowDown className="w-4 h-4" />
             </button>
-            <button className="w-9 h-9 flex items-center justify-center hover:bg-white/10 rounded-lg transition-colors">
-              <Italic className="w-4 h-4 text-gray-400" />
+          </Tooltip>
+          <Tooltip content="Редактировать блок">
+            <button
+              onClick={(e) => { e.stopPropagation(); onEdit(); }}
+              className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-foreground hover:bg-white/5 rounded-lg transition-all"
+            >
+              <Pencil className="w-4 h-4" />
             </button>
-            <button className="w-9 h-9 flex items-center justify-center hover:bg-white/10 rounded-lg transition-colors">
-              <Underline className="w-4 h-4 text-gray-400" />
+          </Tooltip>
+          <Tooltip content="Удалить блок">
+            <button
+              onClick={(e) => { e.stopPropagation(); onDelete(); }}
+              className="w-8 h-8 flex items-center justify-center text-red-500/50 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
+            >
+              <Trash2 className="w-4 h-4" />
             </button>
-            <button className="w-9 h-9 flex items-center justify-center hover:bg-white/10 rounded-lg transition-colors">
-              <Strikethrough className="w-4 h-4 text-gray-400" />
-            </button>
-            <button className="w-9 h-9 flex items-center justify-center hover:bg-white/10 rounded-lg transition-colors">
-              <Link2 className="w-4 h-4 text-gray-400" />
-            </button>
-            <button className="w-9 h-9 flex items-center justify-center hover:bg-white/10 rounded-lg transition-colors">
-              <Eraser className="w-4 h-4 text-gray-400" />
-            </button>
-          </div>
-
-          <div className="p-4 border-b border-white/10">
-            <textarea
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-gray-500 focus:outline-none focus:border-white/30 resize-none min-h-[150px]"
-              placeholder="Введите текст..."
-            />
-          </div>
-
-          <div className="p-4">
-            <input
-              type="url"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-gray-500 focus:outline-none focus:border-white/30"
-              placeholder="https://ссылка (необязательно)"
-            />
-          </div>
+          </Tooltip>
         </div>
+      </div>
 
-        {/* LEVEL 3: Save Button */}
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="w-full py-4 bg-[#7dd3a8] text-black rounded-2xl font-semibold hover:bg-[#6bc497] transition-colors disabled:opacity-50"
+      {/* Stack Effect for Collapsed State */}
+      {isCollapsed && (
+        <div className="absolute -bottom-1.5 inset-x-3 h-4 bg-card/60 border-b border-x border-white/5 rounded-b-[18px] -z-10 animate-in slide-in-from-top-1 duration-300" />
+      )}
+
+      {/* Block Content Container */}
+      {!isCollapsed && (
+        <div
+          className="bg-card border-b border-x border-border rounded-b-[18px] overflow-hidden cursor-pointer active:scale-[0.995] transition-all duration-300 [&_.mb-6]:mb-0 shadow-xl"
+          onClick={onEdit}
         >
-          {saving ? 'Сохранение...' : 'Сохранить'}
-        </button>
-      </main>
-    </div>
-  );
-};
-
-// ===== MUSIC BLOCK EDITOR =====
-const MusicBlockEditor = ({ block, pageId, onClose, onSuccess }) => {
-  const [theme, setTheme] = useState(block?.content?.theme || 'dark');
-  const [method, setMethod] = useState('auto');
-  const [showCover, setShowCover] = useState(block?.content?.showCover !== false);
-  const [musicUrl, setMusicUrl] = useState('');
-  const [musicData, setMusicData] = useState(block?.content || null);
-  const [platforms, setPlatforms] = useState(block?.content?.platforms || []);
-  const [saving, setSaving] = useState(false);
-  const [resolving, setResolving] = useState(false);
-
-  const handleResolve = async () => {
-    if (!musicUrl.trim()) {
-      toast.error('Введите URL');
-      return;
-    }
-
-    setResolving(true);
-    try {
-      const response = await api.resolveMusic({ url: musicUrl, mode: 'auto' });
-      const result = await response.json();
-
-      if (result.success) {
-        setMusicData(result.data);
-        setPlatforms(result.data.platforms || []);
-        toast.success('Трек найден!');
-      } else {
-        toast.error(result.error || 'Не удалось найти трек');
-      }
-    } catch (error) {
-      toast.error('Ошибка поиска');
-    } finally {
-      setResolving(false);
-    }
-  };
-
-  const togglePlatform = (platformId) => {
-    setPlatforms(prev => 
-      prev.map(p => p.platform === platformId ? { ...p, visible: !p.visible } : p)
-    );
-  };
-
-  const updatePlatformUrl = (platformId, url) => {
-    setPlatforms(prev => {
-      const exists = prev.find(p => p.platform === platformId);
-      if (exists) {
-        return prev.map(p => p.platform === platformId ? { ...p, url } : p);
-      }
-      return [...prev, { platform: platformId, url, visible: true }];
-    });
-  };
-
-  const handleSave = async () => {
-    if (!musicData?.title && platforms.filter(p => p.url).length === 0) {
-      toast.error('Добавьте хотя бы один трек');
-      return;
-    }
-
-    setSaving(true);
-    try {
-      const content = {
-        ...musicData,
-        theme,
-        showCover,
-        platforms: platforms.filter(p => p.url),
-      };
-      
-      if (block?.id) {
-        const response = await api.updateBlock(block.id, { content });
-        if (response.ok) { toast.success('Блок обновлён'); onSuccess(); }
-      } else {
-        const response = await api.createBlock({
-          page_id: pageId,
-          block_type: 'music',
-          content,
-          order: 0,
-        });
-        if (response.ok) { toast.success('Блок создан'); onSuccess(); }
-      }
-    } catch (error) {
-      toast.error('Ошибка сохранения');
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const visiblePlatforms = platforms.filter(p => p.visible !== false && p.url);
-  const isLight = theme === 'light';
-
-  return (
-    <div className="min-h-screen bg-[#0a0a0a]">
-      <header className="sticky top-0 z-50 bg-[#0a0a0a] border-b border-white/10">
-        <div className="max-w-[480px] mx-auto px-4 h-14 flex items-center justify-between">
-          <button onClick={onClose} className="w-10 h-10 flex items-center justify-center hover:bg-white/10 rounded-full transition-colors">
-            <ArrowLeft className="w-5 h-5 text-white" />
-          </button>
-          <h1 className="text-lg font-semibold text-white">Музыкальный релиз</h1>
-          <button onClick={onClose} className="w-10 h-10 flex items-center justify-center hover:bg-white/10 rounded-full transition-colors">
-            <X className="w-5 h-5 text-white" />
-          </button>
-        </div>
-      </header>
-
-      <main className="max-w-[480px] mx-auto px-4 py-6 space-y-4">
-        {/* LEVEL 1: Preview Card */}
-        <div className={`rounded-2xl p-4 border ${isLight ? 'bg-white border-gray-200' : 'bg-[#171717] border-white/10'}`}>
-          {musicData?.cover && showCover && (
-            <img src={musicData.cover} alt={musicData.title} className="w-full aspect-square object-cover rounded-xl mb-4" />
-          )}
-          {musicData?.title ? (
-            <>
-              <h3 className={`text-lg font-semibold mb-1 ${isLight ? 'text-black' : 'text-white'}`}>{musicData.title}</h3>
-              <p className={`text-sm mb-4 ${isLight ? 'text-gray-600' : 'text-gray-400'}`}>{musicData.artist}</p>
-            </>
-          ) : (
-            <p className="text-sm text-gray-500">Добавьте трек для предпросмотра...</p>
-          )}
-          
-          {visiblePlatforms.length > 0 && (
-            <div className="space-y-2">
-              {visiblePlatforms.map((p, idx) => (
-                <a
-                  key={idx}
-                  href={p.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`flex items-center justify-between px-4 py-3 rounded-xl transition-colors ${
-                    isLight ? 'bg-gray-100 hover:bg-gray-200 text-black' : 'bg-white/5 hover:bg-white/10 text-white'
-                  }`}
-                >
-                  <span className="flex items-center gap-3">
-                    <span className="w-6 h-6 flex items-center justify-center">{getServiceIcon(p.platform)}</span>
-                    <span className="font-medium">{getServiceName(p.platform)}</span>
-                  </span>
-                  <span className="text-sm opacity-60">Слушать →</span>
-                </a>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* LEVEL 2: Settings Card */}
-        <div className="bg-[#171717] rounded-2xl border border-white/10 overflow-hidden">
-          <div className="flex border-b border-white/10">
-            <button
-              onClick={() => setTheme('dark')}
-              className={`flex-1 py-3 text-sm font-medium transition-colors ${theme === 'dark' ? 'bg-white/10 text-white' : 'text-gray-500 hover:text-gray-300'}`}
-            >
-              Тёмная тема
-            </button>
-            <button
-              onClick={() => setTheme('light')}
-              className={`flex-1 py-3 text-sm font-medium transition-colors ${theme === 'light' ? 'bg-white/10 text-white' : 'text-gray-500 hover:text-gray-300'}`}
-            >
-              Светлая тема
-            </button>
-          </div>
-
-          <div className="flex border-b border-white/10">
-            <button
-              onClick={() => setMethod('auto')}
-              className={`flex-1 py-3 text-sm font-medium transition-colors ${method === 'auto' ? 'bg-white/5 text-white' : 'text-gray-500 hover:text-gray-300'}`}
-            >
-              Автоматически
-            </button>
-            <button
-              onClick={() => setMethod('manual')}
-              className={`flex-1 py-3 text-sm font-medium transition-colors ${method === 'manual' ? 'bg-white/5 text-white' : 'text-gray-500 hover:text-gray-300'}`}
-            >
-              Ручной ввод
-            </button>
-          </div>
-
-          {method === 'auto' && (
-            <div className="p-4 border-b border-white/10">
-              <div className="flex gap-2">
-                <input
-                  type="url"
-                  value={musicUrl}
-                  onChange={(e) => setMusicUrl(e.target.value)}
-                  className="flex-1 px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-gray-500 focus:outline-none focus:border-white/30"
-                  placeholder="Вставьте ссылку на трек..."
-                />
-                <button
-                  onClick={handleResolve}
-                  disabled={resolving}
-                  className="px-4 py-3 bg-white/10 text-white rounded-xl font-medium hover:bg-white/20 transition-colors disabled:opacity-50"
-                >
-                  {resolving ? '...' : 'Найти'}
-                </button>
-              </div>
-            </div>
-          )}
-
-          {method === 'manual' && (
-            <div className="p-4 space-y-3 border-b border-white/10 max-h-[300px] overflow-y-auto">
-              {STREAMING_SERVICES.map((service) => {
-                const platform = platforms.find(p => p.platform === service.id);
-                return (
-                  <div key={service.id} className="flex items-center gap-3">
-                    <span className="w-6 h-6 flex items-center justify-center flex-shrink-0">
-                      {getServiceIcon(service.id)}
-                    </span>
-                    <input
-                      type="url"
-                      value={platform?.url || ''}
-                      onChange={(e) => updatePlatformUrl(service.id, e.target.value)}
-                      className="flex-1 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm placeholder:text-gray-500 focus:outline-none focus:border-white/30"
-                      placeholder={`${service.name} URL`}
-                    />
-                    <button
-                      onClick={() => togglePlatform(service.id)}
-                      className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors flex-shrink-0 ${
-                        platform?.visible !== false ? 'bg-white/10 text-white' : 'text-gray-600'
-                      }`}
-                    >
-                      {platform?.visible !== false ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-
-          <div className="p-4 flex items-center justify-between">
-            <span className="text-white text-sm">Показывать обложку</span>
-            <button
-              onClick={() => setShowCover(!showCover)}
-              className={`w-12 h-7 rounded-full transition-colors relative ${showCover ? 'bg-[#7dd3a8]' : 'bg-white/20'}`}
-            >
-              <span className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-transform ${showCover ? 'left-6' : 'left-1'}`} />
-            </button>
+          <div className="pointer-events-none select-none">
+            {renderBlock()}
           </div>
         </div>
-
-        {/* LEVEL 3: Save Button */}
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="w-full py-4 bg-[#7dd3a8] text-black rounded-2xl font-semibold hover:bg-[#6bc497] transition-colors disabled:opacity-50"
-        >
-          {saving ? 'Сохранение...' : 'Сохранить'}
-        </button>
-      </main>
-    </div>
-  );
-};
-
-// ===== HELPER COMPONENTS =====
-const LinkBlockItem = ({ block, onDelete }) => {
-  const { content } = block;
-  
-  return (
-    <div className="group flex items-center gap-3 p-3 bg-white/5 border border-white/10 rounded-xl hover:border-white/20 transition-colors">
-      <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center flex-shrink-0">
-        <Link2 className="w-4 h-4 text-gray-400" />
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="text-sm font-medium text-white truncate">{content.title}</div>
-        <div className="text-xs text-gray-500 truncate">{content.url}</div>
-      </div>
-      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-        <a href={content.url} target="_blank" rel="noopener noreferrer" className="w-8 h-8 flex items-center justify-center hover:bg-white/10 rounded-lg transition-colors" onClick={(e) => e.stopPropagation()}>
-          <ExternalLink className="w-4 h-4 text-gray-500" />
-        </a>
-        <button onClick={onDelete} className="w-8 h-8 flex items-center justify-center hover:bg-red-500/20 rounded-lg transition-colors">
-          <Trash2 className="w-4 h-4 text-red-400" />
-        </button>
-      </div>
-      <GripVertical className="w-4 h-4 text-gray-600 flex-shrink-0" />
-    </div>
-  );
-};
-
-const OtherBlockItem = ({ block, onDelete, onEdit }) => {
-  const { block_type, content } = block;
-  
-  const getIcon = () => {
-    switch (block_type) {
-      case 'text': return <Type className="w-4 h-4 text-gray-400" />;
-      case 'music': return <Music className="w-4 h-4 text-gray-400" />;
-      default: return <Type className="w-4 h-4 text-gray-400" />;
-    }
-  };
-  
-  const getPreview = () => {
-    switch (block_type) {
-      case 'text': return content.text?.substring(0, 50) + (content.text?.length > 50 ? '...' : '');
-      case 'music': return `${content.title} — ${content.artist}`;
-      default: return 'Блок';
-    }
-  };
-  
-  return (
-    <div className="group flex items-center gap-3 p-3 bg-[#171717] border border-white/10 rounded-xl hover:border-white/20 transition-colors cursor-pointer" onClick={onEdit}>
-      <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center flex-shrink-0">{getIcon()}</div>
-      <div className="flex-1 min-w-0">
-        <div className="text-sm font-medium text-white capitalize">{block_type === 'text' ? 'Текст' : block_type === 'music' ? 'Музыка' : block_type}</div>
-        <div className="text-xs text-gray-500 truncate">{getPreview()}</div>
-      </div>
-      <button onClick={(e) => { e.stopPropagation(); onDelete(); }} className="w-8 h-8 flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-red-500/20 rounded-lg transition-all">
-        <Trash2 className="w-4 h-4 text-red-400" />
-      </button>
-      <GripVertical className="w-4 h-4 text-gray-600 flex-shrink-0" />
-    </div>
-  );
-};
-
-const LinkModal = ({ pageId, onClose, onSuccess }) => {
-  const [title, setTitle] = useState('');
-  const [url, setUrl] = useState('');
-  const [loading, setLoading] = useState(false);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!title || !url) { toast.error('Заполните все поля'); return; }
-
-    let finalUrl = url.trim();
-    if (!/^https?:\/\//i.test(finalUrl)) finalUrl = 'https://' + finalUrl;
-
-    setLoading(true);
-    try {
-      const response = await api.createBlock({ page_id: pageId, block_type: 'link', content: { title, url: finalUrl }, order: 0 });
-      if (response.ok) onSuccess();
-    } catch (error) {
-      toast.error('Ошибка');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center z-50" onClick={onClose}>
-      <div className="w-full max-w-[480px] bg-[#171717] rounded-t-2xl sm:rounded-2xl p-6 animate-slide-up border border-white/10" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-white">Добавить ссылку</h2>
-          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center hover:bg-white/10 rounded-full transition-colors">
-            <X className="w-5 h-5 text-gray-400" />
-          </button>
-        </div>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-400 mb-2">Название</label>
-            <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-gray-500 focus:outline-none focus:border-white/30" placeholder="Мой сайт" disabled={loading} />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-400 mb-2">URL</label>
-            <input type="text" value={url} onChange={(e) => setUrl(e.target.value)} className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-gray-500 focus:outline-none focus:border-white/30" placeholder="example.com" disabled={loading} />
-          </div>
-          <div className="flex gap-3 pt-2">
-            <button type="button" onClick={onClose} className="flex-1 py-3 bg-white/10 text-white rounded-xl font-medium hover:bg-white/20 transition-colors">Отмена</button>
-            <button type="submit" disabled={loading} className="flex-1 py-3 bg-white text-black rounded-xl font-medium hover:bg-gray-200 transition-colors disabled:opacity-50">{loading ? 'Добавление...' : 'Добавить'}</button>
-          </div>
-        </form>
-      </div>
+      )}
     </div>
   );
 };
 
 const BlockTypeModal = ({ onClose, onSelectType }) => {
-  const blockTypes = [
-    { id: 'text', label: 'Текст', icon: Type, description: 'Текстовый блок с форматированием' },
-    { id: 'music', label: 'Музыка', icon: Music, description: 'Музыкальный релиз со ссылками' },
-  ];
+  const isDesktop = useMediaQuery("(min-width: 768px)");
+  const categories = {
+    formatting: {
+      title: 'Форматирование',
+      items: [
+        { id: 'text', label: 'Текст', icon: Type, description: 'Текстовый блок с форматированием' },
+        { id: 'faq', label: 'FAQ', icon: HelpCircle, description: 'Раскрывающийся список вопросов и ответов' },
+        { id: 'button', label: 'Кнопка', icon: Plus, description: 'Кнопка для ссылок или скачивания файлов' },
+      ]
+    },
+    media: {
+      title: 'Медиа',
+      items: [
+        { id: 'gallery', label: 'Фотографии', icon: Camera, description: 'Галерея из одного или нескольких фото' },
+        { id: 'music', label: 'Музыка', icon: Music, description: 'Музыкальный релиз со ссылками' },
+        {
+          id: 'youtube',
+          label: 'YouTube',
+          icon: () => <img src={getImageUrl('/uploads/social-logo/youtube.svg')} alt="YouTube" className="w-5 h-5" />,
+          description: 'Вставка видео с YouTube'
+        },
+        {
+          id: 'spotify',
+          label: 'Spotify',
+          icon: () => <img src={getImageUrl('/uploads/social-logo/spotify.svg')} alt="Spotify" className="w-5 h-5" />,
+          description: 'Плеер Spotify (треки, альбомы, плейлисты)'
+        },
+        {
+          id: 'applemusic',
+          label: 'Apple Music',
+          icon: () => <img src={getImageUrl('/uploads/music-platform/applemusic.svg')} alt="Apple Music" className="w-5 h-5" />,
+          description: 'Плеер Apple Music (песни, альбомы, плейлисты)'
+        },
+        {
+          id: 'pinterest',
+          label: 'Pinterest',
+          icon: () => <img src={getImageUrl('/uploads/social-logo/pinterest.svg')} alt="Pinterest" className="w-5 h-5" />,
+          description: 'Пины и доски из Pinterest'
+        },
+      ]
+    },
+    social: {
+      title: 'Социальные сети',
+      items: [
+        {
+          id: 'social_icons',
+          label: 'Социальные иконки',
+          icon: () => <img src={getImageUrl('/uploads/social-logo/instagram.svg')} alt="Social" className="w-5 h-5" />,
+          description: 'Горизонтальный ряд иконок соцсетей'
+        },
+        {
+          id: 'instagram_post',
+          label: 'Threads / Instagram',
+          icon: () => <img src={getImageUrl('/uploads/social-logo/threads.svg') + '?v=2'} alt="Threads" className="w-5 h-5 dark:invert" />,
+          description: 'Встроить пост из Threads или Instagram'
+        },
+        {
+          id: 'tiktok',
+          label: 'TikTok',
+          icon: () => <img src={getImageUrl('/uploads/social-logo/tiktok.svg') + '?v=2'} alt="TikTok" className="w-5 h-5 dark:invert" />,
+          description: 'Вставка видео из TikTok'
+        },
+      ]
+    },
+    communication: {
+      title: 'Связь и контакты',
+      items: [
+        {
+          id: 'messengers',
+          label: 'Мессенджеры',
+          icon: () => <img src={getImageUrl('/uploads/social-logo/whatsapp.svg')} alt="Messengers" className="w-5 h-5" />,
+          description: 'Кнопки WhatsApp и Telegram'
+        },
+        {
+          id: 'contact_form',
+          label: 'Форма заявок',
+          icon: MessageSquare,
+          description: 'Сбор данных от посетителей'
+        },
+        {
+          id: 'map',
+          label: 'Карта',
+          icon: MapPin,
+          description: 'Google / Яндекс Карты'
+        },
+        {
+          id: 'donation',
+          label: 'Донаты',
+          icon: Heart,
+          description: 'Сбор поддержки и QR-коды'
+        },
+      ]
+    },
+    business: {
+      title: 'Бизнес',
+      items: [
+        { id: 'showcase', label: 'Витрина', icon: ShoppingBag, description: 'Карточка товара с кнопкой заказа' },
+        { id: 'events', label: 'Афиша', icon: Calendar, description: 'Список или блок предстоящих событий' },
+      ]
+    },
+    advanced: {
+      title: 'Продвинутое',
+      items: [
+        { id: 'countdown', label: 'Таймер', icon: Timer, description: 'Обратный отсчет до события' },
+        { id: 'divider', label: 'Разделитель', icon: Minus, description: 'Пустое пространство или линия-разделитель' },
+      ]
+    }
+  };
 
-  return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center z-50" onClick={onClose}>
-      <div className="w-full max-w-[480px] bg-[#171717] rounded-t-2xl sm:rounded-2xl p-6 animate-slide-up border border-white/10" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-white">Выберите тип блока</h2>
-          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center hover:bg-white/10 rounded-full transition-colors">
-            <X className="w-5 h-5 text-gray-400" />
-          </button>
+  const content = (
+    <div className="space-y-6">
+      {Object.entries(categories).map(([key, category]) => (
+        <div key={key}>
+          <h3 className="text-sm font-medium text-muted-foreground mb-3 px-1">{category.title}</h3>
+          <div className="space-y-2">
+            {category.items.map((type) => {
+              const Icon = type.icon;
+              return (
+                <button
+                  key={type.id}
+                  onClick={() => onSelectType(type.id)}
+                  className="w-full flex items-center gap-4 p-4 bg-secondary/50 hover:bg-secondary border border-transparent hover:border-border rounded-[16px] transition-all group text-left"
+                >
+                  <div className="w-10 h-10 bg-background rounded-[10px] flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Icon className="w-5 h-5 text-foreground" />
+                  </div>
+                  <div>
+                    <div className="font-semibold text-foreground mb-0.5">{type.label}</div>
+                    <div className="text-xs text-muted-foreground">{type.description}</div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
         </div>
-        <div className="space-y-2">
-          {blockTypes.map((type) => {
-            const Icon = type.icon;
-            return (
-              <button key={type.id} onClick={() => onSelectType(type.id)} className="w-full flex items-center gap-4 p-4 bg-white/5 hover:bg-white/10 rounded-xl transition-colors text-left border border-white/5 hover:border-white/10">
-                <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center">
-                  <Icon className="w-5 h-5 text-gray-300" />
-                </div>
-                <div>
-                  <div className="font-medium text-white">{type.label}</div>
-                  <div className="text-sm text-gray-500">{type.description}</div>
-                </div>
-              </button>
-            );
-          })}
+      ))}
+    </div>
+  );
+
+  if (isDesktop) {
+    return (
+      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-4" onClick={onClose}>
+        <div className="w-full max-w-[440px] bg-card rounded-t-[24px] sm:rounded-[24px] animate-slide-up border border-border max-h-[85vh] flex flex-col overflow-hidden" onClick={(e) => e.stopPropagation()}>
+          <div className="flex items-center justify-between p-6 pb-4 shrink-0 bg-card z-10">
+            <h2 className="text-xl font-bold text-foreground">Выберите тип блока</h2>
+            <button onClick={onClose} className="w-8 h-8 flex items-center justify-center hover:bg-secondary rounded-full transition-colors">
+              <X className="w-5 h-5 text-muted-foreground" />
+            </button>
+          </div>
+          <div className="p-6 pt-2 overflow-y-auto">
+            {content}
+          </div>
         </div>
       </div>
-    </div>
+    );
+  }
+
+  return (
+    <Drawer open={true} onOpenChange={onClose}>
+      <DrawerContent className="max-h-[85vh]">
+        <DrawerHeader className="text-left px-6 pt-6">
+          <DrawerTitle className="text-xl font-bold text-foreground">Выберите тип блока</DrawerTitle>
+        </DrawerHeader>
+        <div className="px-6 pb-8 overflow-y-auto">
+          {content}
+        </div>
+      </DrawerContent>
+    </Drawer>
   );
 };
 
-export { getServiceIcon, getServiceName, getServiceColor, STREAMING_SERVICES };
+
 export default PageEditor;
