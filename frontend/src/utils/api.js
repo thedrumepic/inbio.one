@@ -305,6 +305,16 @@ export const api = {
     ...options,
   }),
 
+  // Reserved Usernames
+  getReservedUsernames: () => fetchWithAuth(`${API_URL}/admin/reserved-usernames`),
+  addReservedUsername: (data) => fetchWithAuth(`${API_URL}/admin/reserved-usernames`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  }),
+  deleteReservedUsername: (username) => fetchWithAuth(`${API_URL}/admin/reserved-usernames/${username}`, {
+    method: 'DELETE',
+  }),
+
   // Notifications
   getNotifications: () => fetchWithAuth(`${API_URL}/notifications`),
   markNotificationRead: (id) => fetchWithAuth(`${API_URL}/notifications/${id}/read`, {
@@ -336,5 +346,28 @@ export const api = {
     ...options,
   }),
   getPublicSettings: () => fetchWithRetry(`${API_URL}/settings/public`),
+
+  // Telegram
+  getTelegramLink: () => fetchWithAuth(`${API_URL}/telegram/link`),
+  disconnectTelegram: () => fetchWithAuth(`${API_URL}/telegram/link`, {
+    method: 'DELETE'
+  }),
+
+  // Support Bot
+  getAdminSupport: (options) => fetchWithAuth(`${API_URL}/admin/support`, options),
+  createAdminSupport: (data, options) => fetchWithAuth(`${API_URL}/admin/support`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+    ...options
+  }),
+  updateAdminSupport: (id, data, options) => fetchWithAuth(`${API_URL}/admin/support/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+    ...options
+  }),
+  deleteAdminSupport: (id, options) => fetchWithAuth(`${API_URL}/admin/support/${id}`, {
+    method: 'DELETE',
+    ...options
+  }),
 
 };

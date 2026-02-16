@@ -8,6 +8,7 @@ const ForgotPassword = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -17,6 +18,7 @@ const ForgotPassword = () => {
       return;
     }
 
+    setLoading(true);
     try {
       const response = await api.forgotPassword({ email });
 
@@ -30,6 +32,8 @@ const ForgotPassword = () => {
     } catch (error) {
       console.error('Forgot password error:', error);
       toast.error('Ошибка соединения');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -74,10 +78,11 @@ const ForgotPassword = () => {
 
             <button
               type="submit"
-              className="btn-primary w-full"
+              disabled={loading}
+              className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
               data-testid="submit-button"
             >
-              Отправить инструкции
+              {loading ? 'Отправка...' : 'Отправить инструкции'}
             </button>
           </form>
         ) : (

@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { api } from '../../utils/api';
 import { toast } from 'sonner';
-import { ArrowLeft, X, Check, Loader2 } from 'lucide-react';
+import { ArrowLeft, X, Check, Loader2, Info } from 'lucide-react';
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 
 // Editor State & Save
 export const ContactFormBlockEditor = ({ block, pageId, blocksCount, onClose, onSuccess }) => {
@@ -9,7 +11,9 @@ export const ContactFormBlockEditor = ({ block, pageId, blocksCount, onClose, on
         name: true,
         email: true,
         phone: false,
-        message: true
+        message: true,
+        validateName: true,
+        validatePhone: true
     });
     const [title, setTitle] = useState(block?.content?.title || '');
     const [buttonText, setButtonText] = useState(block?.content?.button_text || 'Отправить');
@@ -121,7 +125,12 @@ export const ContactFormBlockEditor = ({ block, pageId, blocksCount, onClose, on
 };
 
 export const ContactFormBlockRenderer = ({ block }) => {
-    const { fields, button_text, title } = block.content || {};
+    const fields = {
+        ...block.content?.fields,
+        validateName: block.content?.fields?.validateName !== undefined ? block.content.fields.validateName : true,
+        validatePhone: block.content?.fields?.validatePhone !== undefined ? block.content.fields.validatePhone : true
+    };
+    const { button_text, title } = block.content || {};
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -130,17 +139,44 @@ export const ContactFormBlockRenderer = ({ block }) => {
     });
     const [loading, setLoading] = useState(false);
     const [sent, setSent] = useState(false);
+    const [errors, setErrors] = useState({});
+
+    const handleNameChange = (val) => {
+        if (fields?.validateName) {
+            const cleanVal = val.replace(/[0-9]/g, '');
+            setFormData(prev => ({ ...prev, name: cleanVal }));
+            if (val !== cleanVal) {
+                toast.error("Имя не может содержать цифры", { id: 'name-error', duration: 1500 });
+            }
+        } else {
+            setFormData(prev => ({ ...prev, name: val }));
+        }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true);
 
-        // Basic validation
-        if (fields?.email && !formData.email && !fields.phone && !formData.phone) {
-            toast.error("Укажите контакт для связи");
-            setLoading(false);
+        let newErrors = {};
+
+        if (fields?.name && !formData.name.trim()) {
+            newErrors.name = "Как вас зовут?";
+        }
+
+        if (fields?.email && !formData.email.trim()) {
+            newErrors.email = "Укажите Email";
+        }
+
+        if (fields?.phone && fields?.validatePhone && (!formData.phone || formData.phone.length < 10)) {
+            newErrors.phone = "Некорректный номер";
+            toast.error("Пожалуйста, введите полный номер телефона");
+        }
+
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
             return;
         }
+
+        setLoading(true);
 
         try {
             const response = await api.submitLead({
@@ -157,6 +193,7 @@ export const ContactFormBlockRenderer = ({ block }) => {
                 setSent(true);
                 toast.success('Сообщение отправлено!');
                 setFormData({ name: '', email: '', phone: '', message: '' });
+                setErrors({});
                 setTimeout(() => setSent(false), 3000);
             } else {
                 toast.error('Ошибка отправки');
@@ -182,14 +219,15 @@ export const ContactFormBlockRenderer = ({ block }) => {
             ) : (
                 <form onSubmit={handleSubmit} className="space-y-4">
                     {fields?.name && (
-                        <input
-                            type="text"
-                            placeholder="Ваше имя"
-                            value={formData.name}
-                            onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                            className="w-full h-12 px-4 bg-secondary rounded-[12px] border border-transparent focus:border-primary focus:outline-none transition-all placeholder:text-muted-foreground"
-                            required
-                        />
+                        <div className="space-y-1">
+                            <input
+                                type="text"
+                                placeholder="Ваше имя"
+                                value={formData.name}
+                                onChange={(e) => handleNameChange(e.target.value)}
+                                className={`w-full h-12 px-4 bg-secondary rounded-[12px] border ${errors.name ? 'border-destructive' : 'border-transparent'} focus:border-primary focus:outline-none transition-all placeholder:text-muted-foreground`}
+                            />
+                        </div>
                     )}
 
                     {fields?.email && (
@@ -198,19 +236,147 @@ export const ContactFormBlockRenderer = ({ block }) => {
                             placeholder="Email"
                             value={formData.email}
                             onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                            className="w-full h-12 px-4 bg-secondary rounded-[12px] border border-transparent focus:border-primary focus:outline-none transition-all placeholder:text-muted-foreground"
-                            required={!fields.phone} // Require email if phone is not active or empty (handled in submit)
+                            className={`w-full h-12 px-4 bg-secondary rounded-[12px] border ${errors.email ? 'border-destructive' : 'border-transparent'} focus:border-primary focus:outline-none transition-all placeholder:text-muted-foreground`}
                         />
                     )}
 
                     {fields?.phone && (
-                        <input
-                            type="tel"
-                            placeholder="Телефон"
-                            value={formData.phone}
-                            onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                            className="w-full h-12 px-4 bg-secondary rounded-[12px] border border-transparent focus:border-primary focus:outline-none transition-all placeholder:text-muted-foreground"
-                        />
+                        <div className="space-y-1">
+                            {fields.validatePhone ? (
+                                <div className={`phone-input-container ${errors.phone ? 'has-error' : ''}`}>
+                                    <style>{`
+                                        .phone-input-container .react-tel-input { width: 100%; font-family: inherit; }
+                                        .phone-input-container .form-control { 
+                                            width: 100% !important; 
+                                            height: 48px !important; 
+                                            background: hsl(var(--secondary)) !important; 
+                                            border: 1px solid transparent !important;
+                                            border-radius: 12px !important;
+                                            font-size: 16px !important;
+                                            color: hsl(var(--foreground)) !important;
+                                            display: flex !important;
+                                            align-items: center !important;
+                                            padding-left: 58px !important;
+                                        }
+                                        .phone-input-container.has-error .form-control {
+                                            border-color: hsl(var(--destructive)) !important;
+                                        }
+                                        .phone-input-container .flag-dropdown {
+                                            background: transparent !important;
+                                            border: none !important;
+                                            border-radius: 12px 0 0 12px !important;
+                                            padding: 0 !important;
+                                            width: 48px !important;
+                                        }
+                                        .phone-input-container .selected-flag {
+                                            background: transparent !important;
+                                            width: 48px !important;
+                                            padding: 0 0 0 14px !important;
+                                            border-radius: 12px 0 0 12px !important;
+                                        }
+                                        .phone-input-container .selected-flag:hover, 
+                                        .phone-input-container .selected-flag:focus,
+                                        .phone-input-container .flag-dropdown.open .selected-flag {
+                                            background: hsl(var(--secondary)) !important;
+                                        }
+                                        .phone-input-container .country-list {
+                                            background: hsl(var(--card)) !important;
+                                            border: 1px solid hsl(var(--border)) !important;
+                                            color: hsl(var(--foreground)) !important;
+                                            border-radius: 16px !important;
+                                            margin-top: 8px !important;
+                                            scrollbar-width: thin;
+                                            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+                                            width: 280px !important;
+                                            padding: 8px !important;
+                                        }
+                                        .phone-input-container .country-list .search {
+                                            padding: 12px 8px 8px 8px !important;
+                                            background: transparent !important;
+                                            display: flex !important;
+                                            align-items: center !important;
+                                        }
+                                        .phone-input-container .country-list .search-emoji {
+                                            display: none !important;
+                                        }
+                                        .phone-input-container .country-list .search-box {
+                                            background: hsl(var(--secondary)) !important;
+                                            border: 1px solid hsl(var(--border) / 0.5) !important;
+                                            color: hsl(var(--foreground)) !important;
+                                            border-radius: 10px !important;
+                                            width: 100% !important;
+                                            margin: 0 !important;
+                                            height: 36px !important;
+                                        }
+                                        .phone-input-container .country-list .country {
+                                            border-radius: 8px !important;
+                                            padding: 10px 12px !important;
+                                            transition: background 0.2s !important;
+                                        }
+                                        .phone-input-container .country-list .country:hover {
+                                            background: hsl(var(--secondary)) !important;
+                                        }
+                                        .phone-input-container .country-list .country.highlight {
+                                            background: hsl(var(--primary) / 0.1) !important;
+                                            color: hsl(var(--primary)) !important;
+                                        }
+                                        .phone-input-container .country-list .country-name {
+                                            font-size: 14px !important;
+                                            font-weight: 500 !important;
+                                        }
+                                        .phone-input-container .country-list .dial-code {
+                                            color: hsl(var(--muted-foreground)) !important;
+                                            font-size: 14px !important;
+                                        }
+                                    `}</style>
+                                    <PhoneInput
+                                        country={'kz'}
+                                        value={formData.phone}
+                                        onChange={val => setFormData(prev => ({ ...prev, phone: val }))}
+                                        placeholder="Телефон"
+                                        inputClass="form-control"
+                                        containerClass="react-tel-input"
+                                        buttonClass="flag-dropdown"
+                                        searchPlaceholder="Поиск..."
+                                        enableSearch={true}
+                                        disableCountryGuess={true}
+                                        localization={{
+                                            kz: 'Казахстан',
+                                            ru: 'Россия',
+                                            by: 'Беларусь',
+                                            ua: 'Украина',
+                                            uz: 'Узбекистан',
+                                            kg: 'Киргизия',
+                                            md: 'Молдова',
+                                            de: 'Германия',
+                                            us: 'США',
+                                            gb: 'Великобритания',
+                                            fr: 'Франция',
+                                            it: 'Италия',
+                                            es: 'Испания',
+                                            pl: 'Польша',
+                                            tr: 'Турция',
+                                            cn: 'Китай',
+                                            jp: 'Япония',
+                                            am: 'Армения',
+                                            az: 'Азербайджан',
+                                            tj: 'Таджикистан',
+                                            tm: 'Туркменистан',
+                                            ge: 'Грузия',
+                                        }}
+                                        preferredCountries={['kz', 'ru', 'by', 'uz', 'kg']}
+                                    />
+                                </div>
+                            ) : (
+                                <input
+                                    type="tel"
+                                    placeholder="Телефон"
+                                    value={formData.phone}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                                    className="w-full h-12 px-4 bg-secondary rounded-[12px] border border-transparent focus:border-primary focus:outline-none transition-all placeholder:text-muted-foreground"
+                                />
+                            )}
+                        </div>
                     )}
 
                     {fields?.message && (
@@ -218,7 +384,7 @@ export const ContactFormBlockRenderer = ({ block }) => {
                             placeholder="Сообщение..."
                             value={formData.message}
                             onChange={(e) => setFormData(prev => ({ ...prev, message: e.target.value }))}
-                            className="w-full p-4 bg-secondary rounded-[12px] border border-transparent focus:border-primary focus:outline-none transition-all placeholder:text-muted-foreground resize-none h-32"
+                            className={`w-full p-4 bg-secondary rounded-[12px] border border-transparent focus:border-primary focus:outline-none transition-all placeholder:text-muted-foreground resize-none h-32`}
                             required
                         />
                     )}

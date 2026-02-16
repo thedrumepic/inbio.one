@@ -53,7 +53,15 @@ const Landing = () => {
         const response = await api.checkUsername(debouncedUsername);
         const data = await response.json();
         setIsAvailable(data.available);
-        if (!data.available) setErrorMsg('Данный username занят');
+        if (!data.available) {
+          if (data.reason === 'reserved') {
+            setErrorMsg('Зарезервировано системой. Свяжитесь с поддержкой для получения доступа.');
+          } else if (data.reason === 'taken') {
+            setErrorMsg('Данная ссылка уже используется. Пожалуйста, выберите другую.');
+          } else {
+            setErrorMsg('Данный username занят');
+          }
+        }
       } catch (error) {
         console.error('Check error:', error);
         setIsAvailable(null);

@@ -58,6 +58,7 @@ export const Tooltip = ({ children, content, side = 'bottom', className = "inlin
                 className={className}
                 onMouseEnter={() => setIsVisible(true)}
                 onMouseLeave={() => setIsVisible(false)}
+                onClick={() => setIsVisible(false)}
             >
                 {children}
             </div>

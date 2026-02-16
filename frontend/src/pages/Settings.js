@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../utils/api';
 import { toast } from 'sonner';
 import ConfirmationModal from '../components/ui/ConfirmationModal';
-import { ArrowLeft, Lock, Trash2, BarChart, MessageSquare, Download, Filter, ChevronDown, Globe, Copy, Check, Loader2 } from 'lucide-react';
+import { ArrowLeft, Lock, Trash2, BarChart, MessageSquare, Download, Filter, ChevronDown, Globe, Copy, Check, Loader2, Send } from 'lucide-react';
 import { Tooltip } from '../components/ui/Tooltip';
 import {
   Select,
@@ -34,6 +34,9 @@ const Settings = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [copiedId, setCopiedId] = useState(null);
   const [updatingId, setUpdatingId] = useState(null);
+  const [userEmail, setUserEmail] = useState('');
+  const [telegramChatId, setTelegramChatId] = useState(null);
+  const [tgLoading, setTgLoading] = useState(false);
 
   React.useEffect(() => {
     loadSettings();
@@ -52,7 +55,9 @@ const Settings = () => {
         const data = await meRes.json();
         if (data.ga_pixel_id) setGaPixelId(data.ga_pixel_id);
         if (data.fb_pixel_id) setFbPixelId(data.fb_pixel_id);
+        if (data.email) setUserEmail(data.email);
         if (data.leads) setLeads(data.leads.reverse());
+        if (data.telegram_chat_id) setTelegramChatId(data.telegram_chat_id);
       }
 
       if (pagesRes.ok) {
@@ -198,6 +203,40 @@ const Settings = () => {
     }
   };
 
+  const handleConnectTelegram = async () => {
+    setTgLoading(true);
+    try {
+      const res = await api.getTelegramLink();
+      if (res.ok) {
+        const { link } = await res.json();
+        window.open(link, '_blank');
+        toast.info('Бот открыт в новой вкладке. Нажмите "Старт" в Telegram.');
+      } else {
+        toast.error('Не удалось получить ссылку на бота');
+      }
+    } catch (e) {
+      toast.error('Ошибка соединения');
+    } finally {
+      setTgLoading(false);
+    }
+  };
+
+  const handleDisconnectTelegram = async () => {
+    if (!window.confirm('Вы уверены, что хотите отключить Telegram уведомления?')) return;
+    setTgLoading(true);
+    try {
+      const res = await api.disconnectTelegram();
+      if (res.ok) {
+        setTelegramChatId(null);
+        toast.success('Telegram уведомления отключены');
+      }
+    } catch (e) {
+      toast.error('Ошибка соединения');
+    } finally {
+      setTgLoading(false);
+    }
+  };
+
   const filteredLeads = selectedPageId === 'all'
     ? leads
     : leads.filter(l => l.page_id === selectedPageId);
@@ -252,14 +291,21 @@ const Settings = () => {
         .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
       <div className="max-w-5xl mx-auto space-y-8">
-        <button
-          onClick={() => navigate('/dashboard')}
-          className="btn-ghost flex items-center gap-2"
-          data-testid="back-button"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Назад
-        </button>
+        <div className="flex items-center justify-between">
+          <button
+            onClick={() => navigate('/dashboard')}
+            className="btn-ghost flex items-center gap-2"
+            data-testid="back-button"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Назад
+          </button>
+          {userEmail && (
+            <div className="text-[13px] font-medium text-muted-foreground px-4 py-2 bg-secondary/30 rounded-lg border border-border/40 h-10 flex items-center shadow-sm">
+              {userEmail}
+            </div>
+          )}
+        </div>
 
         <h1 className="text-3xl font-bold">Настройки</h1>
 
@@ -594,6 +640,70 @@ const Settings = () => {
           </div>
         </div>
 
+        {/* Telegram Notifications Section */}
+        <div className="card">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 rounded-full bg-[#0088cc]/10 flex items-center justify-center">
+              <Send className="w-5 h-5 text-[#0088cc]" />
+            </div>
+            <div>
+              <h2 className="text-xl font-semibold">Уведомления Telegram</h2>
+              <p className="text-sm text-muted-foreground">Мгновенные заявки прямо в ваш мессенджер</p>
+            </div>
+          </div>
+
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6 p-6 bg-secondary/20 rounded-[20px] border border-border/40">
+            <div className="flex-1 space-y-2">
+              <h3 className="text-base font-bold">
+                {telegramChatId ? 'Telegram подключен' : 'Подключите Telegram'}
+              </h3>
+              <p className="text-sm text-muted-foreground max-w-md">
+                {telegramChatId
+                  ? 'Вы будете получать уведомления со всех ваших контактных форм мгновенно. Мы пришлем имя, контакт и текст сообщения.'
+                  : 'Получайте уведомления о новых лидах в режиме реального времени. Просто нажмите кнопку и запустите бота в Telegram.'}
+              </p>
+            </div>
+
+            <div className="flex-shrink-0">
+              {telegramChatId ? (
+                <button
+                  onClick={handleDisconnectTelegram}
+                  disabled={tgLoading}
+                  className="btn-ghost text-destructive hover:bg-destructive/10 border-destructive/20"
+                >
+                  {tgLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Отключить'}
+                </button>
+              ) : (
+                <button
+                  onClick={handleConnectTelegram}
+                  disabled={tgLoading}
+                  className="btn-primary bg-[#0088cc] hover:bg-[#0088cc]/90 border-none px-6 py-3 flex items-center gap-2 shadow-lg shadow-[#0088cc]/20"
+                >
+                  {tgLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                  Подключить Telegram
+                </button>
+              )}
+            </div>
+          </div>
+
+          {!telegramChatId && (
+            <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="p-4 bg-card border border-border/40 rounded-xl space-y-1">
+                <div className="text-[10px] font-bold text-primary uppercase">Шаг 1</div>
+                <div className="text-xs font-medium">Нажмите на кнопку подключения</div>
+              </div>
+              <div className="p-4 bg-card border border-border/40 rounded-xl space-y-1">
+                <div className="text-[10px] font-bold text-primary uppercase">Шаг 2</div>
+                <div className="text-xs font-medium">Запустите бота кнопкой "/start"</div>
+              </div>
+              <div className="p-4 bg-card border border-border/40 rounded-xl space-y-1">
+                <div className="text-[10px] font-bold text-primary uppercase">Шаг 3</div>
+                <div className="text-xs font-medium">Готово! Аккаунт привязан</div>
+              </div>
+            </div>
+          )}
+        </div>
+
         {/* Security Section */}
         <div className="card">
           <div className="flex items-center gap-3 mb-6">
@@ -666,7 +776,7 @@ const Settings = () => {
               <Trash2 className="w-5 h-5 text-destructive" />
             </div>
             <div>
-              <h2 className="text-xl font-semibold text-destructive">Опасная зона</h2>
+              <h2 className="text-xl font-semibold text-destructive">Удаление аккаунта</h2>
               <p className="text-sm text-muted-foreground">Удаление данных без возможности восстановления</p>
             </div>
           </div>
@@ -674,7 +784,7 @@ const Settings = () => {
           <div className="p-4 bg-destructive/5 rounded-lg border border-destructive/10 mb-6">
             <p className="text-sm text-muted-foreground">
               При удалении аккаунта все ваши страницы, ссылки и статистика будут удалены навсегда.
-              Это действие нельзя отменить.
+              Это действие нельзя отменить или восстановить.
             </p>
           </div>
 
@@ -684,7 +794,7 @@ const Settings = () => {
             className="w-full py-3 px-4 rounded-xl bg-destructive hover:bg-destructive/90 text-white font-medium transition-colors disabled:opacity-50"
             data-testid="delete-account-button"
           >
-            {loading ? 'Удаление...' : 'Удалить аккаунт навсегда'}
+            {loading ? 'Удаление...' : 'Удалить аккаунт'}
           </button>
         </div>
       </div>

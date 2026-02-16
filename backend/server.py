@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Depends, status, UploadFile, File, Query, Request, WebSocket, WebSocketDisconnect # Final Reload 4
+from fastapi import FastAPI, APIRouter, HTTPException, Depends, status, UploadFile, File, Query, Request, WebSocket, WebSocketDisconnect, Response # Final Reload 4
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.staticfiles import StaticFiles
 from dotenv import load_dotenv
@@ -21,6 +21,12 @@ import aiohttp
 import base64
 from io import BytesIO
 from PIL import Image
+import asyncio
+from aiogram import Bot, Dispatcher, types
+from aiogram.filters import Command
+from aiogram.types import Message
+import qrcode
+from email_utils import send_email
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -64,6 +70,65 @@ else:
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
 
+@app.get("/robots.txt")
+async def robots_txt():
+    # Настраиваем домен (в идеале из env, но для начала возьмем относительный путь)
+    content = (
+        "User-agent: *\n"
+        "Disallow: /api/\n"
+        "Disallow: /edit/\n"
+        "Disallow: /dashboard/\n"
+        "Disallow: /login\n"
+        "Disallow: /register\n"
+        "\n"
+        "Sitemap: /sitemap.xml"
+    )
+    return Response(content=content, media_type="text/plain")
+
+@app.get("/sitemap.xml")
+async def sitemap_xml(request: Request):
+    # Получаем всех пользователей (страницы)
+    users = await db.users.find({}, {"username": 1}).to_list(10000)
+    
+    # Рекурсивная сборка XML
+    base_url = f"{request.url.scheme}://{request.url.netloc}"
+    
+    xml_content = '<?xml version="1.0" encoding="UTF-8"?>\n'
+    xml_content += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+    
+    # Главная страница
+    xml_content += f"  <url>\n    <loc>{base_url}/</loc>\n    <changefreq>daily</changefreq>\n    <priority>1.0</priority>\n  </url>\n"
+    
+    # Страницы пользователей
+    for user in users:
+        if user.get("username"):
+            xml_content += f"  <url>\n    <loc>{base_url}/{user['username']}</loc>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>\n  </url>\n"
+            
+    xml_content += "</urlset>"
+    return Response(content=xml_content, media_type="application/xml")
+
+@app.get("/api/qr/generate")
+async def generate_qr(url: str, color: str = "black", bg: str = "white"):
+    try:
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=10,
+            border=4,
+        )
+        qr.add_data(url)
+        qr.make(fit=True)
+
+        img = qr.make_image(fill_color=color, back_color=bg)
+        
+        # Save to bytes
+        buf = BytesIO()
+        img.save(buf, format="PNG")
+        
+        return Response(content=buf.getvalue(), media_type="image/png")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.websocket("/ws/{username}")
 async def websocket_endpoint(websocket: WebSocket, username: str):
     await manager.connect(websocket, username)
@@ -85,17 +150,152 @@ async def startup_db_check():
     try:
         await db.users.update_one(
             {"email": dev_email},
-            {"$set": {"role": "admin"}}
+            {"$set": {"role": "owner"}}
         )
         print(f"Verified admin role for {dev_email}")
     except Exception as e:
         print(f"Startup check failed (DB might be empty yet): {e}")
+    
+    # Start Telegram Bot polling in background
+    if bot and dp:
+        asyncio.create_task(dp.start_polling(bot))
+
+    # Start Support Bot polling
+    if support_bot and support_dp:
+        print("Starting Support Bot polling...")
+        asyncio.create_task(support_dp.start_polling(support_bot))
+        print("Telegram bot polling started")
 
 SECRET_KEY = os.getenv("JWT_SECRET_KEY", "your-secret-key-change-in-production")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7
 
 security = HTTPBearer(auto_error=False)
+
+# Telegram Bot Setup
+BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+bot = Bot(token=BOT_TOKEN) if BOT_TOKEN else None
+dp = Dispatcher() if BOT_TOKEN else None
+linking_codes = {} # temporary map: code -> user_id
+
+# Support Bot Setup
+SUPPORT_BOT_TOKEN = "8306053064:AAGQo6dyGZDqHFMlkfdCMPjeWqQGm_igPPg"
+SUPPORT_OPERATOR_ID = "548890042" # ID @sadsoulpro
+support_bot = Bot(token=SUPPORT_BOT_TOKEN)
+support_dp = Dispatcher()
+support_admins = [] # Cache for support admins if needed (or just use db)
+
+# {operator_msg_id: user_chat_id}
+support_tickets = {}
+
+@support_dp.message(Command("start"))
+async def support_cmd_start(message: Message):
+    keyboard = types.InlineKeyboardMarkup(inline_keyboard=[
+        [types.InlineKeyboardButton(text="👤 Профиль и Аккаунт", callback_data="cat_profile")],
+        [types.InlineKeyboardButton(text="🧩 Типы Блоков", callback_data="cat_blocks")],
+        [types.InlineKeyboardButton(text="🔃 Сортировка и Публикация", callback_data="cat_sort")],
+        [types.InlineKeyboardButton(text="👨‍💻 Позвать оператора", callback_data="human_help")]
+    ])
+    await message.answer(
+        "👋 **Добро пожаловать в поддержку InBio.one!**\n\n"
+        "Я помогу вам быстро разобраться с редактором или соединю с живым человеком.\n\n"
+        "Выберите интересующий вас раздел ниже 👇",
+        reply_markup=keyboard,
+        parse_mode="Markdown"
+    )
+
+@support_dp.message()
+async def support_message_handler(message: Message):
+    chat_id = str(message.chat.id)
+    
+    # Logic for operator replies
+    if chat_id == SUPPORT_OPERATOR_ID and message.reply_to_message:
+        user_chat_id = support_tickets.get(message.reply_to_message.message_id)
+        if user_chat_id:
+            try:
+                await support_bot.send_message(user_chat_id, f"✉️ **Ответ оператора:**\n\n{message.text}", parse_mode="Markdown")
+                await message.answer("✅ Ответ отправлен пользователю.")
+            except Exception as e:
+                await message.answer(f"❌ Ошибка при отправке: {e}")
+            return
+
+    text = message.text.lower().strip() if message.text else ""
+    
+    # Common FAQ keywords search
+    qas = await db.support_qa.find({}).to_list(length=100)
+    best_match = None
+    for qa in qas:
+        if any(k.lower() in text for k in qa.get("keywords", [])):
+            best_match = qa
+            break
+        if qa["question"].lower() in text or text in qa["question"].lower():
+            best_match = qa
+            break
+
+    if best_match:
+        await message.answer(f"✨ **{best_match['question']}**\n\n{best_match['answer']}", parse_mode="Markdown")
+    else:
+        # Forward to operator if not a common question
+        if chat_id != SUPPORT_OPERATOR_ID:
+            try:
+                # Get user info
+                user_info = f"👤 **Пользователь:** {message.from_user.full_name}"
+                if message.from_user.username:
+                    user_info += f" (@{message.from_user.username})"
+                
+                msg_text = message.text or "[Сообщение без текста]"
+                info = f"{user_info}\nID: `{chat_id}`\n\n**Вопрос:**\n"
+                
+                sent_msg = await support_bot.send_message(SUPPORT_OPERATOR_ID, info + msg_text, parse_mode="Markdown")
+                # Bind message ID to user
+                support_tickets[sent_msg.message_id] = chat_id
+                await message.answer("👨‍💻 **Ваш вопрос передан оператору.**\n\nОжидайте ответа прямо здесь, я пришлю его вам, как только оператор освободится.")
+            except Exception as e:
+                logger.error(f"Support forward error: {e}")
+                await message.answer("Произошла ошибка при связи с оператором. Попробуйте позже.")
+
+@support_dp.callback_query()
+async def support_callback(call: types.CallbackQuery):
+    if call.data == "human_help":
+        await call.message.answer(
+            "👨‍💻 **Оператор на связи!**\n\n"
+            "Просто напишите ваш вопрос ответным сообщением, и я мгновенно передам его специалисту. Ответ придет прямо в этот чат.",
+            parse_mode="Markdown"
+        )
+        await call.answer()
+    elif call.data.startswith("cat_"):
+        cat = call.data.replace("cat_", "")
+        qas = await db.support_qa.find({"category": cat}).to_list(length=30)
+        if not qas:
+             await call.message.answer("В этой категории пока нет вопросов.")
+        else:
+            text = "📖 **Популярные вопросы в этом разделе:**\n\n"
+            for qa in qas:
+                text += f"🔹 **{qa['question']}**\n{qa['answer']}\n\n"
+            await call.message.answer(text, parse_mode="Markdown")
+        await call.answer()
+
+
+if dp:
+    @dp.message(Command("start"))
+    async def cmd_start(message: Message):
+        args = message.text.split()
+        if len(args) > 1:
+            code = args[1]
+            if code in linking_codes:
+                user_id = linking_codes.pop(code)
+                try:
+                    await db.users.update_one(
+                        {"id": user_id},
+                        {"$set": {"telegram_chat_id": str(message.chat.id)}}
+                    )
+                    await message.answer("Ваш аккаунт InBio.one успешно привязан! Теперь вы будете получать уведомления из контактных форм.")
+                except Exception as e:
+                    await message.answer("Ошибка при привязке аккаунта. Попробуйте снова.")
+            else:
+                await message.answer("Неверный или истекший код привязки. Сгенерируйте новый в настройках сайта.")
+        else:
+            await message.answer("Привет! Я бот уведомлений InBio.one. Привяжите свой аккаунт в настройках сайта, чтобы получать данные из форм.")
 
 logging.basicConfig(
     level=logging.INFO,
@@ -210,6 +410,7 @@ class PageCreate(BaseModel):
     bio: Optional[str] = ""
     avatar: Optional[str] = None
     cover: Optional[str] = None
+    cover_position: int = 50
     theme: str = "dark"
 
 class PageUpdate(BaseModel):
@@ -217,6 +418,7 @@ class PageUpdate(BaseModel):
     bio: Optional[str] = None
     avatar: Optional[str] = None
     cover: Optional[str] = None
+    cover_position: Optional[int] = None
     theme: Optional[str] = None
     seoSettings: Optional[Dict[str, Any]] = None
 
@@ -234,6 +436,22 @@ class VerificationRequestCreate(BaseModel):
     category: Optional[str] = None
     website: Optional[str] = None
     social_link: Optional[str] = None
+
+class SupportQACreate(BaseModel):
+    question: str
+    answer: str
+    keywords: List[str] = []
+    category: str = "general"
+
+class SupportQAUpdate(BaseModel):
+    question: Optional[str] = None
+    answer: Optional[str] = None
+    keywords: Optional[List[str]] = None
+    category: Optional[str] = None
+
+class SupportQAResponse(SupportQACreate):
+    id: str
+    created_at: str
 
 class RejectionRequest(BaseModel):
     reason: Optional[str] = None
@@ -281,6 +499,7 @@ class PageResponse(BaseModel):
     bio: str
     avatar: Optional[str] = None
     cover: Optional[str] = None
+    cover_position: int = 50
     is_verified: bool = False
     is_main_page: bool = False # Flag for cascading revoke
     is_brand: bool = False
@@ -301,6 +520,15 @@ class BlockUpdate(BaseModel):
 
 class BlockReorder(BaseModel):
     block_ids: List[str]
+
+class ReservedUsernameCreate(BaseModel):
+    username: str
+    comment: Optional[str] = None
+
+class ReservedUsernameResponse(BaseModel):
+    username: str
+    comment: Optional[str] = None
+    created_at: str
 
 class BlockResponse(BaseModel):
     id: str
@@ -431,29 +659,30 @@ def create_access_token(data: dict) -> str:
 
 def send_reset_email(email: str, token: str):
     """
-    Отправка email со ссылкой для сброса пароля.
-    MVP: логирование в консоль. Позже можно интегрировать Sender API.
+    Отправка email со ссылкой для сброса пароля через Resend API.
     """
-    base_url = os.getenv("BASE_URL", "http://localhost:3000")
+    base_url = os.getenv("BASE_URL", "https://inbio.one")
     reset_link = f"{base_url}/reset-password?token={token}"
     
-    # MVP: просто логируем ссылку
-    print("\n" + "="*80)
-    print(f"📧 СБРОС ПАРОЛЯ для {email}")
-    print(f"🔗 Ссылка: {reset_link}")
-    print("="*80 + "\n")
+    subject = "Сброс пароля — InBio.one"
+    html_content = f"""
+    <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+        <h2 style="color: #10b981;">Запрос на сброс пароля 🔑</h2>
+        <p>Для создания нового пароля перейдите по ссылке ниже:</p>
+        <div style="text-align: center; margin: 30px 0;">
+            <a href="{reset_link}" 
+               style="background-color: #10b981; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">
+               Сбросить пароль
+            </a>
+        </div>
+        <p style="font-size: 14px; color: #666;">Ссылка действительна в течение 1 часа.</p>
+        <p style="font-size: 14px; color: #666;">Если вы не запрашивали сброс пароля, просто проигнорируйте это письмо.</p>
+        <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+        <p style="font-size: 12px; color: #666;">С уважением, команда InBio.one</p>
+    </div>
+    """
     
-    # TODO: Интеграция с Sender API
-    # html_content = f"""
-    # <html>
-    #   <body>
-    #     <h2>Сброс пароля</h2>
-    #     <p>Для сброса пароля перейдите по ссылке:</p>
-    #     <a href="{reset_link}">Сбросить пароль</a>
-    #     <p>Ссылка действительна 1 час.</p>
-    #   </body>
-    # </html>
-    # """
+    return send_email(email, subject, html_content)
 
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "secretboost1")  # Change in production!
 
@@ -471,6 +700,9 @@ async def get_current_user_optional(credentials: Optional[HTTPAuthorizationCrede
         if user_id is None:
             return None
         user = await db.users.find_one({"id": user_id}, {"_id": 0})
+        if not user:
+            return None
+            
         # Enforce roles
         current_role = user.get("role", "user")
         
@@ -478,10 +710,6 @@ async def get_current_user_optional(credentials: Optional[HTTPAuthorizationCrede
             if current_role != "owner":
                  user["role"] = "owner"
                  await db.users.update_one({"id": user_id}, {"$set": {"role": "owner"}})
-        else:
-            if current_role != "user":
-                 user["role"] = "user"
-                 await db.users.update_one({"id": user_id}, {"$set": {"role": "user"}})
                  
         return user
     except JWTError:
@@ -500,6 +728,11 @@ async def get_current_admin(
     request: Request,
     current_user: Optional[dict] = Depends(get_current_user_optional)
 ):
+    # Bypass check via password header
+    admin_pass = request.headers.get("X-Admin-Password")
+    if admin_pass and admin_pass == ADMIN_PASSWORD:
+        return current_user or {"role": "owner", "id": "admin_bypass", "email": "admin@inbio.one"}
+
     if not current_user:
          raise HTTPException(status_code=401, detail="Не авторизован")
 
@@ -512,8 +745,17 @@ async def get_current_admin(
     return current_user
 
 async def get_current_owner(
-    current_user: Optional[dict] = Depends(get_current_user)
+    request: Request,
+    current_user: Optional[dict] = Depends(get_current_user_optional)
 ):
+    # Bypass check via password header
+    admin_pass = request.headers.get("X-Admin-Password")
+    if admin_pass and admin_pass == ADMIN_PASSWORD:
+        return current_user or {"role": "owner", "id": "admin_bypass", "email": "admin@inbio.one"}
+
+    if not current_user:
+         raise HTTPException(status_code=401, detail="Не авторизован")
+
     role = current_user.get("role", "user")
     if role != "owner":
         raise HTTPException(
@@ -570,6 +812,7 @@ class UserMeResponse(BaseModel):
     ga_pixel_id: Optional[str] = None
     fb_pixel_id: Optional[str] = None
     leads: Optional[List[Lead]] = []
+    telegram_chat_id: Optional[str] = None
 
 @api_router.post("/auth/google", response_model=GoogleAuthResponse)
 async def google_auth(data: GoogleAuthRequest):
@@ -702,9 +945,15 @@ async def register(user_data: UserRegister):
         if len(normalized_username) < 4:
              raise HTTPException(status_code=400, detail="Минимальная длина ссылки - 4 символа")
 
+        # Проверка на резерв (для register роль всегда user, если не owner email)
+        if role != "owner":
+            reserved = await db.reserved_usernames.find_one({"username": normalized_username})
+            if reserved:
+                raise HTTPException(status_code=400, detail="Зарезервировано системой. Свяжитесь с поддержкой для получения доступа.")
+
         existing_username = await db.pages.find_one({"username": normalized_username}, {"_id": 0})
         if existing_username:
-            raise HTTPException(status_code=400, detail="Username уже занят")
+            raise HTTPException(status_code=400, detail="Данная ссылка уже используется. Пожалуйста, выберите другую.")
         
         created_username = normalized_username
 
@@ -785,6 +1034,26 @@ async def create_lead(lead_data: LeadCreate):
         "created_at": datetime.now(timezone.utc).isoformat()
     }
     await db.notifications.insert_one(notification)
+
+    # Telegram Notification
+    user = await db.users.find_one({"id": user_id})
+    if user and user.get("telegram_chat_id") and bot:
+        try:
+            lines = [f"**Новая заявка на InBio.One!**\n"]
+            if new_lead.get('name'):
+                lines.append(f"**Имя:** {new_lead['name']}")
+            if new_lead.get('email'):
+                lines.append(f"**Email:** {new_lead['email']}")
+            if new_lead.get('phone'):
+                lines.append(f"**Телефон:** {new_lead['phone']}")
+            if new_lead.get('message'):
+                lines.append(f"**Сообщение:** {new_lead['message']}")
+            
+            lines.append(f"\nСтраница: {new_lead['page_name']}")
+            msg = "\n".join(lines)
+            await bot.send_message(user["telegram_chat_id"], msg, parse_mode="Markdown")
+        except Exception as e:
+            logger.error(f"Error sending Telegram notification: {e}")
 
     return {"message": "Заявка успешно отправлена"}
 
@@ -869,6 +1138,7 @@ async def delete_my_account(current_user: dict = Depends(get_current_user)):
 
 @api_router.post("/auth/login", response_model=TokenResponse)
 async def login(credentials: UserLogin):
+    print(f"DEBUG: Login attempt for: {credentials.email}")
     user = await db.users.find_one({"email": credentials.email}, {"_id": 0})
     if not user or not verify_password(credentials.password, user["password"]):
         raise HTTPException(status_code=401, detail="Неверный email или пароль")
@@ -885,8 +1155,20 @@ async def login(credentials: UserLogin):
 
 @api_router.post("/auth/check-username")
 async def check_username(data: UsernameCheckRequest):
-    existing = await db.pages.find_one({"username": data.username}, {"_id": 0})
-    return {"available": existing is None}
+    # 1. Normalization
+    username = data.username.lower().strip()
+    
+    # 2. Check reserved
+    reserved = await db.reserved_usernames.find_one({"username": username})
+    if reserved:
+        return {"available": False, "reason": "reserved"}
+
+    # 3. Check existing
+    existing = await db.pages.find_one({"username": username}, {"_id": 0})
+    if existing:
+        return {"available": False, "reason": "taken"}
+        
+    return {"available": True}
 
 @api_router.post("/auth/change-password")
 async def change_password(data: PasswordChangeRequest, current_user = Depends(get_current_user)):
@@ -973,6 +1255,29 @@ async def reset_password_confirm(data: ResetPasswordRequest):
     
     return {"message": "Пароль успешно изменён"}
 
+@api_router.get("/telegram/link")
+async def get_telegram_link(current_user: dict = Depends(get_current_user)):
+    code = str(uuid.uuid4())[:8].upper()
+    linking_codes[code] = current_user["id"]
+    
+    # Срок жизни кода 10 минут
+    async def expire_code():
+        await asyncio.sleep(600)
+        linking_codes.pop(code, None)
+    asyncio.create_task(expire_code())
+    
+    bot_username = (await bot.get_me()).username if bot else "InbioBot"
+    link = f"https://t.me/{bot_username}?start={code}"
+    return {"link": link, "code": code}
+
+@api_router.delete("/telegram/link")
+async def disconnect_telegram(current_user: dict = Depends(get_current_user)):
+    await db.users.update_one(
+        {"id": current_user["id"]},
+        {"$unset": {"telegram_chat_id": ""}}
+    )
+    return {"message": "Telegram уведомления отключены"}
+
 @api_router.get("/tools/resolve-url")
 async def resolve_url(url: str):
     """
@@ -1009,7 +1314,8 @@ async def get_me(current_user: dict = Depends(get_current_user)):
         "verification_status": current_user.get("verificationStatus", "none"),
         "ga_pixel_id": current_user.get("ga_pixel_id"),
         "fb_pixel_id": current_user.get("fb_pixel_id"),
-        "leads": current_user.get("leads", [])
+        "leads": current_user.get("leads", []),
+        "telegram_chat_id": current_user.get("telegram_chat_id")
     }
 
 @api_router.patch("/auth/me")
@@ -1047,10 +1353,19 @@ async def get_admin_stats(current_admin = Depends(get_current_admin)):
 @api_router.get("/admin/users")
 async def get_all_users(current_admin = Depends(get_current_admin)):
     users = await db.users.find({}, {"_id": 0, "password": 0}).to_list(1000)
-    # Join with pages to get usernames
+    # Join with pages to get all pages for each user
     for user in users:
-        page = await db.pages.find_one({"user_id": user["id"]}, {"_id": 0, "username": 1})
-        user["username"] = page["username"] if page else "N/A"
+        pages = await db.pages.find(
+            {"user_id": user["id"]}, 
+            {"_id": 0, "id": 1, "name": 1, "username": 1, "is_main_page": 1, "is_brand": 1, "brand_status": 1, "created_at": 1, "avatar": 1}
+        ).sort("created_at", 1).to_list(100)
+        
+        user["pages"] = pages
+        # Keep username and avatar for backward compatibility (main page or first)
+        main_page = next((p for p in pages if p.get("is_main_page")), pages[0] if pages else None)
+        user["username"] = main_page["username"] if main_page else "N/A"
+        user["avatar"] = main_page["avatar"] if main_page else None
+        
     return users
 
 @api_router.delete("/admin/user/{user_id}")
@@ -1069,15 +1384,15 @@ async def admin_delete_user(user_id: str, current_admin = Depends(get_current_ad
         
     return {"message": "Пользователь и его данные удалены"}
 
-@api_router.post("/admin/user/{user_id}/make-admin")
-async def make_admin(user_id: str, current_admin = Depends(get_current_admin)):
+@api_router.post("/admin/users/{user_id}/make-admin")
+async def make_owner(user_id: str, current_admin = Depends(get_current_admin)):
     result = await db.users.update_one(
         {"id": user_id},
-        {"$set": {"role": "admin"}}
+        {"$set": {"role": "owner"}}
     )
     if result.modified_count == 0:
         raise HTTPException(status_code=404, detail="Пользователь не найден")
-    return {"message": "Права администратора выданы"}
+    return {"message": "Права владельца выданы"}
 
 # ===== Pages Routes =====
 
@@ -1257,7 +1572,10 @@ async def get_page_by_username(username: str):
 
 @api_router.patch("/pages/{page_id}", response_model=PageResponse)
 async def update_page(page_id: str, updates: PageUpdate, current_user = Depends(get_current_user)):
-    page = await db.pages.find_one({"id": page_id, "user_id": current_user["id"]}, {"_id": 0})
+    query = {"id": page_id}
+    if current_user.get("role") != "owner":
+        query["user_id"] = current_user["id"]
+    page = await db.pages.find_one(query, {"_id": 0})
     if not page:
         raise HTTPException(status_code=404, detail="Страница не найдена")
     
@@ -1272,7 +1590,10 @@ async def update_page(page_id: str, updates: PageUpdate, current_user = Depends(
 @api_router.patch("/pages/{page_id}/update-username")
 async def update_page_username(page_id: str, data: UsernameUpdate, current_user = Depends(get_current_user)):
     # 1. Найти страницу и проверить владельца
-    page = await db.pages.find_one({"id": page_id, "user_id": current_user["id"]})
+    query = {"id": page_id}
+    if current_user.get("role") != "owner":
+        query["user_id"] = current_user["id"]
+    page = await db.pages.find_one(query)
     if not page:
         raise HTTPException(status_code=404, detail="Страница не найдена")
     
@@ -1282,6 +1603,12 @@ async def update_page_username(page_id: str, data: UsernameUpdate, current_user 
     if new_username == old_username:
         return {"message": "Имя пользователя не изменилось"}
     
+    # 1.1 Проверка на резерв (если не owner)
+    if current_user["role"] != "owner":
+        reserved = await db.reserved_usernames.find_one({"username": new_username})
+        if reserved:
+            raise HTTPException(status_code=400, detail="Зарезервировано системой. Свяжитесь с поддержкой для получения доступа.")
+
     # 2. Валидация формата
     import re
     if not re.match(r"^[a-zA-Z0-9_-]+$", new_username):
@@ -1293,7 +1620,7 @@ async def update_page_username(page_id: str, data: UsernameUpdate, current_user 
     # 3. Финальная проверка на уникальность
     existing = await db.pages.find_one({"username": new_username})
     if existing:
-        raise HTTPException(status_code=400, detail="Это имя пользователя уже занято")
+        raise HTTPException(status_code=400, detail="Данная ссылка уже используется. Пожалуйста, выберите другую.")
     
     # 4. Обновление в коллекции pages
     await db.pages.update_one({"id": page_id}, {"$set": {"username": new_username}})
@@ -1313,7 +1640,10 @@ async def update_page_username(page_id: str, data: UsernameUpdate, current_user 
 
 @api_router.delete("/pages/{page_id}")
 async def delete_page(page_id: str, current_user = Depends(get_current_user)):
-    page = await db.pages.find_one({"id": page_id, "user_id": current_user["id"]}, {"_id": 0})
+    query = {"id": page_id}
+    if current_user.get("role") != "owner":
+        query["user_id"] = current_user["id"]
+    page = await db.pages.find_one(query, {"_id": 0})
     if not page:
         raise HTTPException(status_code=404, detail="Страница не найдена")
     
@@ -1334,7 +1664,10 @@ async def delete_page(page_id: str, current_user = Depends(get_current_user)):
 
 @api_router.post("/blocks", response_model=BlockResponse)
 async def create_block(block_data: BlockCreate, current_user = Depends(get_current_user)):
-    page = await db.pages.find_one({"id": block_data.page_id, "user_id": current_user["id"]}, {"_id": 0})
+    query = {"id": block_data.page_id}
+    if current_user.get("role") != "owner":
+        query["user_id"] = current_user["id"]
+    page = await db.pages.find_one(query, {"_id": 0})
     if not page:
         raise HTTPException(status_code=404, detail="Страница не найдена")
     
@@ -1368,7 +1701,11 @@ async def reorder_blocks(data: BlockReorder, current_user = Depends(get_current_
         logger.warning(f"None of the blocks {data.block_ids} found for user {current_user['id']}")
         raise HTTPException(status_code=404, detail="Блоки не найдены")
     
-    page = await db.pages.find_one({"id": sample_block["page_id"], "user_id": current_user["id"]}, {"_id": 0})
+    
+    query = {"id": sample_block["page_id"]}
+    if current_user.get("role") != "owner":
+        query["user_id"] = current_user["id"]
+    page = await db.pages.find_one(query, {"_id": 0})
     if not page:
         logger.warning(f"Access denied for blocks {data.block_ids} by user {current_user['id']}")
         raise HTTPException(status_code=403, detail="Нет доступа")
@@ -1390,7 +1727,11 @@ async def update_block(block_id: str, updates: BlockUpdate, current_user = Depen
     if not block:
         raise HTTPException(status_code=404, detail="Блок не найден")
     
-    page = await db.pages.find_one({"id": block["page_id"], "user_id": current_user["id"]}, {"_id": 0})
+    
+    query = {"id": block["page_id"]}
+    if current_user.get("role") != "owner":
+        query["user_id"] = current_user["id"]
+    page = await db.pages.find_one(query, {"_id": 0})
     if not page:
         raise HTTPException(status_code=403, detail="Нет доступа")
     
@@ -1408,7 +1749,11 @@ async def delete_block(block_id: str, current_user = Depends(get_current_user)):
     if not block:
         raise HTTPException(status_code=404, detail="Блок не найден")
     
-    page = await db.pages.find_one({"id": block["page_id"], "user_id": current_user["id"]}, {"_id": 0})
+    
+    query = {"id": block["page_id"]}
+    if current_user.get("role") != "owner":
+        query["user_id"] = current_user["id"]
+    page = await db.pages.find_one(query, {"_id": 0})
     if not page:
         raise HTTPException(status_code=403, detail="Нет доступа")
     
@@ -1420,7 +1765,10 @@ async def delete_block(block_id: str, current_user = Depends(get_current_user)):
 
 @api_router.post("/events", response_model=EventResponse)
 async def create_event(event_data: EventCreate, current_user = Depends(get_current_user)):
-    page = await db.pages.find_one({"id": event_data.page_id, "user_id": current_user["id"]}, {"_id": 0})
+    query = {"id": event_data.page_id}
+    if current_user.get("role") != "owner":
+        query["user_id"] = current_user["id"]
+    page = await db.pages.find_one(query, {"_id": 0})
     if not page:
         raise HTTPException(status_code=404, detail="Страница не найдена")
     
@@ -1446,7 +1794,11 @@ async def update_event(event_id: str, updates: EventUpdate, current_user = Depen
     if not event:
         raise HTTPException(status_code=404, detail="Событие не найдено")
     
-    page = await db.pages.find_one({"id": event["page_id"], "user_id": current_user["id"]}, {"_id": 0})
+    
+    query = {"id": event["page_id"]}
+    if current_user.get("role") != "owner":
+        query["user_id"] = current_user["id"]
+    page = await db.pages.find_one(query, {"_id": 0})
     if not page:
         raise HTTPException(status_code=403, detail="Нет доступа")
     
@@ -1464,7 +1816,11 @@ async def delete_event(event_id: str, current_user = Depends(get_current_user)):
     if not event:
         raise HTTPException(status_code=404, detail="Событие не найдено")
     
-    page = await db.pages.find_one({"id": event["page_id"], "user_id": current_user["id"]}, {"_id": 0})
+    
+    query = {"id": event["page_id"]}
+    if current_user.get("role") != "owner":
+        query["user_id"] = current_user["id"]
+    page = await db.pages.find_one(query, {"_id": 0})
     if not page:
         raise HTTPException(status_code=403, detail="Нет доступа")
     
@@ -1476,7 +1832,10 @@ async def delete_event(event_id: str, current_user = Depends(get_current_user)):
 
 @api_router.post("/showcases", response_model=ShowcaseResponse)
 async def create_showcase(showcase_data: ShowcaseCreate, current_user = Depends(get_current_user)):
-    page = await db.pages.find_one({"id": showcase_data.page_id, "user_id": current_user["id"]}, {"_id": 0})
+    query = {"id": showcase_data.page_id}
+    if current_user.get("role") != "owner":
+        query["user_id"] = current_user["id"]
+    page = await db.pages.find_one(query, {"_id": 0})
     if not page:
         raise HTTPException(status_code=404, detail="Страница не найдена")
     
@@ -1501,7 +1860,11 @@ async def update_showcase(showcase_id: str, updates: ShowcaseUpdate, current_use
     if not showcase:
         raise HTTPException(status_code=404, detail="Витрина не найдена")
     
-    page = await db.pages.find_one({"id": showcase["page_id"], "user_id": current_user["id"]}, {"_id": 0})
+    
+    query = {"id": showcase["page_id"]}
+    if current_user.get("role") != "owner":
+        query["user_id"] = current_user["id"]
+    page = await db.pages.find_one(query, {"_id": 0})
     if not page:
         raise HTTPException(status_code=403, detail="Нет доступа")
     
@@ -1519,13 +1882,60 @@ async def delete_showcase(showcase_id: str, current_user = Depends(get_current_u
     if not showcase:
         raise HTTPException(status_code=404, detail="Витрина не найдена")
     
-    page = await db.pages.find_one({"id": showcase["page_id"], "user_id": current_user["id"]}, {"_id": 0})
+    
+    query = {"id": showcase["page_id"]}
+    if current_user.get("role") != "owner":
+        query["user_id"] = current_user["id"]
+    page = await db.pages.find_one(query, {"_id": 0})
     if not page:
         raise HTTPException(status_code=403, detail="Нет доступа")
     
     await db.showcases.delete_one({"id": showcase_id})
     await broadcast_by_page_id(showcase["page_id"])
     return {"message": "Витрина удалена"}
+
+# ===== Reserved Usernames Routes =====
+
+@api_router.get("/admin/reserved-usernames", response_model=List[ReservedUsernameResponse])
+async def get_reserved_usernames(current_user = Depends(get_current_user)):
+    if current_user["role"] != "owner":
+        raise HTTPException(status_code=403, detail="Доступ запрещен")
+    
+    cursor = db.reserved_usernames.find({})
+    reserved = await cursor.to_list(length=1000)
+    return [ReservedUsernameResponse(**r) for r in reserved]
+
+@api_router.post("/admin/reserved-usernames", response_model=ReservedUsernameResponse)
+async def add_reserved_username(data: ReservedUsernameCreate, current_user = Depends(get_current_user)):
+    if current_user["role"] != "owner":
+        raise HTTPException(status_code=403, detail="Доступ запрещен")
+    
+    username = data.username.lower().strip()
+    if not username:
+        raise HTTPException(status_code=400, detail="Имя пользователя не может быть пустым")
+
+    existing = await db.reserved_usernames.find_one({"username": username})
+    if existing:
+        raise HTTPException(status_code=400, detail="Имя уже в резерве")
+
+    reserved_item = {
+        "username": username,
+        "comment": data.comment,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    await db.reserved_usernames.insert_one(reserved_item)
+    return ReservedUsernameResponse(**reserved_item)
+
+@api_router.delete("/admin/reserved-usernames/{username}")
+async def delete_reserved_username(username: str, current_user = Depends(get_current_user)):
+    if current_user["role"] != "owner":
+        raise HTTPException(status_code=403, detail="Доступ запрещен")
+    
+    result = await db.reserved_usernames.delete_one({"username": username})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Имя не найдено в резерве")
+    
+    return {"message": "Имя удалено из резерва"}
 
 # ===== Tool Routes =====
 
@@ -2223,8 +2633,48 @@ async def log_requests(request: Request, call_next):
     except Exception as e:
         logger.error(f"Request Error: {e}")
         import traceback
-        logger.error(traceback.format_exc())
         raise
+
+# ===== Support Bot Admin Routes =====
+
+@api_router.get("/admin/support", response_model=List[SupportQAResponse])
+async def get_support_qa(current_admin: dict = Depends(get_current_admin)):
+    cursor = db.support_qa.find({})
+    qas = await cursor.to_list(length=1000)
+    # Ensure id and created_at exist for model validation
+    results = []
+    for qa in qas:
+         if "id" not in qa: qa["id"] = "legacy_" + str(uuid.uuid4())[:8]
+         if "created_at" not in qa: qa["created_at"] = datetime.now(timezone.utc).isoformat()
+         results.append(SupportQAResponse(**qa))
+    return results
+
+@api_router.post("/admin/support", response_model=SupportQAResponse)
+async def create_support_qa(qa: SupportQACreate, current_user: dict = Depends(get_current_owner)):
+    doc = qa.dict()
+    doc["id"] = str(uuid.uuid4())
+    doc["created_at"] = datetime.now(timezone.utc).isoformat()
+    await db.support_qa.insert_one(doc)
+    return SupportQAResponse(**doc)
+
+@api_router.patch("/admin/support/{qa_id}", response_model=SupportQAResponse)
+async def update_support_qa(qa_id: str, updates: SupportQAUpdate, current_user: dict = Depends(get_current_owner)):
+    update_data = {k: v for k, v in updates.dict(exclude_unset=True).items() if v is not None}
+    if update_data:
+        await db.support_qa.update_one({"id": qa_id}, {"$set": update_data})
+    
+    doc = await db.support_qa.find_one({"id": qa_id})
+    if not doc:
+        raise HTTPException(status_code=404, detail="Q&A not found")
+    return SupportQAResponse(**doc) 
+
+@api_router.delete("/admin/support/{qa_id}")
+async def delete_support_qa(qa_id: str, current_user: dict = Depends(get_current_owner)):
+    result = await db.support_qa.delete_one({"id": qa_id})
+    if result.deleted_count == 0:
+         raise HTTPException(status_code=404, detail="Q&A not found")
+    return {"message": "Deleted"}
+
 
 app.add_middleware(
     CORSMiddleware,

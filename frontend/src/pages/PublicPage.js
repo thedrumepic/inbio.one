@@ -26,6 +26,7 @@ import { MapBlockRenderer } from '../components/blocks/MapBlock';
 import { DonationBlockRenderer } from '../components/blocks/DonationBlock';
 import { ShowcaseBlockRenderer } from '../components/blocks/ShowcaseBlock';
 import { EventsBlockRenderer } from '../components/blocks/EventsBlock';
+import { QRBlockRenderer } from '../components/blocks/QRBlock';
 
 const PublicPage = () => {
   const { username } = useParams();
@@ -258,8 +259,11 @@ const PublicPage = () => {
         <div className="relative">
           {page.cover ? (
             <div
-              className="w-full h-[215px] bg-cover bg-center overflow-hidden rounded-t-[12px]"
-              style={{ backgroundImage: `url(${getImageUrl(page.cover)})` }}
+              className="w-full h-[215px] bg-cover overflow-hidden rounded-t-[12px] transition-all duration-300"
+              style={{
+                backgroundImage: `url(${getImageUrl(page.cover)})`,
+                backgroundPosition: `center ${page.cover_position || 50}%`
+              }}
               data-testid="page-cover"
             />
           ) : (
@@ -447,6 +451,8 @@ const BlockSelector = ({ block }) => {
       return <ShowcaseBlockRenderer block={block} />;
     case 'events':
       return <EventsBlockRenderer block={block} />;
+    case 'qr_code':
+      return <QRBlockRenderer block={block} />;
     default:
       return null;
   }

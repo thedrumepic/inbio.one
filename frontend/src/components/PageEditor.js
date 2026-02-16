@@ -15,6 +15,7 @@ import {
   GripVertical,
   ArrowUp,
   ArrowDown,
+  ArrowUpDown,
   Pencil,
   Link2,
   Eye,
@@ -27,6 +28,7 @@ import {
   Heart,
   Timer,
   Minus,
+  QrCode,
 } from 'lucide-react';
 import { TextBlockEditor, TextBlockRenderer } from './blocks/TextBlock';
 import { MusicBlockEditor, MusicBlockRenderer } from './blocks/MusicBlock';
@@ -49,6 +51,7 @@ import { MapBlockEditor, MapBlockRenderer } from './blocks/MapBlock';
 import { DonationBlockEditor, DonationBlockRenderer } from './blocks/DonationBlock';
 import { ShowcaseBlockEditor, ShowcaseBlockRenderer } from './blocks/ShowcaseBlock';
 import { EventsBlockEditor, EventsBlockRenderer } from './blocks/EventsBlock';
+import { QRBlockEditor, QRBlockRenderer } from './blocks/QRBlock';
 import EditorHelpModal from './EditorHelpModal';
 import {
   DndContext,
@@ -107,6 +110,7 @@ const PageEditor = ({ page, onClose }) => {
     bio: page.bio || '',
     avatar: page.avatar,
     cover: page.cover,
+    cover_position: page.cover_position || 50,
     theme: page.theme || 'auto',
   });
   const [blocks, setBlocks] = useState([]);
@@ -118,6 +122,7 @@ const PageEditor = ({ page, onClose }) => {
   const [blockToDeleteId, setBlockToDeleteId] = useState(null);
   const [saveStatus, setSaveStatus] = useState('saved'); // idle, saving, saved, error
   const [showHelpModal, setShowHelpModal] = useState(false);
+  const [showCoverPosition, setShowCoverPosition] = useState(false);
 
   const avatarInputRef = useRef(null);
   const coverInputRef = useRef(null);
@@ -520,6 +525,17 @@ const PageEditor = ({ page, onClose }) => {
         />
       );
     }
+    if (editingBlock.block_type === 'qr_code' || editingBlock === 'new_qr_code') {
+      return (
+        <QRBlockEditor
+          block={editingBlock === 'new_qr_code' ? null : editingBlock}
+          pageId={page.id}
+          blocksCount={blocks.length}
+          onClose={() => setEditingBlock(null)}
+          onSuccess={handleBlockUpdateSuccess}
+        />
+      );
+    }
   }
 
   return (
@@ -600,7 +616,12 @@ const PageEditor = ({ page, onClose }) => {
             onClick={() => coverInputRef.current?.click()}
           >
             {pageData.cover ? (
-              <img src={getImageUrl(pageData.cover)} alt="Обложка" className="w-full h-full object-cover" />
+              <img
+                src={getImageUrl(pageData.cover)}
+                alt="Обложка"
+                className="w-full h-full object-cover transition-all duration-100"
+                style={{ objectPosition: `center ${pageData.cover_position}%` }}
+              />
             ) : (
               <div className="w-full h-full flex items-start justify-center pt-10">
                 <div className="text-center group">
@@ -612,12 +633,37 @@ const PageEditor = ({ page, onClose }) => {
           </div>
 
           {pageData.cover && (
-            <button
-              onClick={(e) => { e.stopPropagation(); handleRemoveImage('cover'); }}
-              className="absolute top-3 right-3 w-8 h-8 bg-black/60 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-red-500 hover:scale-110 transition-all duration-200 z-20"
-            >
-              <Trash2 className="w-3.5 h-3.5 text-white" />
-            </button>
+            <div className="absolute top-3 right-3 flex gap-2 z-20">
+              <button
+                onClick={(e) => { e.stopPropagation(); setShowCoverPosition(!showCoverPosition); }}
+                className={`w-8 h-8 backdrop-blur-sm rounded-full flex items-center justify-center transition-all duration-200 ${showCoverPosition ? 'bg-primary text-primary-foreground' : 'bg-black/60 text-white hover:bg-black/80'}`}
+              >
+                <ArrowUpDown className="w-3.5 h-3.5" />
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); handleRemoveImage('cover'); }}
+                className="w-8 h-8 bg-black/60 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-red-500 hover:scale-110 transition-all duration-200"
+              >
+                <Trash2 className="w-3.5 h-3.5 text-white" />
+              </button>
+            </div>
+          )}
+
+          {showCoverPosition && pageData.cover && (
+            <div className="absolute inset-x-4 bottom-4 z-20 bg-background/90 backdrop-blur-md p-3 rounded-xl border border-border shadow-lg animate-in fade-in slide-in-from-bottom-2" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center gap-3">
+                <span className="text-xs font-medium text-muted-foreground whitespace-nowrap">Позиция</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={pageData.cover_position}
+                  onChange={(e) => setPageData({ ...pageData, cover_position: parseInt(e.target.value) })}
+                  className="w-full h-1.5 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
+                />
+                <span className="text-xs font-mono w-8 text-right">{pageData.cover_position}%</span>
+              </div>
+            </div>
           )}
 
           <input
@@ -829,6 +875,7 @@ const PageEditor = ({ page, onClose }) => {
             else if (type === 'donation') setEditingBlock('new_donation');
             else if (type === 'showcase') setEditingBlock('new_showcase');
             else if (type === 'events') setEditingBlock('new_events');
+            else if (type === 'qr_code') setEditingBlock('new_qr_code');
           }}
         />
       )}
@@ -897,6 +944,8 @@ const EditableBlockWrapper = ({ block, index, isFirst, isLast, onDelete, onEdit,
         return <ShowcaseBlockRenderer block={block} />;
       case 'events':
         return <EventsBlockRenderer block={block} />;
+      case 'qr_code':
+        return <QRBlockRenderer block={block} />;
       default:
         return <div className="p-4 bg-white/5 rounded-lg">Unknown Block Type</div>;
     }
@@ -931,6 +980,7 @@ const EditableBlockWrapper = ({ block, index, isFirst, isLast, onDelete, onEdit,
       case 'donation': return 'Донаты / Поддержка';
       case 'showcase': return block.content?.title || 'Витрина';
       case 'events': return block.content?.title || 'Афиша событий';
+      case 'qr_code': return block.content?.title || 'QR-код';
       default: return block.block_type;
     }
   };
@@ -1023,13 +1073,14 @@ const BlockTypeModal = ({ onClose, onSelectType }) => {
         { id: 'text', label: 'Текст', icon: Type, description: 'Текстовый блок с форматированием' },
         { id: 'faq', label: 'FAQ', icon: HelpCircle, description: 'Раскрывающийся список вопросов и ответов' },
         { id: 'button', label: 'Кнопка', icon: Plus, description: 'Кнопка для ссылок или скачивания файлов' },
+        { id: 'divider', label: 'Разделитель', icon: Minus, description: 'Пустое пространство или линия-разделитель' },
       ]
     },
     media: {
       title: 'Медиа',
       items: [
         { id: 'gallery', label: 'Фотографии', icon: Camera, description: 'Галерея из одного или нескольких фото' },
-        { id: 'music', label: 'Музыка', icon: Music, description: 'Музыкальный релиз со ссылками' },
+        { id: 'music', label: 'Музыкальный релиз', icon: Music, description: 'Музыкальный релиз со ссылками' },
         {
           id: 'youtube',
           label: 'YouTube',
@@ -1113,13 +1164,8 @@ const BlockTypeModal = ({ onClose, onSelectType }) => {
       items: [
         { id: 'showcase', label: 'Витрина', icon: ShoppingBag, description: 'Карточка товара с кнопкой заказа' },
         { id: 'events', label: 'Афиша', icon: Calendar, description: 'Список или блок предстоящих событий' },
-      ]
-    },
-    advanced: {
-      title: 'Продвинутое',
-      items: [
         { id: 'countdown', label: 'Таймер', icon: Timer, description: 'Обратный отсчет до события' },
-        { id: 'divider', label: 'Разделитель', icon: Minus, description: 'Пустое пространство или линия-разделитель' },
+        { id: 'qr_code', label: 'QR-код', icon: QrCode, description: 'Брендированный код для ссылок' },
       ]
     }
   };

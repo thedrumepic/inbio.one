@@ -11,13 +11,16 @@ const EditLink = () => {
     const [page, setPage] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    const welcomeShownRef = React.useRef(false);
+
     useEffect(() => {
         if (!isAuthenticated()) {
             navigate('/login');
             return;
         }
 
-        if (location.state?.showWelcome) {
+        if (location.state?.showWelcome && !welcomeShownRef.current) {
+            welcomeShownRef.current = true;
             // Use toast.dismiss() to clear any pending toasts
             toast.dismiss();
             toast.success('Добро пожаловать! Ваша страница готова, начните добавлять блоки');

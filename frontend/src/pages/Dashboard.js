@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { api, isAuthenticated, logout, getImageUrl } from '../utils/api';
 import { Tooltip } from '../components/ui/Tooltip';
 import { toast } from 'sonner';
-import { Plus, Edit2, Trash2, ExternalLink, BarChart, Settings as SettingsIcon, LogOut, CircleCheck, CircleX, UserCog, Bell, BellRing, BadgeCheck, ShieldCheck, Link2, ChevronDown, Share2, Globe, Trash, Search, Fingerprint } from 'lucide-react';
+import { Plus, Edit2, Trash2, ExternalLink, BarChart, Settings as SettingsIcon, LogOut, CircleCheck, CircleX, UserCog, User, Bell, BellRing, BadgeCheck, ShieldCheck, Link2, ChevronDown, Share2, Globe, Trash, Search, Fingerprint } from 'lucide-react';
 import { Logo } from '../components/Logo';
 import { ThemeToggle } from '../components/ThemeToggle';
 import ConfirmationModal from '../components/ui/ConfirmationModal';
@@ -430,8 +430,8 @@ const Dashboard = () => {
                         className="w-16 h-16 rounded-full object-cover flex-shrink-0 border-2 border-white/5"
                       />
                     ) : (
-                      <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                        <span className="text-2xl">👤</span>
+                      <div className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center flex-shrink-0 border-2 border-white/5">
+                        <User className="w-8 h-8 text-muted-foreground opacity-50" />
                       </div>
                     )}
 
@@ -841,6 +841,7 @@ const PageSettingsModal = ({ page, onClose, onSuccess }) => {
   const [newUsername, setNewUsername] = useState(page.username);
   const [checking, setChecking] = useState(false);
   const [isAvailable, setIsAvailable] = useState(null);
+  const [errorMsg, setErrorMsg] = useState('');
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const isDesktop = useMediaQuery("(min-width: 768px)");
@@ -861,12 +862,14 @@ const PageSettingsModal = ({ page, onClose, onSuccess }) => {
     const checkUsername = async () => {
       if (!debouncedUsername || debouncedUsername === page.username) {
         setIsAvailable(null);
+        setErrorMsg('');
         return;
       }
 
       const validRegex = /^[a-zA-Z0-9_-]+$/;
       if (!validRegex.test(debouncedUsername)) {
         setIsAvailable(false);
+        setErrorMsg('Только буквы, цифры, - и _');
         return;
       }
 
@@ -875,9 +878,21 @@ const PageSettingsModal = ({ page, onClose, onSuccess }) => {
         const response = await api.checkUsername(debouncedUsername);
         const data = await response.json();
         setIsAvailable(data.available);
+        if (!data.available) {
+          if (data.reason === 'reserved') {
+            setErrorMsg('Зарезервировано системой. Свяжитесь с поддержкой для получения доступа.');
+          } else if (data.reason === 'taken') {
+            setErrorMsg('Данная ссылка уже используется. Пожалуйста, выберите другую.');
+          } else {
+            setErrorMsg('Данный username занят');
+          }
+        } else {
+          setErrorMsg('');
+        }
       } catch (error) {
         console.error('Check error:', error);
         setIsAvailable(null);
+        setErrorMsg('');
       } finally {
         setChecking(false);
       }
@@ -1031,7 +1046,7 @@ const PageSettingsModal = ({ page, onClose, onSuccess }) => {
             </div>
 
             {!checking && newUsername !== page.username && isAvailable === false && (
-              <p className="text-destructive text-xs pl-1">Этот ник уже занят или имеет неверный формат</p>
+              <p className="text-destructive text-xs pl-1">{errorMsg || 'Этот ник уже занят'}</p>
             )}
             <p className="text-[10px] text-muted-foreground mt-1 ml-1 px-1">
               * Смена ника изменит URL-адрес вашей страницы. Убедитесь, что вы обновили ссылку в своих соцсетях.
@@ -1208,7 +1223,13 @@ const CreatePageModal = ({ onClose, onSuccess }) => {
       const checkData = await checkResponse.json();
 
       if (!checkData.available) {
-        toast.error('Это имя уже занято');
+        if (checkData.reason === 'reserved') {
+          toast.error('Зарезервировано системой. Свяжитесь с поддержкой.');
+        } else if (checkData.reason === 'taken') {
+          toast.error('Данная ссылка уже используется. Пожалуйста, выберите другую.');
+        } else {
+          toast.error('Это имя уже занято');
+        }
         setLoading(false);
         return;
       }
