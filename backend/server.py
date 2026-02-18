@@ -2741,6 +2741,22 @@ async def serve_upload(category: str, filename: str):
         filename=filename
     )
 
+@api_router.get("/uploads/{category}/{subcategory}/{filename}")
+async def serve_upload_nested(category: str, subcategory: str, filename: str):
+    file_path = UPLOAD_DIR / category / subcategory / filename
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="File not found")
+    
+    content_type, _ = mimetypes.guess_type(str(file_path))
+    if not content_type:
+        content_type = "application/octet-stream"
+    
+    return FileResponse(
+        path=str(file_path),
+        media_type=content_type,
+        filename=filename
+    )
+
 @app.get("/api/health")
 async def health_check():
     return {"status": "ok", "db": "mock" if USE_MOCK_DB else "mongo"}
