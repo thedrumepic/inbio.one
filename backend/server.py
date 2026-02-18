@@ -2818,6 +2818,9 @@ async def serve_user_page(request: Request, username: str):
 # Mount static files
 app.mount("/api/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="uploads")
 
+# Also add include router at the end
+app.include_router(api_router)
+
 @app.on_event("shutdown")
 async def shutdown_db_client():
     client.close()
