@@ -38,7 +38,8 @@ services:
       - inbio-net
     volumes:
       - ./backend/uploads:/app/uploads
-      - frontend_build:/app/frontend/build:ro
+      # Монтируем том с билдом фронтенда туда, где его ищет server.py (/frontend/build)
+      - frontend_build:/frontend/build:ro
 
   frontend:
     build:
@@ -48,7 +49,8 @@ services:
     container_name: inbio-frontend
     restart: always
     volumes:
-      - frontend_build:/app/build
+      # Nginx хранит файлы здесь. Docker скопирует их в том frontend_build при старте.
+      - frontend_build:/usr/share/nginx/html
     networks:
       - inbio-net
 
@@ -63,6 +65,7 @@ services:
       - ./Caddyfile:/etc/caddy/Caddyfile
       - caddy_data:/data
       - caddy_config:/config
+      # Caddy тоже может раздавать статику, если нужно (опционально)
       - frontend_build:/var/www/html:ro
     depends_on:
       - frontend
