@@ -2720,6 +2720,27 @@ async def get_public_settings():
     # We can filter sensitive settings here if needed later
     return GlobalSettings(**settings_doc)
 
+# Explicit file serving endpoint for uploads
+from fastapi.responses import FileResponse
+import mimetypes
+
+@api_router.get("/uploads/{category}/{filename}")
+async def serve_upload(category: str, filename: str):
+    file_path = UPLOAD_DIR / category / filename
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="File not found")
+    
+    # Determine content type
+    content_type, _ = mimetypes.guess_type(str(file_path))
+    if not content_type:
+        content_type = "application/octet-stream"
+    
+    return FileResponse(
+        path=str(file_path),
+        media_type=content_type,
+        filename=filename
+    )
+
 @app.get("/api/health")
 async def health_check():
     return {"status": "ok", "db": "mock" if USE_MOCK_DB else "mongo"}
