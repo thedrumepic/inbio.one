@@ -2769,8 +2769,8 @@ async def serve_user_page(request: Request, username: str):
         # Default values
         title = "InBio.one"
         description = "1bio - Ссылка в био для любых целей"
-        favicon = "/uploads/logo/favicon.ico"
-        og_image = "/uploads/files/og-preview/default.jpg"
+        favicon = "/api/uploads/logo/favicon.ico"
+        og_image = "/api/uploads/files/og-preview/default.jpg"
         
         if page_data:
             page = page_data["page"]
