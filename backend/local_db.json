@@ -8616,6 +8616,13 @@
         "password": "$2b$12$3RfdK.W6m3T2skq9IML7l.uPiR4qbqgragE72st1hzgXAm448Cl6y",
         "created_at": "2026-02-18T03:14:28.497123+00:00",
         "role": "user"
+      },
+      {
+        "id": "69e29402-619a-41f5-a383-862d297a0cb5",
+        "email": "thedrumepic@gmail.com",
+        "password": "$2b$12$6FPK3BXW6KD/bLCBKUDuTemX3U3vIjgfhlMsvdHjET2dDl.j347ee",
+        "created_at": "2026-02-18T03:16:57.934657+00:00",
+        "role": "owner"
       }
     ],
     "pages": [
@@ -8628,6 +8635,17 @@
         "avatar": null,
         "cover": null,
         "created_at": "2026-02-18T03:14:28.503407+00:00",
+        "is_main_page": true
+      },
+      {
+        "id": "7f23fb6b-ae62-49e3-a3fd-faafa1e8af1f",
+        "user_id": "69e29402-619a-41f5-a383-862d297a0cb5",
+        "username": "sadsoul",
+        "name": "sadsoul",
+        "bio": "",
+        "avatar": null,
+        "cover": null,
+        "created_at": "2026-02-18T03:16:57.940870+00:00",
         "is_main_page": true
       }
     ]
