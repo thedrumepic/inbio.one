@@ -8622,7 +8622,8 @@
         "email": "thedrumepic@gmail.com",
         "password": "$2b$12$6FPK3BXW6KD/bLCBKUDuTemX3U3vIjgfhlMsvdHjET2dDl.j347ee",
         "created_at": "2026-02-18T03:16:57.934657+00:00",
-        "role": "owner"
+        "role": "owner",
+        "is_verified": true
       }
     ],
     "pages": [
@@ -8641,12 +8642,36 @@
         "id": "7f23fb6b-ae62-49e3-a3fd-faafa1e8af1f",
         "user_id": "69e29402-619a-41f5-a383-862d297a0cb5",
         "username": "sadsoul",
-        "name": "sadsoul",
-        "bio": "",
-        "avatar": null,
-        "cover": null,
+        "name": "Sad Soul",
+        "bio": "Multi Platinum Producer",
+        "avatar": "/api/uploads/avatars/20de2fac-fd0c-4409-9332-8eafc174c8e8.jpeg",
+        "cover": "/api/uploads/covers/724115fd-3dfa-4447-a20b-ac2203710d8b.jpeg",
         "created_at": "2026-02-18T03:16:57.940870+00:00",
-        "is_main_page": true
+        "is_main_page": true,
+        "is_verified": true,
+        "cover_position": 69,
+        "theme": "auto"
+      }
+    ],
+    "verification_requests": [
+      {
+        "id": "5075d8bd-1392-4902-921b-3f2b4d55b06d",
+        "user_id": "69e29402-619a-41f5-a383-862d297a0cb5",
+        "user_email": "thedrumepic@gmail.com",
+        "page_username": "sadsoul",
+        "req_type": "personal",
+        "status": "approved",
+        "created_at": "2026-02-18T03:17:32.657091"
+      }
+    ],
+    "notifications": [
+      {
+        "id": "31ae27f6-0adc-436c-94c8-4f4406e69796",
+        "user_id": "69e29402-619a-41f5-a383-862d297a0cb5",
+        "type": "verification",
+        "message": "Ваш аккаунт верифицирован администратором.",
+        "read": true,
+        "created_at": "2026-02-18T03:17:32.665947"
       }
     ]
   }
