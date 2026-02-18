@@ -27,8 +27,6 @@ const Logo = ({ className = "", size = "default", forceTheme = null }) => {
     xl: "h-14",
   };
 
-  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || '';
-
   let logoFile;
   if (forceTheme === 'light') {
     logoFile = 'logo-dark.png';
@@ -38,9 +36,10 @@ const Logo = ({ className = "", size = "default", forceTheme = null }) => {
     logoFile = isDark ? 'logo.png' : 'logo-dark.png';
   }
 
+  // Use local public folder for logo
   return (
     <img
-      src={`${BACKEND_URL}/api/uploads/logo/${logoFile}`}
+      src={`/${logoFile}`}
       alt="inbio"
       className={`${sizes[size] || sizes.default} w-auto object-contain ${className}`}
     />
