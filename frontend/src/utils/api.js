@@ -7,6 +7,10 @@ export const getImageUrl = (path) => {
   if (!path) return null;
   if (path.startsWith('http')) return path;
   if (path.startsWith('data:')) return path;
+  // Add /api prefix for uploads paths
+  if (path.startsWith('/uploads')) {
+    return `${BACKEND_URL}/api${path}`;
+  }
   return `${BACKEND_URL}${path.startsWith('/') ? '' : '/'}${path}`;
 };
 
