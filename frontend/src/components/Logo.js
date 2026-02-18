@@ -40,7 +40,7 @@ const Logo = ({ className = "", size = "default", forceTheme = null }) => {
 
   return (
     <img
-      src={`${BACKEND_URL}/uploads/logo/${logoFile}`}
+      src={`${BACKEND_URL}/api/uploads/logo/${logoFile}`}
       alt="inbio"
       className={`${sizes[size] || sizes.default} w-auto object-contain ${className}`}
     />
