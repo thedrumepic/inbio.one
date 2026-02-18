@@ -2816,7 +2816,7 @@ async def serve_user_page(request: Request, username: str):
         return Response(status_code=500)
 
 # Mount static files
-app.mount("/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="uploads")
+app.mount("/api/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="uploads")
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
