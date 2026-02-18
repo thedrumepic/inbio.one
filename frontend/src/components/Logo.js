@@ -27,7 +27,7 @@ const Logo = ({ className = "", size = "default", forceTheme = null }) => {
     xl: "h-14",
   };
 
-  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000';
+  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || '';
 
   let logoFile;
   if (forceTheme === 'light') {

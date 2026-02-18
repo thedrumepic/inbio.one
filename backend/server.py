@@ -2728,6 +2728,10 @@ app.include_router(api_router)
 
 # ===== SEO & SPA Routing =====
 
+@app.get("/")
+async def serve_landing_page(request: Request):
+    return await serve_user_page(request, "landing_page_default")
+
 @app.get("/{username}")
 async def serve_user_page(request: Request, username: str):
     # Skip if it's an API route or static file

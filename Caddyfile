@@ -1,36 +1,33 @@
 inbio.one {
-    # Прокси для API
+    # 1. API
     reverse_proxy /api/* backend:8000 {
         header_up X-Forwarded-Proto {scheme}
         header_up X-Forwarded-Host {host}
     }
 
-    # Прокси для статических файлов (Uploads)
+    # 2. Uploads
     reverse_proxy /uploads/* backend:8000
 
-    # Обработка пользовательских страниц (SEO) и SPA
-    # Если React запущен через npm start в контейнере, порт 3000.
-    # Если это продакшн-билд (Nginx), обычно порт 80.
-    reverse_proxy * frontend:3000 {
-        # Перехватываем 404 от фронтенда (роуты SPA), чтобы бэкенд сделал SEO-инъекцию
-        handle_response {
-            @404 status 404
-            copy_response
-            # В Caddy 2 для полноценного прокси после 404 фронтенда 
-            # обычно используется rewrite + повторный proxy. 
-            # Но для стабильности в Docker-сетях Hetzner мы используем заголовок:
-        }
+    # 3. Принудительный роутинг HTML на бэкенд (для SEO инъекции)
+    # Все, что не является статическим файлом, отправляем на бэкенд
+    @html_pages {
+        not path /api/*
+        not path /uploads/*
+        not path *.js
+        not path *.css
+        not path *.png
+        not path *.jpg
+        not path *.jpeg
+        not path *.ico
+        not path *.svg
+        not path *.json
+        not path *.map
     }
-    
-    # Резервный обработчик для 404 (SPA и ботов)
-    handle_errors {
-        @404 {
-            expression {err.status_code} == 404
-        }
-        rewrite @404 {path}
-        reverse_proxy @404 backend:8000 {
-            header_up X-Forwarded-Proto {scheme}
-            header_up X-Forwarded-Host {host}
-        }
+    reverse_proxy @html_pages backend:8000 {
+        header_up X-Forwarded-Proto {scheme}
+        header_up X-Forwarded-Host {host}
     }
+
+    # 4. Остальное (статика) - на фронтенд
+    reverse_proxy * frontend:3000
 }
