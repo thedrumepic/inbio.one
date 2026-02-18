@@ -2136,8 +2136,8 @@ async def upload_image(
         with open(file_path, "wb") as f:
             f.write(contents)
             
-        # Return relative URL
-        return {"url": f"/uploads/{category}/{filename}"}
+        # Return relative URL with /api prefix for proper routing
+        return {"url": f"/api/uploads/{category}/{filename}"}
     except Exception as e:
         logger.error(f"Image processing error: {e}")
         raise HTTPException(status_code=400, detail="Не удалось обработать изображение")
