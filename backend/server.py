@@ -2754,10 +2754,14 @@ async def serve_user_page(request: Request, username: str):
             break
             
     if not index_path:
-        # Fallback to a simple 404 if no index.html template is found
-        if not page_data:
-             raise HTTPException(status_code=404, detail="Page not found")
-        return {"status": "Backend running, but index.html template missing for SEO injection"}
+        # If no index.html template is found, we cannot inject SEO tags.
+        # However, we shouldn't just 404 if it's the landing page.
+        logger.error(f"SEO Injection failed: index.html not found in {possible_index_paths}")
+        return Response(
+            content="<html><body><h1>System Error</h1><p>Frontend template (index.html) not found. Check Docker volumes.</p></body></html>",
+            status_code=500,
+            media_type="text/html"
+        )
 
     try:
         html_content = index_path.read_text(encoding='utf-8')

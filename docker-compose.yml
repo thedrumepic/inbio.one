@@ -38,6 +38,7 @@ services:
       - inbio-net
     volumes:
       - ./backend/uploads:/app/uploads
+      - frontend_build:/app/frontend/build:ro
 
   frontend:
     build:
@@ -46,6 +47,8 @@ services:
         - REACT_APP_GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
     container_name: inbio-frontend
     restart: always
+    volumes:
+      - frontend_build:/app/build
     networks:
       - inbio-net
 
@@ -60,6 +63,7 @@ services:
       - ./Caddyfile:/etc/caddy/Caddyfile
       - caddy_data:/data
       - caddy_config:/config
+      - frontend_build:/var/www/html:ro
     depends_on:
       - frontend
       - backend
@@ -74,3 +78,4 @@ volumes:
   mongodb_data:
   caddy_data:
   caddy_config:
+  frontend_build:
