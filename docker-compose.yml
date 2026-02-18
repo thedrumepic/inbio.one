@@ -1,17 +1,42 @@
 version: '3.8'
 
 services:
+  mongodb:
+    image: mongo:6.0
+    container_name: inbio-db
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+    volumes:
+      - mongodb_data:/data/db
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+    networks:
+      - inbio-net
+
   backend:
     build: ./backend
-    container_name: inbio_backend
-    restart: unless-stopped
+    container_name: inbio-backend
+    restart: always
     environment:
+      - MONGO_URL=mongodb://${MONGO_USER}:${MONGO_PASSWORD}@mongodb:27017/inbio?authSource=admin
+      - USE_MOCK_DB=false
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - SUPPORT_BOT_TOKEN=${SUPPORT_BOT_TOKEN}
+      - SUPPORT_OPERATOR_ID=${SUPPORT_OPERATOR_ID}
+      - RESEND_API_KEY=${RESEND_API_KEY}
       - OWNER_EMAIL=${OWNER_EMAIL}
-      - DB_FILE_PATH=/app/data/local_db.json
-      # Add other env vars if needed, e.g. JWT_SECRET_KEY
+    depends_on:
+      - mongodb
+    networks:
+      - inbio-net
     volumes:
-      - ./data:/app/data
       - ./backend/uploads:/app/uploads
 
   frontend:
@@ -19,14 +44,15 @@ services:
       context: ./frontend
       args:
         - REACT_APP_GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
-    container_name: inbio_frontend
-    restart: unless-stopped
-    # Nginx inside serves on port 80
+    container_name: inbio-frontend
+    restart: always
+    networks:
+      - inbio-net
 
   caddy:
     image: caddy:2-alpine
-    container_name: inbio_caddy
-    restart: unless-stopped
+    container_name: inbio-caddy
+    restart: always
     ports:
       - "80:80"
       - "443:443"
@@ -35,9 +61,16 @@ services:
       - caddy_data:/data
       - caddy_config:/config
     depends_on:
-      - backend
       - frontend
+      - backend
+    networks:
+      - inbio-net
+
+networks:
+  inbio-net:
+    driver: bridge
 
 volumes:
+  mongodb_data:
   caddy_data:
   caddy_config:

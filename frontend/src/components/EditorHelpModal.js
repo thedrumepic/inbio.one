@@ -411,7 +411,7 @@ const EditorHelpModal = ({ onClose }) => {
                             <p className="text-[12px] text-muted-foreground">Напишите нашему боту поддержки в Telegram</p>
                         </div>
                         <a
-                            href="https://t.me/inbio_support_bot"
+                            href="https://t.me/inbiosup_bot"
                             target="_blank"
                             rel="noopener noreferrer"
                             className="w-full sm:w-auto px-6 py-2 bg-[#229ED9] text-white rounded-lg font-bold hover:opacity-90 transition-all text-xs flex items-center justify-center gap-2"

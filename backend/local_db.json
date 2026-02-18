@@ -8,7 +8,7 @@
         "created_at": "2026-02-11T03:22:41.945129+00:00",
         "google_auth": true,
         "role": "owner",
-        "username": "future",
+        "username": "felt1",
         "is_verified": true,
         "verificationStatus": "approved",
         "leads": [
@@ -38,14 +38,17 @@
             "status": "completed",
             "created_at": "2026-02-13T04:57:58.042078+00:00"
           }
-        ]
+        ],
+        "telegram_chat_id": "548890042"
       },
       {
-        "id": "a9609ae5-a4f9-40c6-bcf1-09a4a168e696",
-        "email": "x@gmail.com",
-        "password": "$2b$12$HWNVhytycGdL4nuPLGF6huW5/BD.O9KmpeQ9AkO/tNNR73Z.ds1CW",
-        "created_at": "2026-02-12T20:12:16.137950+00:00",
-        "role": "user"
+        "id": "44ce920d-d321-45f7-93d2-44162ec00ce0",
+        "email": "thedrumepic@mail.com",
+        "password": "$2b$12$5nYGLdUVBLivukFK4ocKf.TgTjTMEABj7S9aVzrbx5QvY7tv9iMaK",
+        "created_at": "2026-02-16T13:10:49.016360+00:00",
+        "role": "user",
+        "is_verified": false,
+        "verificationStatus": "cancelled"
       }
     ],
     "pages": [
@@ -55,20 +58,21 @@
         "username": "sadsoul",
         "name": "Sad Soul",
         "bio": "Multi-Platinum Producer",
-        "avatar": "/uploads/avatars/b6a9a2ba-abb5-4983-ba42-e56e0f59055b.jpg",
-        "cover": "/uploads/covers/d953d9e2-e694-47c6-a9d0-21a9e88471b7.jpg",
+        "avatar": "/uploads/avatars/75609488-a8e7-4b27-aa35-401bc5f37b2d.jpg",
+        "cover": "/uploads/covers/15b15dfa-80cb-4dcd-8b4c-bc17800cb44a.jpeg",
         "created_at": "2026-02-11T03:22:41.946126+00:00",
         "is_verified": true,
         "is_main_page": true,
         "is_brand": false,
         "brand_status": "rejected",
-        "theme": "dark",
+        "theme": "light",
         "seoSettings": {
           "title": "Sad Soul",
           "description": "Multi-Platinum Producer",
           "favicon": "/uploads/favs/b9ffde14-a67d-4b00-921f-a3acd608e7e2.png",
           "og_image": "/uploads/covers/b38a23a9-d7cf-4a3a-b48a-9342213e116c.jpg"
-        }
+        },
+        "cover_position": 29
       },
       {
         "id": "1ea29ef4-61b5-4a36-b0be-7997f1c3d0ad",
@@ -77,12 +81,27 @@
         "name": "FUTURE",
         "bio": "● Pluto ● Da Connect ● Future Hendrix ●",
         "avatar": "/uploads/avatars/02eec869-83f5-4e06-bf71-55915a569af2.webp",
-        "cover": "/uploads/covers/1a7c531e-58ac-4e96-9d95-d614ec299494.webp",
+        "cover": "/uploads/covers/b845e854-5c52-442d-8d6c-5bbf93aa351f.webp",
         "created_at": "2026-02-12T01:39:45.749512+00:00",
         "brand_status": "verified",
         "is_verified": true,
         "is_brand": true,
-        "theme": "dark"
+        "theme": "dark",
+        "cover_position": 37
+      },
+      {
+        "id": "f400761c-7fde-412e-b465-e1da9390bf40",
+        "user_id": "44ce920d-d321-45f7-93d2-44162ec00ce0",
+        "username": "felt1",
+        "name": "felt",
+        "bio": "",
+        "avatar": null,
+        "cover": null,
+        "created_at": "2026-02-16T13:10:49.025391+00:00",
+        "is_main_page": true,
+        "is_verified": false,
+        "is_brand": false,
+        "brand_status": "rejected"
       }
     ],
     "blocks": [
@@ -526,6 +545,100 @@
         },
         "order": 20,
         "created_at": "2026-02-12T15:26:01.039976+00:00"
+      },
+      {
+        "id": "1891bcf6-5778-471e-b456-d037ae50092c",
+        "page_id": "659ad117-509d-450d-b2c6-b585709675db",
+        "block_type": "contact_form",
+        "content": {
+          "fields": {
+            "name": true,
+            "email": true,
+            "phone": true,
+            "message": true,
+            "validatePhone": true,
+            "validateName": true
+          },
+          "button_text": "Отправить",
+          "title": "Свяжитесь со мной"
+        },
+        "order": 5,
+        "created_at": "2026-02-16T10:49:47.492118+00:00"
+      },
+      {
+        "id": "3e7c5712-f9e7-42dd-bd82-a81d8493457d",
+        "page_id": "659ad117-509d-450d-b2c6-b585709675db",
+        "block_type": "divider",
+        "content": {
+          "dividerType": "line",
+          "height": 16
+        },
+        "order": 4,
+        "created_at": "2026-02-16T14:19:05.191323+00:00"
+      },
+      {
+        "id": "8eb4ca39-bbd9-4fde-b8f8-e985667459ff",
+        "page_id": "659ad117-509d-450d-b2c6-b585709675db",
+        "block_type": "divider",
+        "content": {
+          "dividerType": "line",
+          "height": 16
+        },
+        "order": 6,
+        "created_at": "2026-02-16T14:19:29.237417+00:00"
+      },
+      {
+        "id": "0e97c2e9-9740-4225-ac8a-9352d6ae10fa",
+        "page_id": "659ad117-509d-450d-b2c6-b585709675db",
+        "block_type": "faq",
+        "content": {
+          "title": "ТОП 3 ВОПРОСОВ",
+          "hasHighlight": false,
+          "showNumbers": true,
+          "items": [
+            {
+              "question": "Сколько будет людей в потоке?",
+              "answer": "В первом потоке будет 14 человек."
+            },
+            {
+              "question": "Сколько будет длиться обучение?",
+              "answer": "23 дня."
+            },
+            {
+              "question": "Будет ли сертификат после выпуска?",
+              "answer": "Да. Мы выдадим официальный сертификат."
+            }
+          ]
+        },
+        "order": 7,
+        "created_at": "2026-02-16T14:20:48.189868+00:00"
+      },
+      {
+        "id": "681f7f8f-5420-4153-bee2-e0e2885b511e",
+        "page_id": "659ad117-509d-450d-b2c6-b585709675db",
+        "block_type": "social_icons",
+        "content": {
+          "links": [
+            {
+              "platform": "instagram",
+              "url": "https://in.com"
+            },
+            {
+              "platform": "telegram",
+              "url": "https://in.com"
+            },
+            {
+              "platform": "youtube",
+              "url": "https://in.com"
+            },
+            {
+              "platform": "tiktok",
+              "url": "https://in.com"
+            }
+          ]
+        },
+        "order": 8,
+        "created_at": "2026-02-16T14:21:52.206377+00:00"
       }
     ],
     "events": [],
@@ -8175,6 +8288,16 @@
         "status": "approved",
         "created_at": "2026-02-12T06:48:33.274767",
         "rejection_reason": null
+      },
+      {
+        "id": "a350e091-d098-47c8-b61d-cba0531deee0",
+        "user_id": "44ce920d-d321-45f7-93d2-44162ec00ce0",
+        "user_email": "thedrumepic@mail.com",
+        "page_username": "felt1",
+        "req_type": "personal",
+        "status": "cancelled",
+        "created_at": "2026-02-16T18:34:02.635714",
+        "rejection_reason": ""
       }
     ],
     "notifications": [
@@ -8188,52 +8311,20 @@
         "created_at": "2026-02-12T07:54:56.133559"
       },
       {
-        "id": "2f9d3608-84dd-4a38-a979-9a09cbafc1ca",
-        "user_id": "ebba868b-541c-4379-9dc3-f022c313efbf",
-        "type": "info",
-        "message": "Кто-то заполнил форму на странице FUTURE, проверьте в настройках.",
-        "read": true,
-        "created_at": "2026-02-12T15:12:35.662586+00:00"
+        "id": "c92f7724-204b-4a25-8814-ca1fa9cc12d2",
+        "user_id": "44ce920d-d321-45f7-93d2-44162ec00ce0",
+        "type": "verification",
+        "message": "Ваш аккаунт верифицирован администратором.",
+        "read": false,
+        "created_at": "2026-02-16T18:34:02.645687"
       },
       {
-        "id": "83c3d3b6-8568-4f3c-a61c-40a2ac44666b",
-        "user_id": "ebba868b-541c-4379-9dc3-f022c313efbf",
-        "type": "info",
-        "message": "Кто-то заполнил форму на странице Евгений Евгениев, проверьте в настройках.",
-        "read": true,
-        "created_at": "2026-02-12T16:30:28.056012+00:00"
-      },
-      {
-        "id": "1e9856e1-fb36-4bf7-9876-aebee8c9587f",
-        "user_id": "ebba868b-541c-4379-9dc3-f022c313efbf",
-        "type": "info",
-        "message": "Кто-то заполнил форму на странице Евгений Евгениев, проверьте в настройках.",
-        "read": true,
-        "created_at": "2026-02-12T16:33:13.182741+00:00"
-      },
-      {
-        "id": "af20ea1a-74b4-4070-adb6-40d91d63c921",
-        "user_id": "ebba868b-541c-4379-9dc3-f022c313efbf",
-        "type": "info",
-        "message": "Кто-то заполнил форму на странице FUTURE, проверьте в настройках.",
-        "read": true,
-        "created_at": "2026-02-12T16:35:24.654979+00:00"
-      },
-      {
-        "id": "6ede5ba8-8d58-4c65-9f9e-87cd22739639",
-        "user_id": "ebba868b-541c-4379-9dc3-f022c313efbf",
-        "type": "info",
-        "message": "Кто-то заполнил форму на странице Евгений Евгениев, проверьте в настройках.",
-        "read": true,
-        "created_at": "2026-02-12T16:58:57.778816+00:00"
-      },
-      {
-        "id": "7d6ab166-b9bf-43fd-9106-03dece4bbe4c",
-        "user_id": "ebba868b-541c-4379-9dc3-f022c313efbf",
-        "type": "info",
-        "message": "Кто-то заполнил форму на странице Sad Soul, проверьте в настройках.",
-        "read": true,
-        "created_at": "2026-02-13T04:57:58.060557+00:00"
+        "id": "90393a0b-dc46-47aa-b5ef-bd2af7808813",
+        "user_id": "44ce920d-d321-45f7-93d2-44162ec00ce0",
+        "type": "verification",
+        "message": "Ваша верификация была отозвана.",
+        "read": false,
+        "created_at": "2026-02-16T18:34:22.393095"
       }
     ],
     "notification_campaigns": [
@@ -8248,8 +8339,273 @@
         "created_at": "2026-02-12T07:54:56.133559",
         "total_recipients": 2,
         "read_count": 0
+      },
+      {
+        "id": "e13d69f8-279e-47bc-a976-2b235282d056",
+        "message": "Тест",
+        "target_type": "single",
+        "recipient_ids": [
+          "ebba868b-541c-4379-9dc3-f022c313efbf"
+        ],
+        "created_at": "2026-02-16T16:37:08.205555",
+        "total_recipients": 1,
+        "read_count": 0
       }
     ],
-    "password_resets": []
+    "password_resets": [
+      {
+        "id": "8ed4289a-2d0f-4b90-997f-6eda9ab4eba2",
+        "user_id": "ebba868b-541c-4379-9dc3-f022c313efbf",
+        "email": "thedrumepic@gmail.com",
+        "token": "e4725d12-551a-45bc-be50-bd938332d006",
+        "expires_at": "2026-02-16T16:46:37.853666+00:00",
+        "created_at": "2026-02-16T15:46:37.853666+00:00"
+      }
+    ],
+    "reserved_usernames": [
+      {
+        "username": "support",
+        "comment": "",
+        "created_at": "2026-02-16T12:48:01.454664+00:00"
+      },
+      {
+        "username": "admin",
+        "comment": "",
+        "created_at": "2026-02-16T12:52:38.093351+00:00"
+      },
+      {
+        "username": "music",
+        "comment": "",
+        "created_at": "2026-02-16T12:59:32.775829+00:00"
+      },
+      {
+        "username": "link",
+        "comment": "",
+        "created_at": "2026-02-16T12:59:34.805905+00:00"
+      },
+      {
+        "username": "links",
+        "comment": "",
+        "created_at": "2026-02-16T12:59:36.303699+00:00"
+      },
+      {
+        "username": "nike",
+        "comment": "",
+        "created_at": "2026-02-16T13:00:06.855301+00:00"
+      },
+      {
+        "username": "adidas",
+        "comment": "",
+        "created_at": "2026-02-16T13:00:09.134389+00:00"
+      },
+      {
+        "username": "sexy",
+        "comment": "",
+        "created_at": "2026-02-16T13:05:53.581284+00:00"
+      },
+      {
+        "username": "sadsoulpro",
+        "comment": "",
+        "created_at": "2026-02-16T13:06:04.279382+00:00"
+      },
+      {
+        "username": "chanel",
+        "comment": "",
+        "created_at": "2026-02-16T13:06:23.447673+00:00"
+      },
+      {
+        "username": "product",
+        "comment": "",
+        "created_at": "2026-02-16T13:06:29.166817+00:00"
+      },
+      {
+        "username": "magazine",
+        "comment": "",
+        "created_at": "2026-02-16T13:06:36.999121+00:00"
+      },
+      {
+        "username": "logo",
+        "comment": "",
+        "created_at": "2026-02-16T13:06:42.927781+00:00"
+      },
+      {
+        "username": "clip",
+        "comment": "",
+        "created_at": "2026-02-16T13:06:51.102768+00:00"
+      },
+      {
+        "username": "flip",
+        "comment": "",
+        "created_at": "2026-02-16T13:06:55.486942+00:00"
+      },
+      {
+        "username": "ozon",
+        "comment": "",
+        "created_at": "2026-02-16T13:07:03.998654+00:00"
+      },
+      {
+        "username": "wildberries",
+        "comment": "",
+        "created_at": "2026-02-16T13:07:14.502784+00:00"
+      },
+      {
+        "username": "film",
+        "comment": "",
+        "created_at": "2026-02-16T13:09:11.328573+00:00"
+      },
+      {
+        "username": "filmmaker",
+        "comment": "",
+        "created_at": "2026-02-16T13:09:15.255277+00:00"
+      },
+      {
+        "username": "clipmaker",
+        "comment": "",
+        "created_at": "2026-02-16T13:09:23.167377+00:00"
+      },
+      {
+        "username": "clean",
+        "comment": "",
+        "created_at": "2026-02-16T13:09:30.153129+00:00"
+      },
+      {
+        "username": "service",
+        "comment": "",
+        "created_at": "2026-02-16T13:09:32.550777+00:00"
+      },
+      {
+        "username": "audio",
+        "comment": "",
+        "created_at": "2026-02-16T13:09:38.966999+00:00"
+      },
+      {
+        "username": "muslink",
+        "comment": "",
+        "created_at": "2026-02-16T13:09:44.527823+00:00"
+      }
+    ],
+    "support_qa": [
+      {
+        "id": "edb45b7f-bab5-48ac-b69f-c08e454e3e81",
+        "category": "profile",
+        "question": "Как изменить аватар?",
+        "answer": "Нажмите на круглую иконку с камерой или плюсом в верхней части редактора, чтобы загрузить новое фото профиля.",
+        "keywords": [
+          "аватар",
+          "фото",
+          "профиль",
+          "сменить"
+        ],
+        "created_at": "2026-02-16T15:17:49.197757+00:00"
+      },
+      {
+        "id": "7236117a-82ff-49bb-ab4f-3d03aa602ab1",
+        "category": "profile",
+        "question": "Как сменить фон или обложку?",
+        "answer": "Нажмите на верхнюю область (баннер) в редакторе. Вы сможете загрузить любое изображение в качестве фона вашей страницы.",
+        "keywords": [
+          "фон",
+          "обложка",
+          "баннер",
+          "картинка"
+        ],
+        "created_at": "2026-02-16T15:17:49.197757+00:00"
+      },
+      {
+        "id": "a564c624-9bd7-4c6a-a836-020e49b11382",
+        "category": "profile",
+        "question": "Как получить галочку верификации?",
+        "answer": "Статус верифицированного профиля или бренда можно получить в настройках вашего Dashboard (главная панель управления).",
+        "keywords": [
+          "галочка",
+          "верификация",
+          "подтвердить",
+          "статус"
+        ],
+        "created_at": "2026-02-16T15:17:49.197757+00:00"
+      },
+      {
+        "id": "4d3b58de-85d4-4b3b-ab96-b649b13f0c4f",
+        "category": "blocks",
+        "question": "Какие типы блоков доступны?",
+        "answer": "Вам доступно более 20 типов контента: Текст, Музыка, FAQ, Галерея, Соцсети, YouTube, Spotify, Витрина, Донаты и многие другие.",
+        "keywords": [
+          "блоки",
+          "типы",
+          "контент",
+          "что можно добавить"
+        ],
+        "created_at": "2026-02-16T15:17:49.197757+00:00"
+      },
+      {
+        "id": "d0da52ba-624b-4389-a4d4-4a59b1f3633c",
+        "category": "blocks",
+        "question": "Как добавить музыку?",
+        "answer": "Выберите блок 'Музыка' и вставьте ссылку на платформу или UPC/ISRC код. Доступно 6 стильных пресетов оформления.",
+        "keywords": [
+          "музыка",
+          "плеер",
+          "трек",
+          "песня",
+          "apple",
+          "spotify"
+        ],
+        "created_at": "2026-02-16T15:17:49.197757+00:00"
+      },
+      {
+        "id": "0849817a-0828-40ed-b6e1-86339671788f",
+        "category": "blocks",
+        "question": "Как создать свой магазин (Витрину)?",
+        "answer": "Используйте блок 'Витрина'. Вы сможете выставить товары с ценами, а заявки от покупателей будут приходить прямо в ваш Dashboard.",
+        "keywords": [
+          "магазин",
+          "витрина",
+          "продать",
+          "товар",
+          "деньги"
+        ],
+        "created_at": "2026-02-16T15:17:49.197757+00:00"
+      },
+      {
+        "id": "70a4373a-2007-42d8-92ae-889b1d77fba6",
+        "category": "sort",
+        "question": "Как менять блоки местами?",
+        "answer": "Зажмите иконку 'шести точек' слева от названия блока и просто перетащите его вверх или вниз. Также можно использовать стрелки в меню блока.",
+        "keywords": [
+          "порядок",
+          "двигать",
+          "сортировка",
+          "переместить",
+          "местами"
+        ],
+        "created_at": "2026-02-16T15:17:49.197757+00:00"
+      },
+      {
+        "id": "0504931e-6230-4592-b874-92567f2e7675",
+        "category": "sort",
+        "question": "Нужно ли нажимать кнопку Сохранить?",
+        "answer": "Основные изменения (текст профиля, порядок блоков) сохраняются АВТОМАТИЧЕСКИ. Кнопка 'Сохранить' нужна только внутри настроек конкретных блоков.",
+        "keywords": [
+          "сохранить",
+          "автосохранение",
+          "публикация"
+        ],
+        "created_at": "2026-02-16T15:17:49.197757+00:00"
+      },
+      {
+        "id": "592d5350-06e3-4cb5-a1c8-f1480c045fd4",
+        "category": "sort",
+        "question": "Как увидеть свою страницу в интернете?",
+        "answer": "Нажмите кнопку 'Перейти' в правом верхнем углу редактора. Ваша страница откроется в новой вкладке именно так, как её видят посетители.",
+        "keywords": [
+          "посмотреть",
+          "сайт",
+          "ссылка",
+          "просмотр",
+          "публикация"
+        ],
+        "created_at": "2026-02-16T15:17:49.197757+00:00"
+      }
+    ]
   }
 }

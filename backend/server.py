@@ -179,10 +179,10 @@ dp = Dispatcher() if BOT_TOKEN else None
 linking_codes = {} # temporary map: code -> user_id
 
 # Support Bot Setup
-SUPPORT_BOT_TOKEN = "8306053064:AAGQo6dyGZDqHFMlkfdCMPjeWqQGm_igPPg"
-SUPPORT_OPERATOR_ID = "548890042" # ID @sadsoulpro
-support_bot = Bot(token=SUPPORT_BOT_TOKEN)
-support_dp = Dispatcher()
+SUPPORT_BOT_TOKEN = os.getenv("SUPPORT_BOT_TOKEN", "8306053064:AAGQo6dyGZDqHFMlkfdCMPjeWqQGm_igPPg")
+SUPPORT_OPERATOR_ID = os.getenv("SUPPORT_OPERATOR_ID", "548890042") # ID @sadsoulpro
+support_bot = Bot(token=SUPPORT_BOT_TOKEN) if SUPPORT_BOT_TOKEN else None
+support_dp = Dispatcher() if SUPPORT_BOT_TOKEN else None
 support_admins = [] # Cache for support admins if needed (or just use db)
 
 # {operator_msg_id: user_chat_id}
@@ -787,6 +787,7 @@ from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
 
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
+GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
 
 class GoogleAuthRequest(BaseModel):
     token: str
@@ -1266,7 +1267,7 @@ async def get_telegram_link(current_user: dict = Depends(get_current_user)):
         linking_codes.pop(code, None)
     asyncio.create_task(expire_code())
     
-    bot_username = (await bot.get_me()).username if bot else "InbioBot"
+    bot_username = (await bot.get_me()).username if bot else "inbioone_bot"
     link = f"https://t.me/{bot_username}?start={code}"
     return {"link": link, "code": code}
 
@@ -2724,6 +2725,87 @@ async def health_check():
     return {"status": "ok", "db": "mock" if USE_MOCK_DB else "mongo"}
 
 app.include_router(api_router)
+
+# ===== SEO & SPA Routing =====
+
+@app.get("/{username}")
+async def serve_user_page(request: Request, username: str):
+    # Skip if it's an API route or static file
+    if username.startswith("api") or "." in username:
+        return Response(status_code=404)
+        
+    page_data = await get_full_page_data_internal(username.lower())
+    
+    # Try to find index.html in likely locations
+    possible_index_paths = [
+        ROOT_DIR.parent / "frontend" / "build" / "index.html",     # Prod
+        ROOT_DIR.parent / "frontend" / "public" / "index.html",    # Dev
+        Path("/usr/share/nginx/html/index.html")                    # Inside Docker (if shared)
+    ]
+    
+    index_path = None
+    for p in possible_index_paths:
+        if p.exists():
+            index_path = p
+            break
+            
+    if not index_path:
+        # Fallback to a simple 404 if no index.html template is found
+        if not page_data:
+             raise HTTPException(status_code=404, detail="Page not found")
+        return {"status": "Backend running, but index.html template missing for SEO injection"}
+
+    try:
+        html_content = index_path.read_text(encoding='utf-8')
+        
+        # Default values
+        title = "InBio.one"
+        description = "1bio - Ссылка в био для любых целей"
+        favicon = "/uploads/logo/favicon.ico"
+        og_image = "/uploads/files/og-preview/default.jpg"
+        
+        if page_data:
+            page = page_data["page"]
+            seo = page.get("seoSettings") or {}
+            
+            title = seo.get("title") or page.get("name") or title
+            if title and not title.endswith("InBio.one"):
+                title = f"{title} | InBio.one"
+                
+            description = seo.get("description") or page.get("bio") or description
+            
+            if seo.get("favicon"):
+                favicon = seo.get("favicon")
+            elif page.get("avatar"):
+                favicon = page.get("avatar")
+                
+            if seo.get("og_image"):
+                og_image = seo.get("og_image")
+            elif page.get("cover"):
+                og_image = page.get("cover")
+            elif page.get("avatar"):
+                og_image = page.get("avatar")
+
+        # Cleanup paths
+        def build_url(path):
+            if not path: return ""
+            if path.startswith(("http://", "https://")): return path
+            # Assume it's an upload path
+            base = str(request.base_url).rstrip("/")
+            if not path.startswith("/"): path = "/" + path
+            return f"{base}{path}"
+
+        # Inject
+        html_content = html_content.replace("__SEO_TITLE__", title)
+        html_content = html_content.replace("__SEO_DESCRIPTION__", description)
+        html_content = html_content.replace("__SEO_FAVICON__", build_url(favicon))
+        html_content = html_content.replace("__SEO_OG_IMAGE__", build_url(og_image))
+        
+        return Response(content=html_content, media_type="text/html")
+        
+    except Exception as e:
+        logger.error(f"SEO Injection error: {e}")
+        return Response(status_code=500)
 
 # Mount static files
 app.mount("/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="uploads")
